@@ -6,13 +6,13 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.0.5</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.jlarger</groupId>
 	<artifactId>eventhub</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>eventhub</name>
-	<description>Backend do aplicativo Event Hub.</description>
+	<description>Sistema para eventos</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -63,7 +63,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -80,5 +79,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

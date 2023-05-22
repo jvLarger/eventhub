@@ -20,7 +20,7 @@ public class EventoInteresse {
 	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_evento", nullable=true)
+    @JoinColumn(name = "id_evento", nullable=false)
     private Evento evento;
 	
 	@ManyToOne(fetch = FetchType.LAZY)

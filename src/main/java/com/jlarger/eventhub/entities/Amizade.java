@@ -20,7 +20,7 @@ public class Amizade {
 	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", nullable=true)
+    @JoinColumn(name = "id_usuario", nullable=false)
     private Usuario usuario;
 	
 	@ManyToOne(fetch = FetchType.LAZY)

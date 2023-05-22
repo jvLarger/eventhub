@@ -20,11 +20,11 @@ public class PublicacaoArquivo {
 	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_publicacao", nullable=true)
+    @JoinColumn(name = "id_publicacao", nullable=false)
     private Publicacao publicacao;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_arquivo", nullable=true)
+    @JoinColumn(name = "id_arquivo", nullable=false)
     private Arquivo arquivo;
 	
 	public PublicacaoArquivo() {

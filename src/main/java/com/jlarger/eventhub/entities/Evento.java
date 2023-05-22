@@ -40,10 +40,6 @@ public class Evento {
     private LocalTime horaInicio;
 	
 	@Column(nullable=false)
-    @Temporal(TemporalType.TIME)
-    private LocalTime horaTermino;
-	
-	@Column(nullable=false)
 	private Double valor;
 	
     @Column(columnDefinition = "TEXT", nullable=false)
@@ -91,7 +87,6 @@ public class Evento {
 		this.nome = nome;
 		this.data = data;
 		this.horaInicio = horaInicio;
-		this.horaTermino = horaTermino;
 		this.valor = valor;
 		this.descricao = descricao;
 		this.cep = cep;
@@ -144,14 +139,6 @@ public class Evento {
 
 	public void setHoraInicio(LocalTime horaInicio) {
 		this.horaInicio = horaInicio;
-	}
-
-	public LocalTime getHoraTermino() {
-		return horaTermino;
-	}
-
-	public void setHoraTermino(LocalTime horaTermino) {
-		this.horaTermino = horaTermino;
 	}
 
 	public Double getValor() {
@@ -252,7 +239,7 @@ public class Evento {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(bairro, cep, cidade, complemento, data, descricao, estado, horaInicio, horaTermino, id,
+		return Objects.hash(bairro, cep, cidade, complemento, data, descricao, estado, horaInicio, id,
 				latitude, logradouro, longitude, nome, numero, restrito, usuario, valor);
 	}
 
@@ -269,7 +256,7 @@ public class Evento {
 				&& Objects.equals(cidade, other.cidade) && Objects.equals(complemento, other.complemento)
 				&& Objects.equals(data, other.data) && Objects.equals(descricao, other.descricao)
 				&& Objects.equals(estado, other.estado) && Objects.equals(horaInicio, other.horaInicio)
-				&& Objects.equals(horaTermino, other.horaTermino) && Objects.equals(id, other.id)
+				&& Objects.equals(id, other.id)
 				&& Objects.equals(latitude, other.latitude) && Objects.equals(logradouro, other.logradouro)
 				&& Objects.equals(longitude, other.longitude) && Objects.equals(nome, other.nome)
 				&& Objects.equals(numero, other.numero) && Objects.equals(restrito, other.restrito)

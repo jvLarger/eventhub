@@ -24,7 +24,7 @@ public class Faturamento {
 	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_evento", nullable=true)
+    @JoinColumn(name = "id_evento", nullable=false)
     private Evento evento;
 	
 	@Column(nullable=false)

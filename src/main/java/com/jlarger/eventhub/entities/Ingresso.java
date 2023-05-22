@@ -24,7 +24,7 @@ public class Ingresso {
 	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_evento", nullable=true)
+    @JoinColumn(name = "id_evento", nullable=false)
     private Evento evento;
 	
 	@Column(nullable=false, length = 60)
@@ -54,6 +54,10 @@ public class Ingresso {
 	
 	@Column(nullable=true, length = 255)
 	private String identificadorTransacaoPagamento;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario", nullable=false)
+    private Usuario usuario;
 	
 	public Ingresso() {
 	}

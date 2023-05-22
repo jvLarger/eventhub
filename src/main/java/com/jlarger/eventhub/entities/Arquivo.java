@@ -21,6 +21,7 @@ public class Arquivo {
 	private Long id;
 	
 	@Basic(fetch = FetchType.LAZY)
+	@Column(nullable = false)
     private byte[] arquivo;
 	
 	@Column(nullable = false, length = 255)

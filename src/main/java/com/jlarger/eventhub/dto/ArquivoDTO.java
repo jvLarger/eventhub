@@ -1,40 +1,34 @@
-package com.jlarger.eventhub.entities;
+package com.jlarger.eventhub.dto;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.jlarger.eventhub.entities.Arquivo;
 
-@Entity
-@Table(name = "arquivo")
-public class Arquivo {
+public class ArquivoDTO implements Serializable {
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private static final long serialVersionUID = 1L;
+	
 	private Long id;
-		
-	@Column(nullable = false, length = 255)
 	private String nome;
-	
-	@Column(nullable = false, length = 255)
 	private String caminhoAbsoluto;
-	
-	@Column(nullable = true, length = 255)
 	private String descricao;
 	
-	public Arquivo() {
+	public ArquivoDTO() {
 	}
 
-	public Arquivo(Long id, String caminhoAbsoluto, String nome, String descricao) {
-		super();
+	public ArquivoDTO(Long id, String nome, String caminhoAbsoluto, String descricao) {
 		this.id = id;
 		this.nome = nome;
-		this.descricao = descricao;
 		this.caminhoAbsoluto = caminhoAbsoluto;
+		this.descricao = descricao;
+	}
+	
+	public ArquivoDTO(Arquivo arquivo) {
+		this.id = arquivo.getId();
+		this.nome = arquivo.getNome();
+		this.caminhoAbsoluto = arquivo.getCaminhoAbsoluto();
+		this.descricao = arquivo.getDescricao();
 	}
 
 	public Long getId() {
@@ -45,14 +39,6 @@ public class Arquivo {
 		this.id = id;
 	}
 
-	public String getCaminhoAbsoluto() {
-		return caminhoAbsoluto;
-	}
-
-	public void setCaminhoAbsoluto(String caminhoAbsoluto) {
-		this.caminhoAbsoluto = caminhoAbsoluto;
-	}
-
 	public String getNome() {
 		return nome;
 	}
@@ -61,12 +47,24 @@ public class Arquivo {
 		this.nome = nome;
 	}
 
+	public String getCaminhoAbsoluto() {
+		return caminhoAbsoluto;
+	}
+
+	public void setCaminhoAbsoluto(String caminhoAbsoluto) {
+		this.caminhoAbsoluto = caminhoAbsoluto;
+	}
+
 	public String getDescricao() {
 		return descricao;
 	}
 
 	public void setDescricao(String descricao) {
 		this.descricao = descricao;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 	@Override
@@ -82,7 +80,7 @@ public class Arquivo {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Arquivo other = (Arquivo) obj;
+		ArquivoDTO other = (ArquivoDTO) obj;
 		return Objects.equals(caminhoAbsoluto, other.caminhoAbsoluto) && Objects.equals(descricao, other.descricao)
 				&& Objects.equals(id, other.id) && Objects.equals(nome, other.nome);
 	}

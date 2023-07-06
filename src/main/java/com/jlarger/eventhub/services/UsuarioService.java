@@ -141,5 +141,12 @@ public class UsuarioService {
 		
 		return usuarioAutenticadoDTO;
 	}
+
+	public Boolean isTokenValido(UsuarioAutenticadoDTO dto) {
+		
+		Boolean isTokenValido = jwtUtils.validateJwtToken(dto.getToken());
+		
+		return isTokenValido;
+	}
 	
 }

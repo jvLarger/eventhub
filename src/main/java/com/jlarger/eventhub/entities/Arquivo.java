@@ -21,7 +21,7 @@ public class Arquivo {
 	private String nome;
 	
 	@Column(nullable = false, length = 255)
-	private String caminhoAbsoluto;
+	private String nomeAbsoluto;
 	
 	@Column(nullable = true, length = 255)
 	private String descricao;
@@ -29,12 +29,12 @@ public class Arquivo {
 	public Arquivo() {
 	}
 
-	public Arquivo(Long id, String caminhoAbsoluto, String nome, String descricao) {
+	public Arquivo(Long id, String nomeAbsoluto, String nome, String descricao) {
 		super();
 		this.id = id;
 		this.nome = nome;
 		this.descricao = descricao;
-		this.caminhoAbsoluto = caminhoAbsoluto;
+		this.nomeAbsoluto = nomeAbsoluto;
 	}
 
 	public Long getId() {
@@ -45,12 +45,12 @@ public class Arquivo {
 		this.id = id;
 	}
 
-	public String getCaminhoAbsoluto() {
-		return caminhoAbsoluto;
+	public String getNomeAbsoluto() {
+		return nomeAbsoluto;
 	}
 
-	public void setCaminhoAbsoluto(String caminhoAbsoluto) {
-		this.caminhoAbsoluto = caminhoAbsoluto;
+	public void setNomeAbsoluto(String nomeAbsoluto) {
+		this.nomeAbsoluto = nomeAbsoluto;
 	}
 
 	public String getNome() {
@@ -71,7 +71,7 @@ public class Arquivo {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(caminhoAbsoluto, descricao, id, nome);
+		return Objects.hash(descricao, id, nome, nomeAbsoluto);
 	}
 
 	@Override
@@ -83,8 +83,8 @@ public class Arquivo {
 		if (getClass() != obj.getClass())
 			return false;
 		Arquivo other = (Arquivo) obj;
-		return Objects.equals(caminhoAbsoluto, other.caminhoAbsoluto) && Objects.equals(descricao, other.descricao)
-				&& Objects.equals(id, other.id) && Objects.equals(nome, other.nome);
+		return Objects.equals(descricao, other.descricao) && Objects.equals(id, other.id)
+				&& Objects.equals(nome, other.nome) && Objects.equals(nomeAbsoluto, other.nomeAbsoluto);
 	}
 	
 }

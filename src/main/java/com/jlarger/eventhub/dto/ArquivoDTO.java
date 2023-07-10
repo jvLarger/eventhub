@@ -11,23 +11,23 @@ public class ArquivoDTO implements Serializable {
 	
 	private Long id;
 	private String nome;
-	private String caminhoAbsoluto;
+	private String nomeAbsoluto;
 	private String descricao;
 	
 	public ArquivoDTO() {
 	}
 
-	public ArquivoDTO(Long id, String nome, String caminhoAbsoluto, String descricao) {
+	public ArquivoDTO(Long id, String nome, String nomeAbsoluto, String descricao) {
 		this.id = id;
 		this.nome = nome;
-		this.caminhoAbsoluto = caminhoAbsoluto;
+		this.nomeAbsoluto = nomeAbsoluto;
 		this.descricao = descricao;
 	}
 	
 	public ArquivoDTO(Arquivo arquivo) {
 		this.id = arquivo.getId();
 		this.nome = arquivo.getNome();
-		this.caminhoAbsoluto = arquivo.getCaminhoAbsoluto();
+		this.nomeAbsoluto = arquivo.getNomeAbsoluto();
 		this.descricao = arquivo.getDescricao();
 	}
 
@@ -47,12 +47,12 @@ public class ArquivoDTO implements Serializable {
 		this.nome = nome;
 	}
 
-	public String getCaminhoAbsoluto() {
-		return caminhoAbsoluto;
+	public String getNomeAbsoluto() {
+		return nomeAbsoluto;
 	}
 
-	public void setCaminhoAbsoluto(String caminhoAbsoluto) {
-		this.caminhoAbsoluto = caminhoAbsoluto;
+	public void setNomeAbsoluto(String nomeAbsoluto) {
+		this.nomeAbsoluto = nomeAbsoluto;
 	}
 
 	public String getDescricao() {
@@ -69,7 +69,7 @@ public class ArquivoDTO implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(caminhoAbsoluto, descricao, id, nome);
+		return Objects.hash(descricao, id, nome, nomeAbsoluto);
 	}
 
 	@Override
@@ -81,8 +81,8 @@ public class ArquivoDTO implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		ArquivoDTO other = (ArquivoDTO) obj;
-		return Objects.equals(caminhoAbsoluto, other.caminhoAbsoluto) && Objects.equals(descricao, other.descricao)
-				&& Objects.equals(id, other.id) && Objects.equals(nome, other.nome);
+		return Objects.equals(descricao, other.descricao) && Objects.equals(id, other.id)
+				&& Objects.equals(nome, other.nome) && Objects.equals(nomeAbsoluto, other.nomeAbsoluto);
 	}
-	
+
 }

@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jlarger.eventhub.dto.ArquivoDTO;
 import com.jlarger.eventhub.dto.UsuarioAutenticadoDTO;
 import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.entities.Usuario;
@@ -138,6 +139,10 @@ public class UsuarioService {
 		usuarioAutenticadoDTO.setNomeUsuario(entity.getNomeUsuario());
 		usuarioAutenticadoDTO.setNomeCompleto(entity.getNomeCompleto());
 		usuarioAutenticadoDTO.setToken(jwt);
+		
+		if (entity.getFoto() != null) {
+			usuarioAutenticadoDTO.setFoto(new ArquivoDTO(entity.getFoto()));
+		}
 		
 		return usuarioAutenticadoDTO;
 	}

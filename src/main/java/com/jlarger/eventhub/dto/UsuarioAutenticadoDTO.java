@@ -11,6 +11,7 @@ public class UsuarioAutenticadoDTO implements Serializable {
 	private String nomeUsuario;
 	private String nomeCompleto;
 	private String token;
+	private ArquivoDTO foto;
 	
 	public UsuarioAutenticadoDTO() {
 	}
@@ -22,6 +23,16 @@ public class UsuarioAutenticadoDTO implements Serializable {
 		this.nomeUsuario = nomeUsuario;
 		this.nomeCompleto = nomeCompleto;
 		this.token = token;
+	}
+	
+	public UsuarioAutenticadoDTO(Long id, String email, String nomeUsuario, String nomeCompleto, String token, ArquivoDTO foto) {
+		super();
+		this.id = id;
+		this.email = email;
+		this.nomeUsuario = nomeUsuario;
+		this.nomeCompleto = nomeCompleto;
+		this.token = token;
+		this.foto = foto;
 	}
 
 	public Long getId() {
@@ -64,8 +75,12 @@ public class UsuarioAutenticadoDTO implements Serializable {
 		this.token = token;
 	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
+	public ArquivoDTO getFoto() {
+		return foto;
 	}
-	
+
+	public void setFoto(ArquivoDTO foto) {
+		this.foto = foto;
+	}
+
 }

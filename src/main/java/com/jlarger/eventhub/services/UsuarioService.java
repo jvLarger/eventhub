@@ -1,5 +1,7 @@
 package com.jlarger.eventhub.services;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +18,7 @@ import com.jlarger.eventhub.entities.Usuario;
 import com.jlarger.eventhub.repositories.UsuarioRepository;
 import com.jlarger.eventhub.security.jwt.JwtUtils;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
+import com.jlarger.eventhub.utils.ServiceLocator;
 import com.jlarger.eventhub.utils.Util;
 
 @Service
@@ -125,14 +128,14 @@ public class UsuarioService {
 	@Transactional(readOnly = true)
 	public UsuarioAutenticadoDTO login(UsuarioDTO dto) {
 		
-		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getSenha()));
+		Usuario entity = repository.findByEmail(dto.getEmail()).orElseThrow(() -> new BusinessException("Email ou senha inválidos. Por favor, verifique!"));
+		
+		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(entity.getNomeUsuario(), dto.getSenha()));
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		
 		String jwt = jwtUtils.generateJwtToken(authentication);
-		
-		Usuario entity = repository.findByEmail(dto.getEmail()).orElseThrow(() -> new BusinessException("Email ou senha inválidos. Por favor, verifique!"));
-		
+				
 		UsuarioAutenticadoDTO usuarioAutenticadoDTO = new UsuarioAutenticadoDTO();
 		usuarioAutenticadoDTO.setId(entity.getId());
 		usuarioAutenticadoDTO.setEmail(entity.getEmail());
@@ -152,6 +155,16 @@ public class UsuarioService {
 		Boolean isTokenValido = jwtUtils.validateJwtToken(dto.getToken());
 		
 		return isTokenValido;
+	}
+	
+	@Transactional(readOnly = true)
+	public UsuarioDTO getUsuarioLogado() {
+		
+		Optional<Usuario> obj = repository.findById(ServiceLocator.getUsuarioLogado().getId());
+		
+		Usuario entity = obj.orElseThrow(() -> new BusinessException("Entidade não encontrada"));
+		
+		return new UsuarioDTO(entity);
 	}
 	
 }

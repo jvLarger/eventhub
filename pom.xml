@@ -53,9 +53,19 @@
 			<artifactId>jaxb-impl</artifactId>
 		</dependency>
 		<dependency>
+		  <groupId>com.twilio.sdk</groupId>
+		  <artifactId>twilio</artifactId>
+		  <version>8.5.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>com.sendgrid</groupId>
+		    <artifactId>sendgrid-java</artifactId>
+		    <version>4.7.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>

@@ -36,6 +36,9 @@ public class UsuarioService {
 	@Autowired
 	private JwtUtils jwtUtils;
 	
+	@Autowired
+	private MailService mailService;
+
 	public UsuarioAutenticadoDTO novoUsuario(UsuarioDTO dto) {
 		
 		validarInformacoesNovoUsuario(dto);
@@ -151,6 +154,8 @@ public class UsuarioService {
 	}
 
 	public Boolean isTokenValido(UsuarioAutenticadoDTO dto) {
+		
+		mailService.enviarEmail("larger13@hotmail.com", "Event Hub - Recuperação de Senha", "O código para redefinir sua senha é 333333.");
 		
 		Boolean isTokenValido = jwtUtils.validateJwtToken(dto.getToken());
 		

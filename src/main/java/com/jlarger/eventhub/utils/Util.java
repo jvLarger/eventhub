@@ -41,5 +41,24 @@ public class Util {
         
         return matcher.matches();
 	}
-
+	
+	public static String leftPad(String input, int length, char padChar) {
+       
+		if (input.length() >= length) {
+            return input;
+        }
+        
+        StringBuilder padded = new StringBuilder();
+        
+        int paddingAmount = length - input.length();
+       
+        for (int i = 0; i < paddingAmount; i++) {
+            padded.append(padChar);
+        }
+        
+        padded.append(input);
+        
+        return padded.toString();
+    }
+	
 }

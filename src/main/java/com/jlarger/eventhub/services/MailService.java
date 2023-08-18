@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.sendgrid.Method;
 import com.sendgrid.Request;
+import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
@@ -39,7 +40,9 @@ public class MailService {
 
 			request.setBody(mail.build());
 
-			sendGrid.api(request);
+			Response api = sendGrid.api(request);
+			
+			System.out.println(api.getStatusCode());
 			
 		} catch (IOException e) {
 			e.printStackTrace();

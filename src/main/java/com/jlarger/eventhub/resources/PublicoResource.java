@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.jlarger.eventhub.dto.TokenDTO;
 import com.jlarger.eventhub.dto.UsuarioAutenticadoDTO;
 import com.jlarger.eventhub.dto.UsuarioDTO;
+import com.jlarger.eventhub.services.TokenService;
 import com.jlarger.eventhub.services.UsuarioService;
 
 
@@ -32,6 +34,9 @@ public class PublicoResource {
 	
 	@Autowired
 	private UsuarioService service;
+	
+	@Autowired
+	private TokenService tokenService;
 	
 	@Value("${imagens.diretorio}")
     private String diretorioImagens;
@@ -76,4 +81,21 @@ public class PublicoResource {
             return ResponseEntity.notFound().build();
         }
     }
+	
+	@PostMapping("/recuperar-senha")
+	public ResponseEntity<TokenDTO> enviarCodigoRecuperacao(@RequestBody TokenDTO tokenDTO) {
+		
+		TokenDTO token = tokenService.enviarCodigoRecuperacao(tokenDTO);
+		
+		return ResponseEntity.ok().body(token);
+	}
+	
+	@PostMapping("/validar-token/{codigo}/{email}")
+	public ResponseEntity<TokenDTO> validarCodigoRecuperacao(@PathVariable Integer codigo, @PathVariable String email) {
+		
+		TokenDTO token = tokenService.validarCodigoRecuperacao(codigo, email);
+		
+		return ResponseEntity.ok().body(token);
+	}
+	
 }

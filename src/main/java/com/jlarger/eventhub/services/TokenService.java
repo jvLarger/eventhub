@@ -6,7 +6,6 @@ import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import com.jlarger.eventhub.dto.TokenDTO;
 import com.jlarger.eventhub.entities.Token;
@@ -26,8 +25,11 @@ public class TokenService {
 	private TokenRepository tokenRepository;
 	
 	@Autowired
-	private MailService mailService;
+	private UsuarioService usuarioService;
 	
+	@Autowired
+	private MailService mailService;
+
 	public TokenDTO enviarCodigoRecuperacao(TokenDTO tokenDTO) {
 
 		validarEmailInformado(tokenDTO);
@@ -58,7 +60,7 @@ public class TokenService {
 
 	private String getBodyEmailRecuperacao(Usuario usuario, Token token) {
 		
-		String corpo = "Olá " + usuario.getNomeCompleto() + "!<br>Abaixo o código que deverá ser utilizado para redefinir a senha de sua conta: " + Util.leftPad(token.getCodigo().toString(), 4, '0');
+		String corpo = "Olá " + usuario.getNomeCompleto() + "! Abaixo o código que deverá ser utilizado para redefinir a senha de sua conta: " + Util.leftPad(token.getCodigo().toString(), 4, '0');
 		
 		return corpo;
 	}
@@ -112,6 +114,14 @@ public class TokenService {
 		if (email == null || email.trim().isEmpty()) {
 			throw new BusinessException("E-mail não informado. Por favor, verifique!");
 		}
+		
+	}
+
+	public void gerarNovaSenhaUsuario(TokenDTO tokenDTO) {
+		
+		validarCodigoRecuperacao(tokenDTO.getCodigo(), tokenDTO.getUsuario().getEmail());
+		
+		usuarioService.gerarNovaSenhaUsuario(tokenDTO.getUsuario());
 		
 	}
 

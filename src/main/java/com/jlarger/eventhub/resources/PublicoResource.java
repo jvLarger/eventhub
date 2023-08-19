@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,7 +34,7 @@ import com.jlarger.eventhub.services.UsuarioService;
 public class PublicoResource {
 	
 	@Autowired
-	private UsuarioService service;
+	private UsuarioService usuarioService;
 	
 	@Autowired
 	private TokenService tokenService;
@@ -44,7 +45,7 @@ public class PublicoResource {
 	@PostMapping("/login")
 	public ResponseEntity<UsuarioAutenticadoDTO> login(@RequestBody UsuarioDTO dto) {
 		
-		UsuarioAutenticadoDTO usuarioAutenticadoDTO = service.login(dto);
+		UsuarioAutenticadoDTO usuarioAutenticadoDTO = usuarioService.login(dto);
 		
 		return ResponseEntity.ok().body(usuarioAutenticadoDTO);
 	}
@@ -52,7 +53,7 @@ public class PublicoResource {
 	@PostMapping("/nova-conta")
 	public ResponseEntity<UsuarioAutenticadoDTO> novoUsuario(@RequestBody UsuarioDTO dto) {
 		
-		UsuarioAutenticadoDTO usuarioAutenticadoDTO = service.novoUsuario(dto);
+		UsuarioAutenticadoDTO usuarioAutenticadoDTO = usuarioService.novoUsuario(dto);
 
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
 				.buildAndExpand(dto.getId()).toUri();
@@ -63,7 +64,7 @@ public class PublicoResource {
 	@PostMapping("/token-valido")
 	public ResponseEntity<Boolean> isTokenValido(@RequestBody UsuarioAutenticadoDTO dto) {
 		
-		Boolean isTokenValido = service.isTokenValido(dto);
+		Boolean isTokenValido = usuarioService.isTokenValido(dto);
 		
 		return ResponseEntity.ok().body(isTokenValido);
 	}
@@ -90,7 +91,7 @@ public class PublicoResource {
 		return ResponseEntity.ok().body(token);
 	}
 	
-	@PostMapping("/validar-token/{codigo}/{email}")
+	@GetMapping("/validar-token/{codigo}/{email}")
 	public ResponseEntity<TokenDTO> validarCodigoRecuperacao(@PathVariable Integer codigo, @PathVariable String email) {
 		
 		TokenDTO token = tokenService.validarCodigoRecuperacao(codigo, email);
@@ -98,4 +99,11 @@ public class PublicoResource {
 		return ResponseEntity.ok().body(token);
 	}
 	
+	@PutMapping("/nova-senha")
+	public ResponseEntity<?> gerarNovaSenhaUsuario(@RequestBody TokenDTO tokenDTO) {
+		
+		tokenService.gerarNovaSenhaUsuario(tokenDTO);
+		
+		return ResponseEntity.noContent().build();
+	}
 }

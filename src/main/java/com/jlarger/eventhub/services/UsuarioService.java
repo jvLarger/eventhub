@@ -166,5 +166,22 @@ public class UsuarioService {
 		
 		return new UsuarioDTO(entity);
 	}
+
+	public void gerarNovaSenhaUsuario(UsuarioDTO usuarioDTO) {
+		
+		validarSenha(usuarioDTO.getSenha());
+		
+		Optional<Usuario> optionalUsuario = repository.findByEmail(usuarioDTO.getEmail());
+		
+		if (optionalUsuario.isEmpty()) {
+			throw new BusinessException("Não foi possível localizar o usuário. Por favor, verifique!");
+		}
+		
+		Usuario usuario = optionalUsuario.get();
+		usuario.setSenha(encoder.encode(usuarioDTO.getSenha()));
+		
+		repository.save(usuario);
+		
+	}
 	
 }

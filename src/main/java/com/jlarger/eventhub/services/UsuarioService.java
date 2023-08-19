@@ -158,15 +158,23 @@ public class UsuarioService {
 	}
 	
 	@Transactional(readOnly = true)
-	public UsuarioDTO getUsuarioLogado() {
+	public UsuarioDTO buscarUsuarioLogado() {
 		
-		Optional<Usuario> obj = repository.findById(ServiceLocator.getUsuarioLogado().getId());
+		Usuario usuarioLogado = getUsuarioLogado();
 		
-		Usuario entity = obj.orElseThrow(() -> new BusinessException("Entidade não encontrada"));
+		return new UsuarioDTO(usuarioLogado);
+	}
+	
+	public Usuario getUsuarioLogado() {
 		
-		return new UsuarioDTO(entity);
+		Optional<Usuario> optionalUsuario = repository.findById(ServiceLocator.getUsuarioLogado().getId());
+		
+		Usuario usuario = optionalUsuario.orElseThrow(() -> new BusinessException("Usuário logado não encontrado"));
+		
+		return usuario;
 	}
 
+	
 	public void gerarNovaSenhaUsuario(UsuarioDTO usuarioDTO) {
 		
 		validarSenha(usuarioDTO.getSenha());
@@ -181,6 +189,66 @@ public class UsuarioService {
 		usuario.setSenha(encoder.encode(usuarioDTO.getSenha()));
 		
 		repository.save(usuario);
+		
+	}
+	
+	@Transactional
+	public UsuarioDTO alterarInformacoesUsuario(UsuarioDTO dto) {
+		
+		validarInformacoesObrigatoriasAlteracaoInformadas(dto);
+		
+		validarTelefoneInformado(dto);
+		
+		validarDocumentoJaUtilizadoEmOutroCadastro(dto);
+		
+		Usuario usuario = getUsuarioLogado();
+		usuario.setNomeCompleto(dto.getNomeCompleto());
+		usuario.setDataComemorativa(dto.getDataComemorativa());
+		usuario.setDocumentoPrincipal(Util.getSomenteNumeros(dto.getDocumentoPrincipal()));
+		usuario.setTelefone(Util.getSomenteNumeros(dto.getTelefone()));
+		
+		repository.save(usuario);
+		
+		return new UsuarioDTO(usuario);
+	}
+
+	private void validarDocumentoJaUtilizadoEmOutroCadastro(UsuarioDTO dto) {
+		
+		if (dto.getDocumentoPrincipal() != null && !dto.getDocumentoPrincipal().trim().isEmpty()) {
+			
+			String documento = Util.getSomenteNumeros(dto.getDocumentoPrincipal());
+			
+			if (documento.length() != 11 && documento.length() != 14) {
+				throw new BusinessException("CPF deve possui 11 dígitos e CNPJ 14. Por favor, verifique!");
+			}
+			
+			Optional<Usuario> optionalUsarioComEsseDocumento = repository.findByDocumentoPrincipalDifferentUsuario(documento, ServiceLocator.getUsuarioLogado().getId());
+			
+			if (optionalUsarioComEsseDocumento.isPresent()) {
+				throw new BusinessException("Já existe um usuário cadastrado com esse documento. Por favor, verifique!");
+			}
+			
+		}
+		
+	}
+
+	private void validarTelefoneInformado(UsuarioDTO dto) {
+		
+		if (dto.getTelefone() != null && !dto.getTelefone().trim().isEmpty()) {
+			
+			if (Util.getSomenteNumeros(dto.getTelefone()).length() != 11) {
+				throw new BusinessException("O telefone e a área devem totalizar 11 dígitos. Por favor, verifique!");
+			}
+			
+		}
+		
+	}
+
+	private void validarInformacoesObrigatoriasAlteracaoInformadas(UsuarioDTO dto) {
+		
+		if (dto == null || dto.getNomeCompleto() == null) {
+			throw new BusinessException("Nome Completo não informado!");
+		}
 		
 	}
 	

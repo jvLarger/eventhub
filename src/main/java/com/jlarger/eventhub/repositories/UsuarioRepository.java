@@ -19,4 +19,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>{
 	
 	@Query("SELECT u FROM Usuario u WHERE u.email = :email AND u.senha = :senha")
     Optional<Usuario> findByEmailAndSenha(String email, String senha);
+	
+	@Query("SELECT u FROM Usuario u WHERE u.documentoPrincipal = :documentoPrincipal AND u.id <> :id")
+    Optional<Usuario> findByDocumentoPrincipalDifferentUsuario(String documentoPrincipal, Long id);
 }

@@ -61,4 +61,19 @@ public class Util {
         return padded.toString();
     }
 	
+	public static String getSomenteNumeros(String texto) {
+		
+		Pattern pattern = Pattern.compile("\\d+");
+		
+		Matcher matcher = pattern.matcher(texto);
+
+        StringBuilder numerosString = new StringBuilder();
+
+        while (matcher.find()) {
+            numerosString.append(matcher.group());
+        }
+        
+        return numerosString.toString();
+	}
+	
 }

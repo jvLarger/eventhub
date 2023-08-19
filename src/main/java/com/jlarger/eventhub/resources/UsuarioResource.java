@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jlarger.eventhub.dto.ArquivoDTO;
 import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.services.UsuarioService;
 
@@ -34,4 +35,12 @@ public class UsuarioResource {
 		return ResponseEntity.ok().body(usuarioDTO);
 	}
 	
+	
+	@PutMapping("/foto")
+	public ResponseEntity<UsuarioDTO> alterarFotoUsuario(@RequestBody ArquivoDTO dto) {
+	
+		UsuarioDTO usuarioDTO = service.alterarFotoUsuario(dto);
+		
+		return ResponseEntity.ok().body(usuarioDTO);
+	}
 }

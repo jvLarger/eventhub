@@ -14,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.jlarger.eventhub.dto.ArquivoDTO;
 import com.jlarger.eventhub.dto.UsuarioAutenticadoDTO;
 import com.jlarger.eventhub.dto.UsuarioDTO;
+import com.jlarger.eventhub.entities.Arquivo;
 import com.jlarger.eventhub.entities.Usuario;
+import com.jlarger.eventhub.repositories.ArquivoRepository;
 import com.jlarger.eventhub.repositories.UsuarioRepository;
 import com.jlarger.eventhub.security.jwt.JwtUtils;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
@@ -26,6 +28,9 @@ public class UsuarioService {
 	
 	@Autowired
 	private UsuarioRepository repository;
+	
+	@Autowired
+	private ArquivoRepository arquivoRepository;
 	
 	@Autowired
 	private PasswordEncoder encoder;
@@ -250,6 +255,32 @@ public class UsuarioService {
 			throw new BusinessException("Nome Completo não informado!");
 		}
 		
+	}
+
+	public UsuarioDTO alterarFotoUsuario(ArquivoDTO dto) {
+		
+		Usuario usuario = getUsuarioLogado();
+		
+		if (dto.getId() == null) {
+			usuario.setFoto(null);
+		} else {
+			usuario.setFoto(getArquivo(dto.getId()));
+		}
+				
+		repository.save(usuario);
+		
+		return new UsuarioDTO(usuario);
+	}
+
+	private Arquivo getArquivo(Long id) {
+		
+		Optional<Arquivo> optionalArquivo = arquivoRepository.findById(id);
+		
+		if (optionalArquivo.isEmpty()) {
+			throw new BusinessException("Arquivo não encontrado!");
+		}
+		
+		return optionalArquivo.get();
 	}
 	
 }

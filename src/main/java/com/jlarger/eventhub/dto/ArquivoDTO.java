@@ -13,11 +13,12 @@ public class ArquivoDTO implements Serializable {
 	private String nome;
 	private String nomeAbsoluto;
 	private String descricao;
-	
+	private String base64;
+
 	public ArquivoDTO() {
 	}
 
-	public ArquivoDTO(Long id, String nome, String nomeAbsoluto, String descricao) {
+	public ArquivoDTO(Long id, String nome, String nomeAbsoluto, String descricao, String base64) {
 		this.id = id;
 		this.nome = nome;
 		this.nomeAbsoluto = nomeAbsoluto;
@@ -65,6 +66,14 @@ public class ArquivoDTO implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+	
+	public String getBase64() {
+		return base64;
+	}
+
+	public void setBase64(String base64) {
+		this.base64 = base64;
 	}
 
 	@Override

@@ -106,4 +106,5 @@ public class PublicoResource {
 		
 		return ResponseEntity.noContent().build();
 	}
+	
 }

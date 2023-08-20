@@ -171,14 +171,17 @@ public class UsuarioService {
 	}
 	
 	public Usuario getUsuarioLogado() {
+		return getUsuario(ServiceLocator.getUsuarioLogado().getId());
+	}
+
+	public Usuario getUsuario(Long id) {
 		
-		Optional<Usuario> optionalUsuario = repository.findById(ServiceLocator.getUsuarioLogado().getId());
+		Optional<Usuario> optionalUsuario = repository.findById(id);
 		
-		Usuario usuario = optionalUsuario.orElseThrow(() -> new BusinessException("Usuário logado não encontrado"));
+		Usuario usuario = optionalUsuario.orElseThrow(() -> new BusinessException("Usuário não encontrado"));
 		
 		return usuario;
 	}
-
 	
 	public void gerarNovaSenhaUsuario(UsuarioDTO usuarioDTO) {
 		

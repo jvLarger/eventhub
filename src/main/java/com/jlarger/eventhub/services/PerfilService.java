@@ -95,8 +95,17 @@ public class PerfilService {
 			
 		}
 		
-
+		ordenarPublicacoes(listaPublicacaoDTO);
+		
 		return listaPublicacaoDTO;
+	}
+
+	private void ordenarPublicacoes(List<PublicacaoResumidaDTO> listaPublicacaoDTO) {
+		
+		java.util.Collections.sort(listaPublicacaoDTO, (o1, o2) -> {
+			return o1.getData().compareTo(o2.getData()) * -1;
+		});
+		
 	}
 
 	private HashMap<Long, PublicacaoArquivo> getMapaArquivoPrincipalPorPublicacao(List<Publicacao> listaPublicacao) {
@@ -148,8 +157,20 @@ public class PerfilService {
 	private List<UsuarioComentarioDTO> buscarComentariosPerfilUsuario(Long id) {
 
 		List<UsuarioComentario> listaComentarios = usuarioComentarioRepository.findAllByIdUsuaro(id);
+		
+		List<UsuarioComentarioDTO> listaComentariosDTO = listaComentarios.stream().map(x -> new UsuarioComentarioDTO(x)).collect(Collectors.toList());
+		
+		ordenarComentarios(listaComentariosDTO);
+		
+		return listaComentariosDTO;
+	}
 
-		return listaComentarios.stream().map(x -> new UsuarioComentarioDTO(x)).collect(Collectors.toList());
+	private void ordenarComentarios(List<UsuarioComentarioDTO> listaComentariosDTO) {
+		
+		java.util.Collections.sort(listaComentariosDTO, (o1, o2) -> {
+			return o1.getDataComentario().compareTo(o2.getDataComentario()) * -1;
+		});
+		
 	}
 
 	private Boolean getIsUsuarioLogadoAmigoDoUsuario(Long id) {

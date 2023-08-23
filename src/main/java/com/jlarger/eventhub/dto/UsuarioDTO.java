@@ -19,13 +19,14 @@ public class UsuarioDTO implements Serializable {
 	private String documentoPrincipal;
 	private String telefone;
 	private Date dataComemorativa;
+	private Boolean isAmigo;
 	private ArquivoDTO foto;
 
 	public UsuarioDTO() {
 		
 	}
 
-	public UsuarioDTO(Long id, String nomeUsuario, String email, String senha, String nomeCompleto, String documentoPrincipal, String telefone, Date dataComemorativa, Arquivo foto) {
+	public UsuarioDTO(Long id, String nomeUsuario, String email, String senha, String nomeCompleto, String documentoPrincipal, String telefone, Date dataComemorativa, Arquivo foto, Boolean isAmigo) {
 		this.id = id;
 		this.nomeUsuario = nomeUsuario;
 		this.email = email;
@@ -34,6 +35,7 @@ public class UsuarioDTO implements Serializable {
 		this.documentoPrincipal = documentoPrincipal;
 		this.telefone = telefone;
 		this.dataComemorativa = dataComemorativa;
+		this.isAmigo = isAmigo;
 		this.foto = new ArquivoDTO(foto);
 	}
 	
@@ -46,7 +48,6 @@ public class UsuarioDTO implements Serializable {
 		this.documentoPrincipal = usuario.getDocumentoPrincipal();
 		this.telefone = usuario.getTelefone();
 		this.dataComemorativa = usuario.getDataComemorativa();
-		
 		if (usuario.getFoto() != null) {
 			this.foto = new ArquivoDTO(usuario.getFoto());
 		}
@@ -123,6 +124,18 @@ public class UsuarioDTO implements Serializable {
 
 	public void setFoto(ArquivoDTO foto) {
 		this.foto = foto;
+	}
+	
+	public Boolean getIsAmigo() {
+		return isAmigo;
+	}
+
+	public void setIsAmigo(Boolean isAmigo) {
+		this.isAmigo = isAmigo;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 	@Override

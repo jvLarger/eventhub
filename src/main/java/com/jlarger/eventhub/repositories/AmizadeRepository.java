@@ -18,4 +18,7 @@ public interface AmizadeRepository extends JpaRepository<Amizade, Long> {
 	@Query("SELECT a FROM Amizade a WHERE ((a.usuario.id = :idUsuario1 AND a.amigo.id = :idUsuario2) OR (a.usuario.id = :idUsuario2 AND a.amigo.id = :idUsuario1))")
 	List<Amizade> findAmizadeEntreUsuarios(Long idUsuario1, Long idUsuario2);
 	
+	@Query("SELECT a FROM Amizade a WHERE (a.usuario.id = :idUsuario OR a.amigo.id = :idUsuario)")
+	List<Amizade> findAmizadeUsuario(Long idUsuario);
+	
 }

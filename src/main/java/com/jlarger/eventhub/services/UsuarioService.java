@@ -28,6 +28,7 @@ import com.jlarger.eventhub.repositories.ArquivoRepository;
 import com.jlarger.eventhub.repositories.UsuarioRepository;
 import com.jlarger.eventhub.security.jwt.JwtUtils;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
+import com.jlarger.eventhub.utils.CpfCnpjValidate;
 import com.jlarger.eventhub.utils.ServiceLocator;
 import com.jlarger.eventhub.utils.Util;
 
@@ -244,6 +245,14 @@ public class UsuarioService {
 
 			if (documento.length() != 11 && documento.length() != 14) {
 				throw new BusinessException("CPF deve possui 11 dígitos e CNPJ 14. Por favor, verifique!");
+			}
+			
+			if (documento.length() == 11 && !CpfCnpjValidate.isCpfValid(documento)) {
+				throw new BusinessException("CPF inválido. Por favor, verifique!");
+			}
+			
+			if (documento.length() == 14 && !CpfCnpjValidate.isCnpjValid(documento)) {
+				throw new BusinessException("CNPJ inválido. Por favor, verifique!");
 			}
 
 			Optional<Usuario> optionalUsarioComEsseDocumento = repository

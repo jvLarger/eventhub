@@ -2,7 +2,6 @@ package com.jlarger.eventhub.services;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +14,7 @@ import com.jlarger.eventhub.entities.type.TipoNotificacao;
 import com.jlarger.eventhub.repositories.AmizadeRepository;
 import com.jlarger.eventhub.repositories.NotificacaoRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
+import com.jlarger.eventhub.utils.ServiceLocator;
 
 @Service
 public class AmizadeService {
@@ -110,6 +110,10 @@ public class AmizadeService {
 	public void aceitarSolicitacaoAmizade(Long idNotificacao) {
 		
 		Notificacao notificacao = notificacaoService.getNotificacao(idNotificacao);
+		
+		if (notificacao.getUsuarioDestino().getId().compareTo(ServiceLocator.getUsuarioLogado().getId()) != 0) {
+			throw new BusinessException("Apenas o dono do convite pode aceitar.");
+		}
 		
 		notificacaoService.marcarComoLida(idNotificacao);
 		

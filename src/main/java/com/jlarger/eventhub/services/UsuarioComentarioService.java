@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jlarger.eventhub.dto.UsuarioComentarioDTO;
 import com.jlarger.eventhub.entities.Notificacao;
@@ -27,6 +28,7 @@ public class UsuarioComentarioService {
 	@Autowired
 	private NotificacaoService notificacaoService;
 	
+	@Transactional
 	public void enviarSolicitacaoComentario(Long id, UsuarioComentarioDTO dto) {
 		
 		validarComentarioInformado(dto);
@@ -63,7 +65,8 @@ public class UsuarioComentarioService {
 		
 		return notificacao;
 	}
-
+	
+	@Transactional
 	public void aceitarSolicitacaoComentario(Long idNotificacao) {
 		
 		Notificacao notificacao = notificacaoService.getNotificacao(idNotificacao);
@@ -82,7 +85,8 @@ public class UsuarioComentarioService {
 		
 		usuarioComentarioRepository.save(usuarioComentario);
 	}
-
+	
+	@Transactional
 	public void removerComentario(Long id) {
 		
 		UsuarioComentario usuarioComentario = getUsuarioComentario(id);

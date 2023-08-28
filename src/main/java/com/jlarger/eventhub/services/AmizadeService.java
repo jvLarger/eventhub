@@ -73,12 +73,19 @@ public class AmizadeService {
 
 	private void validarTentativaPendente(Usuario usuarioOrigem, Usuario usuarioDestino) {
 		
-		List<Notificacao> listaNotificacao = notificacaoRepository.buscarNotificacoesPendentesEntreUsuarios(usuarioOrigem.getId(), usuarioDestino.getId(), TipoNotificacao.SOLICITACAO_AMIZADE);
+		List<Notificacao> listaNotificacao = getTentativaPendente(usuarioOrigem, usuarioDestino);
 		
 		if (listaNotificacao != null && listaNotificacao.size() > 0) {
 			throw new BusinessException("Já existe uma solicitação de amizade pendente entre vocês. Por favor, aguarde a resposta.");
 		}
 		
+	}
+	
+	public List<Notificacao> getTentativaPendente(Usuario usuarioOrigem, Usuario usuarioDestino) {
+		
+		List<Notificacao> listaNotificacao = notificacaoRepository.buscarNotificacoesPendentesEntreUsuarios(usuarioOrigem.getId(), usuarioDestino.getId(), TipoNotificacao.SOLICITACAO_AMIZADE);
+		
+		return listaNotificacao;
 	}
 
 	private void validarSeJaSaoAmigos(Usuario usuarioOrigem, Usuario usuarioDestino) {

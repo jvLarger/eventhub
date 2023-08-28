@@ -21,12 +21,13 @@ public class UsuarioDTO implements Serializable {
 	private Date dataComemorativa;
 	private Boolean isAmigo;
 	private ArquivoDTO foto;
+	private Boolean isSolicitacaoAmizadePendente;
 
 	public UsuarioDTO() {
 		
 	}
 
-	public UsuarioDTO(Long id, String nomeUsuario, String email, String senha, String nomeCompleto, String documentoPrincipal, String telefone, Date dataComemorativa, Arquivo foto, Boolean isAmigo) {
+	public UsuarioDTO(Long id, String nomeUsuario, String email, String senha, String nomeCompleto, String documentoPrincipal, String telefone, Date dataComemorativa, Arquivo foto, Boolean isAmigo, Boolean isSolicitacaoAmizadePendente) {
 		this.id = id;
 		this.nomeUsuario = nomeUsuario;
 		this.email = email;
@@ -37,6 +38,7 @@ public class UsuarioDTO implements Serializable {
 		this.dataComemorativa = dataComemorativa;
 		this.isAmigo = isAmigo;
 		this.foto = new ArquivoDTO(foto);
+		this.isSolicitacaoAmizadePendente = isSolicitacaoAmizadePendente;
 	}
 	
 	public UsuarioDTO(Usuario usuario) {
@@ -136,6 +138,14 @@ public class UsuarioDTO implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+	
+	public Boolean getIsSolicitacaoAmizadePendente() {
+		return isSolicitacaoAmizadePendente;
+	}
+
+	public void setIsSolicitacaoAmizadePendente(Boolean isSolicitacaoAmizadePendente) {
+		this.isSolicitacaoAmizadePendente = isSolicitacaoAmizadePendente;
 	}
 
 	@Override

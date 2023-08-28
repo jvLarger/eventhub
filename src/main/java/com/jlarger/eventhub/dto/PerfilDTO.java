@@ -11,10 +11,11 @@ public class PerfilDTO implements Serializable {
 	private Integer numeroAmigos;
 	private Integer numeroEventos;
 	private Boolean isAmigo;
+	private Boolean isSolicitacaoAmizadePendente;
 	private List<PublicacaoResumidaDTO> publicacoes;
 	private List<UsuarioComentarioDTO> comentarios;
 	
-	public PerfilDTO(UsuarioDTO usuario, Integer numeroAmigos, Integer numeroEventos, Boolean isAmigo, List<PublicacaoResumidaDTO> publicacoes, List<UsuarioComentarioDTO> comentarios) {
+	public PerfilDTO(UsuarioDTO usuario, Integer numeroAmigos, Integer numeroEventos, Boolean isAmigo, List<PublicacaoResumidaDTO> publicacoes, List<UsuarioComentarioDTO> comentarios, Boolean isSolicitacaoAmizadePendente) {
 		super();
 		this.usuario = usuario;
 		this.numeroAmigos = numeroAmigos;
@@ -22,6 +23,7 @@ public class PerfilDTO implements Serializable {
 		this.isAmigo = isAmigo;
 		this.publicacoes = publicacoes;
 		this.comentarios = comentarios;
+		this.isSolicitacaoAmizadePendente = isSolicitacaoAmizadePendente;
 	}
 	
 	public PerfilDTO() {
@@ -65,5 +67,13 @@ public class PerfilDTO implements Serializable {
 	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public Boolean getIsSolicitacaoAmizadePendente() {
+		return isSolicitacaoAmizadePendente;
+	}
+
+	public void setIsSolicitacaoAmizadePendente(Boolean isSolicitacaoAmizadePendente) {
+		this.isSolicitacaoAmizadePendente = isSolicitacaoAmizadePendente;
 	}
 }

@@ -17,6 +17,7 @@ import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.entities.Amizade;
 import com.jlarger.eventhub.entities.Publicacao;
 import com.jlarger.eventhub.entities.PublicacaoArquivo;
+import com.jlarger.eventhub.entities.Usuario;
 import com.jlarger.eventhub.entities.UsuarioComentario;
 import com.jlarger.eventhub.repositories.AmizadeRepository;
 import com.jlarger.eventhub.repositories.IngressoRepository;
@@ -52,7 +53,10 @@ public class PerfilService {
 
 	@Autowired
 	private EntityManager entityManager;
-
+	
+	@Autowired
+	private AmizadeService amizadeService;
+	
 	@Transactional(readOnly = true)
 	public PerfilDTO buscarMeuPerfil() {
 		return buscarPerfil(ServiceLocator.getUsuarioLogado().getId());
@@ -60,11 +64,16 @@ public class PerfilService {
 
 	@Transactional(readOnly = true)
 	public PerfilDTO buscarPerfil(Long id) {
-
+		
+		Usuario usuarioOrigem = usuarioService.getUsuarioLogado();
+		
+		Usuario usuarioDestino = usuarioService.getUsuario(id);
+		
 		PerfilDTO perfilDTO = new PerfilDTO();
 		perfilDTO.setUsuario(new UsuarioDTO(usuarioService.getUsuario(id)));
 		perfilDTO.setNumeroAmigos(getNumeroAmigosDosUsuario(id));
 		perfilDTO.setNumeroEventos(getNumeroEventosParticipadosDosUsuario(id));
+		perfilDTO.setIsSolicitacaoAmizadePendente(amizadeService.getTentativaPendente(usuarioOrigem, usuarioDestino).size() > 0);
 		perfilDTO.setIsAmigo(getIsUsuarioLogadoAmigoDoUsuario(id));
 		perfilDTO.setPublicacoes(buscarPublicacoesUsuario(id));
 		perfilDTO.setComentarios(buscarComentariosPerfilUsuario(id));

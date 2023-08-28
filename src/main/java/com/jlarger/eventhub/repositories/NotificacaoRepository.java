@@ -18,5 +18,8 @@ public interface NotificacaoRepository extends JpaRepository<Notificacao, Long> 
 	
 	@Query("SELECT n FROM Notificacao n WHERE n.usuarioDestino.id = :idUsuaroDestino AND n.dataLeitura IS NULL ORDER BY n.dataNotificacao DESC")
 	List<Notificacao> buscarNotificacoesPendentes(Long idUsuaroDestino);
+	
+	@Query("SELECT n FROM Notificacao n WHERE ((n.usuarioOrigem.id = :idUsuaroLogado AND n.usuarioDestino.id IN (:listaIds)) OR (n.usuarioDestino.id = :idUsuaroLogado AND n.usuarioOrigem.id IN (:listaIds))) AND n.tipo = :tipo  AND n.dataLeitura IS NULL")
+	List<Notificacao> buscarNotificacoesPendentesEntreUsuariosEUsuarioLogado(Long idUsuaroLogado, List<Long> listaIds, TipoNotificacao tipo);
 
 }

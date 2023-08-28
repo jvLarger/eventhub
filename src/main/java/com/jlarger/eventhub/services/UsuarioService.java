@@ -22,9 +22,12 @@ import com.jlarger.eventhub.dto.UsuarioAutenticadoDTO;
 import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.entities.Amizade;
 import com.jlarger.eventhub.entities.Arquivo;
+import com.jlarger.eventhub.entities.Notificacao;
 import com.jlarger.eventhub.entities.Usuario;
+import com.jlarger.eventhub.entities.type.TipoNotificacao;
 import com.jlarger.eventhub.repositories.AmizadeRepository;
 import com.jlarger.eventhub.repositories.ArquivoRepository;
+import com.jlarger.eventhub.repositories.NotificacaoRepository;
 import com.jlarger.eventhub.repositories.UsuarioRepository;
 import com.jlarger.eventhub.security.jwt.JwtUtils;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
@@ -40,6 +43,9 @@ public class UsuarioService {
 
 	@Autowired
 	private ArquivoRepository arquivoRepository;
+	
+	@Autowired
+	private NotificacaoRepository notificacaoRepository;
 	
 	@Autowired
 	private AmizadeRepository amizadeRepository;
@@ -319,16 +325,47 @@ public class UsuarioService {
 		Page<Usuario> usuariosPage = repository.buscarUsuariosPaginadosOrdenados(nomeCompleto, getUsuarioLogado(), pageable);
 		
 		HashMap<Long, Long> mapaAmigosUsuarioLogado = getMapaAmigosUsuarioLogado();
-		
+		HashMap<Long, Long> mapaUsuariosComSolicitacaoPendente = getMapaUsuariosComSolicitacaoPendente(usuariosPage.getContent());
+
 		List<UsuarioDTO> usuariosDTO = new ArrayList<UsuarioDTO>();
         
 		for (Usuario usuario : usuariosPage) {
             UsuarioDTO usuarioDTO = new UsuarioDTO(usuario);
             usuarioDTO.setIsAmigo(mapaAmigosUsuarioLogado.containsKey(usuario.getId()));
+            usuarioDTO.setIsSolicitacaoAmizadePendente(mapaUsuariosComSolicitacaoPendente.containsKey(usuario.getId()));
             usuariosDTO.add(usuarioDTO);
         }
 
         return new PageImpl<>(usuariosDTO, pageable, usuariosPage.getTotalElements());
+	}
+
+	private HashMap<Long, Long> getMapaUsuariosComSolicitacaoPendente(List<Usuario> usuarios) {
+		
+		HashMap<Long, Long> mapaUsuariosComSolicitacaoPendente = new HashMap<Long, Long>();
+		
+		List<Long> listaIds = new ArrayList<Long>();
+		
+		for (Usuario usuario : usuarios) {
+			listaIds.add(usuario.getId());
+		}
+		
+		if(listaIds.size() > 0) {
+			
+			List<Notificacao> listaNotificacao = notificacaoRepository.buscarNotificacoesPendentesEntreUsuariosEUsuarioLogado(ServiceLocator.getUsuarioLogado().getId(), listaIds, TipoNotificacao.SOLICITACAO_AMIZADE);
+			
+			for (Notificacao notificacao : listaNotificacao) {
+				
+				if (notificacao.getUsuarioOrigem().getId().compareTo(ServiceLocator.getUsuarioLogado().getId()) != 0) {
+					mapaUsuariosComSolicitacaoPendente.put(notificacao.getUsuarioOrigem().getId(), notificacao.getUsuarioOrigem().getId());
+				} else {
+					mapaUsuariosComSolicitacaoPendente.put(notificacao.getUsuarioDestino().getId(), notificacao.getUsuarioDestino().getId());
+				}
+				
+			}
+			
+		}
+		
+		return mapaUsuariosComSolicitacaoPendente;
 	}
 
 	private HashMap<Long, Long> getMapaAmigosUsuarioLogado() {

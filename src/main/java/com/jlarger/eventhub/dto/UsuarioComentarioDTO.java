@@ -11,18 +11,20 @@ public class UsuarioComentarioDTO implements Serializable {
 	
 	private Long id;
     private UsuarioDTO usuarioOrigem;
+    private UsuarioDTO usuario;
     private LocalDateTime dataComentario;
 	private String comentario;
 	
 	public UsuarioComentarioDTO() {
 	}
 	
-	public UsuarioComentarioDTO(Long id, UsuarioDTO usuarioOrigem, LocalDateTime dataComentario, String comentario) {
+	public UsuarioComentarioDTO(Long id, UsuarioDTO usuarioOrigem, LocalDateTime dataComentario, String comentario, UsuarioDTO usuario) {
 		super();
 		this.id = id;
 		this.usuarioOrigem = usuarioOrigem;
 		this.dataComentario = dataComentario;
 		this.comentario = comentario;
+		this.usuario = usuario;
 	}
 	
 	public UsuarioComentarioDTO(UsuarioComentario usuarioComentario) {
@@ -31,6 +33,7 @@ public class UsuarioComentarioDTO implements Serializable {
 		this.usuarioOrigem = new UsuarioDTO(usuarioComentario.getUsuarioOrigem());
 		this.dataComentario = usuarioComentario.getDataComentario();
 		this.comentario = usuarioComentario.getComentario();
+		this.usuario =  new UsuarioDTO(usuarioComentario.getUsuario());
 	}
 	
 	public Long getId() {
@@ -56,6 +59,14 @@ public class UsuarioComentarioDTO implements Serializable {
 	}
 	public void setComentario(String comentario) {
 		this.comentario = comentario;
+	}
+
+	public UsuarioDTO getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(UsuarioDTO usuario) {
+		this.usuario = usuario;
 	}
 	
 }

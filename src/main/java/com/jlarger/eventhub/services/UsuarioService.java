@@ -170,7 +170,8 @@ public class UsuarioService {
 		usuarioAutenticadoDTO.setNomeUsuario(entity.getNomeUsuario());
 		usuarioAutenticadoDTO.setNomeCompleto(entity.getNomeCompleto());
 		usuarioAutenticadoDTO.setToken(jwt);
-
+		usuarioAutenticadoDTO.setIdentificadorNotificacao(entity.getIdentificadorNotificacao());
+		
 		if (entity.getFoto() != null) {
 			usuarioAutenticadoDTO.setFoto(new ArquivoDTO(entity.getFoto()));
 		}
@@ -385,5 +386,16 @@ public class UsuarioService {
 		}
 		
 		return mapaAmigosUsuarioLogado;
+	}
+	
+	@Transactional
+	public UsuarioDTO alteraIdentificadorUsuario(UsuarioAutenticadoDTO dto) {
+		
+		Usuario usuario = getUsuarioLogado();
+		usuario.setIdentificadorNotificacao(dto.getIdentificadorNotificacao());
+		
+		repository.save(usuario);
+
+		return new UsuarioDTO(usuario);
 	}
 }

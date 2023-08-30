@@ -11,21 +11,23 @@ public class UsuarioAutenticadoDTO implements Serializable {
 	private String nomeUsuario;
 	private String nomeCompleto;
 	private String token;
+	private String identificadorNotificacao;
 	private ArquivoDTO foto;
 	
 	public UsuarioAutenticadoDTO() {
 	}
 
-	public UsuarioAutenticadoDTO(Long id, String email, String nomeUsuario, String nomeCompleto, String token) {
+	public UsuarioAutenticadoDTO(Long id, String email, String nomeUsuario, String nomeCompleto, String token, String identificadorNotificacao) {
 		super();
 		this.id = id;
 		this.email = email;
 		this.nomeUsuario = nomeUsuario;
 		this.nomeCompleto = nomeCompleto;
 		this.token = token;
+		this.identificadorNotificacao = identificadorNotificacao;
 	}
 	
-	public UsuarioAutenticadoDTO(Long id, String email, String nomeUsuario, String nomeCompleto, String token, ArquivoDTO foto) {
+	public UsuarioAutenticadoDTO(Long id, String email, String nomeUsuario, String nomeCompleto, String token, ArquivoDTO foto, String identificadorNotificacao) {
 		super();
 		this.id = id;
 		this.email = email;
@@ -33,6 +35,7 @@ public class UsuarioAutenticadoDTO implements Serializable {
 		this.nomeCompleto = nomeCompleto;
 		this.token = token;
 		this.foto = foto;
+		this.identificadorNotificacao = identificadorNotificacao;
 	}
 
 	public Long getId() {
@@ -81,6 +84,14 @@ public class UsuarioAutenticadoDTO implements Serializable {
 
 	public void setFoto(ArquivoDTO foto) {
 		this.foto = foto;
+	}
+
+	public String getIdentificadorNotificacao() {
+		return identificadorNotificacao;
+	}
+
+	public void setIdentificadorNotificacao(String identificadorNotificacao) {
+		this.identificadorNotificacao = identificadorNotificacao;
 	}
 
 }

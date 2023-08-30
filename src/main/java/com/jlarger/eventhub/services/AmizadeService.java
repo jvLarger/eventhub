@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jlarger.eventhub.dto.PushNotificationRequest;
 import com.jlarger.eventhub.entities.Amizade;
 import com.jlarger.eventhub.entities.Notificacao;
 import com.jlarger.eventhub.entities.Usuario;
@@ -31,6 +32,9 @@ public class AmizadeService {
 	@Autowired 
 	private NotificacaoRepository notificacaoRepository;
 	
+	@Autowired 
+	private PushNotificationService pushNotificationService;
+	
 	@Transactional
 	public void enviarSolicitacaoAmizade(Long id) {
 		
@@ -47,6 +51,11 @@ public class AmizadeService {
 		Notificacao notificacao = popularNotificacaoSolicitacaoAmizade(usuarioOrigem, usuarioDestino);
 		
 		notificacaoService.enviarNotificacao(notificacao);
+		
+		if (usuarioDestino.getIdentificadorNotificacao() != null) {
+			pushNotificationService.sendPushNotificationToToken(new PushNotificationRequest("Event Hub", usuarioOrigem.getNomeCompleto() + " deseja ser seu amigo.", "", usuarioDestino.getIdentificadorNotificacao()));
+		}
+		
 	}
 
 	private Notificacao popularNotificacaoSolicitacaoAmizade(Usuario usuarioOrigem, Usuario usuarioDestino) {

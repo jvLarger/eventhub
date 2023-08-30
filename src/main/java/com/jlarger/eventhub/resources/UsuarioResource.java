@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jlarger.eventhub.dto.ArquivoDTO;
+import com.jlarger.eventhub.dto.UsuarioAutenticadoDTO;
 import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.services.UsuarioService;
 
@@ -56,5 +57,13 @@ public class UsuarioResource {
 		Pageable pageable = PageRequest.of(page != null ? page : 0, size != null ? size : 10);
 
 		return ResponseEntity.ok().body(service.buscarUsuariosPaginadosOrdenados(nomeCompleto, pageable));
+	}
+	
+	@PutMapping("/identificador")
+	public ResponseEntity<UsuarioDTO> alteraIdentificadorUsuario(@RequestBody UsuarioAutenticadoDTO dto) {
+
+		UsuarioDTO usuarioDTO = service.alteraIdentificadorUsuario(dto);
+
+		return ResponseEntity.ok().body(usuarioDTO);
 	}
 }

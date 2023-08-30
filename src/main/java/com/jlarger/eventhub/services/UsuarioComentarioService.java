@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jlarger.eventhub.dto.PushNotificationRequest;
 import com.jlarger.eventhub.dto.UsuarioComentarioDTO;
 import com.jlarger.eventhub.entities.Notificacao;
 import com.jlarger.eventhub.entities.Usuario;
@@ -28,6 +29,9 @@ public class UsuarioComentarioService {
 	@Autowired
 	private NotificacaoService notificacaoService;
 	
+	@Autowired
+	private PushNotificationService pushNotificationService;
+	
 	@Transactional
 	public void enviarSolicitacaoComentario(Long id, UsuarioComentarioDTO dto) {
 		
@@ -40,6 +44,10 @@ public class UsuarioComentarioService {
 		Notificacao notificacao = popularNotificacaoSolicitacaoComentario(usuarioOrigem, usuarioDestino, dto);
 		
 		notificacaoService.enviarNotificacao(notificacao);
+
+		if (usuarioDestino.getIdentificadorNotificacao() != null) {
+			pushNotificationService.sendPushNotificationToToken(new PushNotificationRequest("Event Hub", usuarioOrigem.getNomeCompleto() + " deseja comentar em seu perfil.", "", usuarioDestino.getIdentificadorNotificacao()));
+		}
 	}
 
 	private void validarComentarioInformado(UsuarioComentarioDTO dto) {

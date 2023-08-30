@@ -44,6 +44,9 @@ public class Usuario {
 	@Column(nullable=true, length = 15)
 	private String telefone;
 	
+	@Column(columnDefinition = "TEXT", length = 1000, nullable = true)
+	private String identificadorNotificacao;
+	
 	@Temporal(TemporalType.DATE)
 	@Column(nullable=true)
 	private Date dataComemorativa;
@@ -56,7 +59,7 @@ public class Usuario {
 	}
 	
 	public Usuario(Long id, String nomeUsuario, String email, String senha, String nomeCompleto,
-			String documentoPrincipal, String telefone, Date dataComemorativa, Arquivo foto) {
+			String documentoPrincipal, String telefone, Date dataComemorativa, Arquivo foto, String identificadorNotificacao) {
 		super();
 		this.id = id;
 		this.nomeUsuario = nomeUsuario;
@@ -67,9 +70,8 @@ public class Usuario {
 		this.telefone = telefone;
 		this.dataComemorativa = dataComemorativa;
 		this.foto = foto;
+		this.identificadorNotificacao = identificadorNotificacao;
 	}
-
-
 
 	public Long getId() {
 		return id;
@@ -141,6 +143,14 @@ public class Usuario {
 
 	public void setFoto(Arquivo foto) {
 		this.foto = foto;
+	}
+	
+	public String getIdentificadorNotificacao() {
+		return identificadorNotificacao;
+	}
+
+	public void setIdentificadorNotificacao(String identificadorNotificacao) {
+		this.identificadorNotificacao = identificadorNotificacao;
 	}
 
 	@Override

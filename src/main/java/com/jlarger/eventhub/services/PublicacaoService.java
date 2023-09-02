@@ -1,7 +1,6 @@
 package com.jlarger.eventhub.services;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,15 +13,10 @@ import com.jlarger.eventhub.dto.PublicacaoArquivoDTO;
 import com.jlarger.eventhub.dto.PublicacaoComentarioDTO;
 import com.jlarger.eventhub.dto.PublicacaoDTO;
 import com.jlarger.eventhub.dto.UsuarioDTO;
-import com.jlarger.eventhub.entities.Arquivo;
 import com.jlarger.eventhub.entities.Publicacao;
 import com.jlarger.eventhub.entities.PublicacaoArquivo;
 import com.jlarger.eventhub.entities.PublicacaoComentario;
-import com.jlarger.eventhub.entities.PublicacaoCurtida;
 import com.jlarger.eventhub.entities.Usuario;
-import com.jlarger.eventhub.repositories.PublicacaoArquivoRepository;
-import com.jlarger.eventhub.repositories.PublicacaoComentarioRepository;
-import com.jlarger.eventhub.repositories.PublicacaoCurtidaRepository;
 import com.jlarger.eventhub.repositories.PublicacaoRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
 import com.jlarger.eventhub.utils.ServiceLocator;
@@ -34,20 +28,16 @@ public class PublicacaoService {
 	private UsuarioService usuarioService;
 	
 	@Autowired
-	private ArquivoService arquivoService;
+	private PublicacaoArquivoService publicacaoArquivoService;
+	
+	@Autowired
+	private PublicacaoCurtidaService publicacaoCurtidaService;
+	
+	@Autowired
+	private PublicacaoComentarioService publicacaoComentarioService;
 	
 	@Autowired
 	private PublicacaoRepository publicacaoRepository;
-	
-	@Autowired
-	private PublicacaoArquivoRepository publicacaoArquivoRepository;
-	
-	@Autowired
-	private PublicacaoComentarioRepository publicacaoComentarioRepository;
-	
-	@Autowired
-	private PublicacaoCurtidaRepository publicacaoCurtidaRepository;
-	
 	
 	@Transactional
 	public PublicacaoDTO criarPublicacao(PublicacaoDTO dto) {
@@ -63,7 +53,7 @@ public class PublicacaoService {
 		
 		publicacao = publicacaoRepository.save(publicacao);
 		
-		List<PublicacaoArquivo> listaPublicacaoArquivo = criarPublicacaoArquivos(publicacao, dto.getArquivos());
+		List<PublicacaoArquivo> listaPublicacaoArquivo = publicacaoArquivoService.criarPublicacaoArquivos(publicacao, dto.getArquivos());
 		
 		PublicacaoDTO publicacaoDTO = new PublicacaoDTO();
 		publicacaoDTO.setId(publicacao.getId());
@@ -74,26 +64,6 @@ public class PublicacaoService {
 		publicacaoDTO.setArquivos(listaPublicacaoArquivo.stream().map(x -> new PublicacaoArquivoDTO(x)).collect(Collectors.toList()));
 		
 		return publicacaoDTO;
-	}
-
-	private List<PublicacaoArquivo> criarPublicacaoArquivos(Publicacao publicacao, List<PublicacaoArquivoDTO> listaArquivos) {
-	
-		List<PublicacaoArquivo> listaPublicacaoArquivo = new ArrayList<PublicacaoArquivo>();
-		
-		for (PublicacaoArquivoDTO publicacaArquivoDTO : listaArquivos) {
-			
-			Arquivo arquivo = arquivoService.getArquivo(publicacaArquivoDTO.getArquivo().getId());
-			
-			PublicacaoArquivo publicacaoArquivo = new PublicacaoArquivo();
-			publicacaoArquivo.setPublicacao(publicacao);
-			publicacaoArquivo.setArquivo(arquivo);
-			
-			publicacaoArquivo = publicacaoArquivoRepository.save(publicacaoArquivo);
-			
-			listaPublicacaoArquivo.add(publicacaoArquivo);
-		}
-		
-		return listaPublicacaoArquivo;
 	}
 
 	private void validarCamposNovaPublicacao(PublicacaoDTO publicacaoDTO) {
@@ -117,9 +87,9 @@ public class PublicacaoService {
 		
 		Publicacao publicacao = getPublicacao(id);
 		
-		List<PublicacaoComentario> listaPublicacaoComentario = buscarComentariosPorPublicacao(publicacao.getId());
-		List<PublicacaoArquivo> listaPublicacaoArquivo = buscarArquivosPorPublicacao(publicacao.getId());
-		Integer curtidas = buscarNumeroCurtidasPublicacao(publicacao.getId());
+		List<PublicacaoComentario> listaPublicacaoComentario = publicacaoComentarioService.buscarComentariosPorPublicacao(publicacao.getId());
+		List<PublicacaoArquivo> listaPublicacaoArquivo = publicacaoArquivoService.buscarArquivosPorPublicacao(publicacao.getId());
+		Integer curtidas = publicacaoCurtidaService.buscarNumeroCurtidasPublicacao(publicacao.getId());
 		
 		PublicacaoDTO publicacaoDTO = new PublicacaoDTO();
 		publicacaoDTO.setId(publicacao.getId());
@@ -127,56 +97,12 @@ public class PublicacaoService {
 		publicacaoDTO.setData(publicacao.getData());
 		publicacaoDTO.setDescricao(publicacao.getDescricao());
 		publicacaoDTO.setIsMinhaPublicacao(publicacao.getUsuario().getId().compareTo(ServiceLocator.getUsuarioLogado().getId()) == 0);
-		publicacaoDTO.setIsCurti(getIsCurtiPublicacao(publicacao.getId()));
+		publicacaoDTO.setIsCurti(publicacaoCurtidaService.getIsCurtiPublicacao(publicacao.getId()));
 		publicacaoDTO.setCurtidas(curtidas);
 		publicacaoDTO.setComentarios(listaPublicacaoComentario.stream().map(x -> new PublicacaoComentarioDTO(x)).collect(Collectors.toList()));
 		publicacaoDTO.setArquivos(listaPublicacaoArquivo.stream().map(x -> new PublicacaoArquivoDTO(x)).collect(Collectors.toList()));
 
 		return publicacaoDTO;
-	}
-	
-	private Boolean getIsCurtiPublicacao(Long id) {
-		
-		if (id == null) {
-			throw new BusinessException("Publicação não informada!");
-		}
-		
-		Optional<PublicacaoCurtida> optionalPublicacaoCurtida = publicacaoCurtidaRepository.buscarPublicacaoCurtidaPorUsuarioEPublicacao(id, ServiceLocator.getUsuarioLogado().getId());
-		
-		return optionalPublicacaoCurtida.isPresent();
-	}
-
-	private Integer buscarNumeroCurtidasPublicacao(Long id) {
-	
-		if (id == null) {
-			throw new BusinessException("Publicação não informada!");
-		}
-		
-		Integer curtidas = publicacaoCurtidaRepository.countByIdPublicacao(id);
-		
-		return curtidas;
-	}
-
-	private List<PublicacaoComentario> buscarComentariosPorPublicacao(Long id) {
-		
-		if (id == null) {
-			throw new BusinessException("Publicação não informada!");
-		}
-		
-		List<PublicacaoComentario>  listaPublicacaoComentario = publicacaoComentarioRepository.buscarComentariosPorPublicacao(id);
-		
-		return listaPublicacaoComentario;
-	}
-
-	private List<PublicacaoArquivo> buscarArquivosPorPublicacao(Long id) {
-		
-		if (id == null) {
-			throw new BusinessException("Publicação não informada!");
-		}
-		
-		List<PublicacaoArquivo>  listaPublicacaoArquivo = publicacaoArquivoRepository.buscarArquivosPorPublicacao(id);
-		
-		return listaPublicacaoArquivo;
 	}
 
 	@Transactional(readOnly = true)
@@ -187,6 +113,28 @@ public class PublicacaoService {
 		Publicacao publicacao = optionalPublicacao.orElseThrow(() -> new BusinessException("Publicação não encontrado"));
 
 		return publicacao;
+	}
+	
+	@Transactional
+	public void excluirPublicacao(Long id) {
+		
+		if (id == null) {
+			throw new BusinessException("Publicação não informada!");
+		}
+		
+		Publicacao publicacao = getPublicacao(id);
+		
+		if (publicacao.getUsuario().getId().compareTo(ServiceLocator.getUsuarioLogado().getId()) != 0) {
+			throw new BusinessException("Somente o dono da publicação pode realizar sua exclusão!");
+		}
+		
+		publicacaoArquivoService.excluirArquivosPorPublicacao(id);
+		
+		publicacaoCurtidaService.excluirCurtidasPorPublicacao(id);
+		
+		publicacaoComentarioService.excluirComentariosPorPublicacao(id);
+		
+		publicacaoRepository.delete(publicacao);
 	}
 
 }

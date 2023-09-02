@@ -1,5 +1,6 @@
 package com.jlarger.eventhub.services;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
@@ -65,6 +66,21 @@ public class ArquivoService {
 		Arquivo arquivo = optionalArquivo.orElseThrow(() -> new BusinessException("Arquivo não encontrado"));
 
 		return arquivo;
+	}
+	
+	@Transactional
+	public void excluirArquivo(Arquivo arquivo) {
+		
+		if (arquivo.getId() == null) {
+			throw new BusinessException("Arquivo não informado!");
+		}
+		
+		arquivo = getArquivo(arquivo.getId());
+		
+		File file = new File(diretorioImagens + "/" + arquivo.getNomeAbsoluto());
+		file.delete();
+        
+        arquivoRepository.delete(arquivo);
 	}
 	
 }

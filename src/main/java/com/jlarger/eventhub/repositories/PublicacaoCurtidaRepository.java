@@ -1,5 +1,6 @@
 package com.jlarger.eventhub.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,5 +15,8 @@ public interface PublicacaoCurtidaRepository extends JpaRepository<PublicacaoCur
 	
 	@Query("SELECT pc FROM PublicacaoCurtida pc WHERE pc.publicacao.id = :idPublicacao AND pc.usuario.id = :idUsuario")
 	Optional<PublicacaoCurtida> buscarPublicacaoCurtidaPorUsuarioEPublicacao(Long idPublicacao, Long idUsuario);
+	
+	@Query("SELECT pc FROM PublicacaoCurtida pc WHERE pc.publicacao.id = :idPublicacao")
+	List<PublicacaoCurtida> buscarCurtidasPorPublicacao(Long idPublicacao);
 	
 }

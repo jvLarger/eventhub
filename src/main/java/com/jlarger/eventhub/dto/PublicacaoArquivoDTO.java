@@ -4,22 +4,22 @@ import java.io.Serializable;
 
 import com.jlarger.eventhub.entities.PublicacaoArquivo;
 
-public class PublicacaArquivoDTO implements Serializable {
+public class PublicacaoArquivoDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
 	private Long id;
     private ArquivoDTO arquivo;
 	
-    public PublicacaArquivoDTO() {
+    public PublicacaoArquivoDTO() {
     }
 
-	public PublicacaArquivoDTO(Long id, ArquivoDTO arquivo) {
+	public PublicacaoArquivoDTO(Long id, ArquivoDTO arquivo) {
 		this.id = id;
 		this.arquivo = arquivo;
 	}
     
-	public PublicacaArquivoDTO(PublicacaoArquivo publicacaoArquivo) {
+	public PublicacaoArquivoDTO(PublicacaoArquivo publicacaoArquivo) {
 		this.id = publicacaoArquivo.getId();
 		this.arquivo = new ArquivoDTO(publicacaoArquivo.getArquivo());
 	}

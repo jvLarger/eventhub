@@ -14,13 +14,15 @@ public class PublicacaoDTO implements Serializable {
 	private String descricao;
 	private LocalDateTime data;
 	private Integer curtidas;
+	private Boolean isMinhaPublicacao;
+	private Boolean isCurti;
 	private List<PublicacaoComentarioDTO> comentarios = new ArrayList<PublicacaoComentarioDTO>();
-	private List<PublicacaArquivoDTO> arquivos = new ArrayList<PublicacaArquivoDTO>();
+	private List<PublicacaoArquivoDTO> arquivos = new ArrayList<PublicacaoArquivoDTO>();
 
 	public PublicacaoDTO() {
 	}
 
-	public PublicacaoDTO(Long id, UsuarioDTO usuario, String descricao, LocalDateTime data, Integer curtidas, List<PublicacaoComentarioDTO> listaComentarios, List<PublicacaArquivoDTO> listaArquivos) {
+	public PublicacaoDTO(Long id, UsuarioDTO usuario, String descricao, LocalDateTime data, Integer curtidas, List<PublicacaoComentarioDTO> listaComentarios, List<PublicacaoArquivoDTO> listaArquivos, Boolean isMinhaPublicacao, Boolean isCurti) {
 		this.id = id;
 		this.usuario = usuario;
 		this.descricao = descricao;
@@ -28,6 +30,8 @@ public class PublicacaoDTO implements Serializable {
 		this.curtidas = curtidas;
 		this.comentarios = listaComentarios;
 		this.arquivos = listaArquivos;
+		this.isCurti = isCurti;
+		this.isMinhaPublicacao = isMinhaPublicacao;
 	}
 
 	public Long getId() {
@@ -78,12 +82,28 @@ public class PublicacaoDTO implements Serializable {
 		this.comentarios = comentarios;
 	}
 
-	public List<PublicacaArquivoDTO> getArquivos() {
+	public List<PublicacaoArquivoDTO> getArquivos() {
 		return arquivos;
 	}
 
-	public void setArquivos(List<PublicacaArquivoDTO> arquivos) {
+	public void setArquivos(List<PublicacaoArquivoDTO> arquivos) {
 		this.arquivos = arquivos;
 	}
-	
+
+	public Boolean getIsMinhaPublicacao() {
+		return isMinhaPublicacao;
+	}
+
+	public void setIsMinhaPublicacao(Boolean isMinhaPublicacao) {
+		this.isMinhaPublicacao = isMinhaPublicacao;
+	}
+
+	public Boolean getIsCurti() {
+		return isCurti;
+	}
+
+	public void setIsCurti(Boolean isCurti) {
+		this.isCurti = isCurti;
+	}
+
 }

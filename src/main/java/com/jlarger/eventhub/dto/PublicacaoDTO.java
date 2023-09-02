@@ -14,8 +14,8 @@ public class PublicacaoDTO implements Serializable {
 	private String descricao;
 	private LocalDateTime data;
 	private Integer curtidas;
-	private List<PublicacaoComentarioDTO> listaComentarios = new ArrayList<PublicacaoComentarioDTO>();
-	private List<PublicacaArquivoDTO> listaArquivos = new ArrayList<PublicacaArquivoDTO>();
+	private List<PublicacaoComentarioDTO> comentarios = new ArrayList<PublicacaoComentarioDTO>();
+	private List<PublicacaArquivoDTO> arquivos = new ArrayList<PublicacaArquivoDTO>();
 
 	public PublicacaoDTO() {
 	}
@@ -26,8 +26,8 @@ public class PublicacaoDTO implements Serializable {
 		this.descricao = descricao;
 		this.data = data;
 		this.curtidas = curtidas;
-		this.listaComentarios = listaComentarios;
-		this.listaArquivos = listaArquivos;
+		this.comentarios = listaComentarios;
+		this.arquivos = listaArquivos;
 	}
 
 	public Long getId() {
@@ -70,20 +70,20 @@ public class PublicacaoDTO implements Serializable {
 		this.curtidas = curtidas;
 	}
 
-	public List<PublicacaoComentarioDTO> getListaComentarios() {
-		return listaComentarios;
+	public List<PublicacaoComentarioDTO> getComentarios() {
+		return comentarios;
 	}
 
-	public void setListaComentarios(List<PublicacaoComentarioDTO> listaComentarios) {
-		this.listaComentarios = listaComentarios;
+	public void setComentarios(List<PublicacaoComentarioDTO> comentarios) {
+		this.comentarios = comentarios;
 	}
 
-	public List<PublicacaArquivoDTO> getListaArquivos() {
-		return listaArquivos;
+	public List<PublicacaArquivoDTO> getArquivos() {
+		return arquivos;
 	}
 
-	public void setListaArquivos(List<PublicacaArquivoDTO> listaArquivos) {
-		this.listaArquivos = listaArquivos;
+	public void setArquivos(List<PublicacaArquivoDTO> arquivos) {
+		this.arquivos = arquivos;
 	}
 	
 }

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jlarger.eventhub.dto.PublicacaArquivoDTO;
 import com.jlarger.eventhub.dto.PublicacaoDTO;
+import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.entities.Arquivo;
 import com.jlarger.eventhub.entities.Publicacao;
 import com.jlarger.eventhub.entities.PublicacaoArquivo;
@@ -48,10 +49,14 @@ public class PublicacaoService {
 		
 		publicacao = publicacaoRepository.save(publicacao);
 		
-		List<PublicacaoArquivo> listaPublicacaoArquivo = criarPublicacaoArquivos(publicacao, dto.getListaArquivos());
+		List<PublicacaoArquivo> listaPublicacaoArquivo = criarPublicacaoArquivos(publicacao, dto.getArquivos());
 		
 		PublicacaoDTO publicacaoDTO = new PublicacaoDTO();
-		publicacaoDTO.setListaArquivos(listaPublicacaoArquivo.stream().map(x -> new PublicacaArquivoDTO(x)).collect(Collectors.toList()));
+		publicacaoDTO.setId(publicacao.getId());
+		publicacaoDTO.setUsuario(new UsuarioDTO(publicacao.getUsuario()));
+		publicacaoDTO.setDescricao(publicacao.getDescricao());
+		publicacaoDTO.setData(publicacao.getData());
+		publicacaoDTO.setArquivos(listaPublicacaoArquivo.stream().map(x -> new PublicacaArquivoDTO(x)).collect(Collectors.toList()));
 		
 		return publicacaoDTO;
 	}
@@ -82,7 +87,7 @@ public class PublicacaoService {
 			throw new BusinessException("A publicação deve conter pelo menos 20 caracteres. Por favor, verifique!");
 		}
 		
-		if (publicacaoDTO.getListaArquivos() == null || publicacaoDTO.getListaArquivos().isEmpty()) {
+		if (publicacaoDTO.getArquivos() == null || publicacaoDTO.getArquivos().isEmpty()) {
 			throw new BusinessException("A publicação deve conter pelo menos uma imagem. Por favor, verifique!");
 		}
 		

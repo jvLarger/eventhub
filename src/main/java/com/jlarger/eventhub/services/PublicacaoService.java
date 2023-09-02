@@ -106,7 +106,7 @@ public class PublicacaoService {
 	}
 
 	@Transactional(readOnly = true)
-	private Publicacao getPublicacao(Long id) {
+	public Publicacao getPublicacao(Long id) {
 		
 		Optional<Publicacao> optionalPublicacao = publicacaoRepository.findById(id);
 

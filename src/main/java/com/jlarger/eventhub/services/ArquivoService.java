@@ -4,10 +4,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jlarger.eventhub.dto.ArquivoDTO;
 import com.jlarger.eventhub.entities.Arquivo;
@@ -54,5 +56,15 @@ public class ArquivoService {
 		
 		return new ArquivoDTO(arquivo);
 	}
+	
+	@Transactional
+	public Arquivo getArquivo(Long id) {
+		
+		Optional<Arquivo> optionalArquivo = arquivoRepository.findById(id);
 
+		Arquivo arquivo = optionalArquivo.orElseThrow(() -> new BusinessException("Arquivo não encontrado"));
+
+		return arquivo;
+	}
+	
 }

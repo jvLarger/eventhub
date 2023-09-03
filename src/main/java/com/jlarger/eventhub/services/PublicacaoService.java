@@ -1,11 +1,16 @@
 package com.jlarger.eventhub.services;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -135,6 +140,70 @@ public class PublicacaoService {
 		publicacaoComentarioService.excluirComentariosPorPublicacao(id);
 		
 		publicacaoRepository.delete(publicacao);
+	}
+	
+	@Transactional(readOnly = true)
+	public Page<PublicacaoDTO> buscarFeed(Pageable pageable) {
+		
+		Page<Publicacao> pagePublicacao = publicacaoRepository.findPaginatedPublicacoesForUserAndFriends(ServiceLocator.getUsuarioLogado().getId(), pageable);
+		
+		List<PublicacaoDTO> listaPublicacaoDTO = new ArrayList<PublicacaoDTO>();
+
+		List<Long> listaIdPublicacao = getListaIdPublicacao(pagePublicacao);
+		
+		if (listaIdPublicacao.size() > 0) {
+			
+			HashMap<Long, ArrayList<PublicacaoArquivo>> mapaArquivosPorPublicacao = publicacaoArquivoService.getMapaArquivosPorListaPublicacao(listaIdPublicacao);
+			HashMap<Long, ArrayList<PublicacaoComentario>> mapaComentariosPorPublicacao = publicacaoComentarioService.getMapaComentariosPorListaPublicacao(listaIdPublicacao);
+			HashMap<Long, Integer> mapaCurtidasPorPublicacao = publicacaoCurtidaService.getMapaTotalCurtidasPorListaPublicacao(listaIdPublicacao);
+			HashMap<Long, Long> mapaPublicacoesQueEuCurti = publicacaoCurtidaService.getMapaPublicacoesQueEuCurtiPorListaPublicacao(listaIdPublicacao);
+
+			for (Publicacao publicacao : pagePublicacao) {
+				
+				PublicacaoDTO publicacaoDTO = new PublicacaoDTO();
+				publicacaoDTO.setId(publicacao.getId());
+				publicacaoDTO.setUsuario(new UsuarioDTO(publicacao.getUsuario()));
+				publicacaoDTO.setDescricao(publicacao.getDescricao());
+				publicacaoDTO.setData(publicacao.getData());
+				publicacaoDTO.setIsMinhaPublicacao(publicacao.getUsuario().getId().compareTo(ServiceLocator.getUsuarioLogado().getId()) == 0);
+				publicacaoDTO.setIsCurti(mapaPublicacoesQueEuCurti.containsKey(publicacao.getId()));
+				
+				if (mapaCurtidasPorPublicacao.containsKey(publicacao.getId())) {
+					publicacaoDTO.setCurtidas(mapaCurtidasPorPublicacao.get(publicacao.getId()));			
+				} else {
+					publicacaoDTO.setCurtidas(0);				
+				}
+				
+				if (mapaArquivosPorPublicacao.containsKey(publicacao.getId())) {
+					publicacaoDTO.setArquivos(mapaArquivosPorPublicacao.get(publicacao.getId()).stream().map(x -> new PublicacaoArquivoDTO(x)).collect(Collectors.toList()));			
+				} else {
+					publicacaoDTO.setArquivos(new ArrayList<PublicacaoArquivoDTO>());				
+				}
+				
+				if (mapaComentariosPorPublicacao.containsKey(publicacao.getId())) {
+					publicacaoDTO.setComentarios(mapaComentariosPorPublicacao.get(publicacao.getId()).stream().map(x -> new PublicacaoComentarioDTO(x)).collect(Collectors.toList()));			
+				} else {
+					publicacaoDTO.setComentarios(new ArrayList<PublicacaoComentarioDTO>());				
+				}
+				
+				
+	            listaPublicacaoDTO.add(publicacaoDTO);
+	        }
+			
+		}
+		
+        return new PageImpl<>(listaPublicacaoDTO, pageable, pagePublicacao.getTotalElements());
+	}
+
+	private List<Long> getListaIdPublicacao(Page<Publicacao> pagePublicacao) {
+		
+		List<Long> listaIdPublicacao = new ArrayList<Long>();
+		
+		for (Publicacao publicacao : pagePublicacao) {
+			listaIdPublicacao.add(publicacao.getId());
+		}
+		
+		return listaIdPublicacao;
 	}
 
 }

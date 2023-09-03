@@ -12,4 +12,7 @@ public interface PublicacaoComentarioRepository extends JpaRepository<Publicacao
 	@Query("SELECT pc FROM PublicacaoComentario pc WHERE pc.publicacao.id = :idPublicacao ORDER BY pc.data ASC")
 	List<PublicacaoComentario> buscarComentariosPorPublicacao(Long idPublicacao);
 	
+	@Query("SELECT pc FROM PublicacaoComentario pc WHERE pc.publicacao.id IN (:listaIdPublicacao) ORDER BY pc.data ASC")
+	List<PublicacaoComentario> buscarComentariosPorListaPublicacao(List<Long> listaIdPublicacao);
+	
 }

@@ -12,4 +12,8 @@ public interface PublicacaoArquivoRepository extends JpaRepository<PublicacaoArq
 	@Query("SELECT pa FROM PublicacaoArquivo pa WHERE pa.publicacao.id = :idPublicacao ORDER BY pa.id ASC")
 	List<PublicacaoArquivo> buscarArquivosPorPublicacao(Long idPublicacao);
 	
+	@Query("SELECT pa FROM PublicacaoArquivo pa WHERE pa.publicacao.id IN (:listaIdPublicacao) ORDER BY pa.id ASC")
+	List<PublicacaoArquivo> buscarArquivosPorListaPublicacao(List<Long> listaIdPublicacao);
+	
+	
 }

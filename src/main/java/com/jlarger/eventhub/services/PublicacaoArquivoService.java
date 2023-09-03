@@ -1,6 +1,7 @@
 package com.jlarger.eventhub.services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,35 @@ public class PublicacaoArquivoService {
 		
 		if (idPublicacao == null) {
 			throw new BusinessException("Publicação não informada!");
+		}
+		
+	}
+	
+	@Transactional(readOnly = true)
+	public HashMap<Long, ArrayList<PublicacaoArquivo>> getMapaArquivosPorListaPublicacao(List<Long> listaIdPublicacao) {
+		
+		validarPeloMenosUmaPublicacaoInformada(listaIdPublicacao);
+		
+		List<PublicacaoArquivo> listaPublicacaoArquivo = publicacaoArquivoRepository.buscarArquivosPorListaPublicacao(listaIdPublicacao);
+		
+		HashMap<Long, ArrayList<PublicacaoArquivo>> mapaArquivos = new HashMap<Long, ArrayList<PublicacaoArquivo>>();
+		
+		for (PublicacaoArquivo publicacaoArquivo : listaPublicacaoArquivo) {
+			
+			if (!mapaArquivos.containsKey(publicacaoArquivo.getPublicacao().getId())) {
+				mapaArquivos.put(publicacaoArquivo.getPublicacao().getId(), new ArrayList<PublicacaoArquivo>());
+			}
+			
+			mapaArquivos.get(publicacaoArquivo.getPublicacao().getId()).add(publicacaoArquivo);
+		}
+		
+		return mapaArquivos;
+	}
+
+	private void validarPeloMenosUmaPublicacaoInformada(List<Long> listaIdPublicacao) {
+		
+		if (listaIdPublicacao == null || listaIdPublicacao.isEmpty()) {
+			throw new BusinessException("Nenhuma publicação informada!");
 		}
 		
 	}

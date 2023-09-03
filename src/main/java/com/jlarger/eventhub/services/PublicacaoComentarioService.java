@@ -1,6 +1,8 @@
 package com.jlarger.eventhub.services;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -125,4 +127,34 @@ public class PublicacaoComentarioService {
 
 		return publicacao;
 	}
+	
+	@Transactional(readOnly = true)
+	public HashMap<Long, ArrayList<PublicacaoComentario>> getMapaComentariosPorListaPublicacao(List<Long> listaIdPublicacao) {
+		
+		validarPeloMenosUmaPublicacaoInformada(listaIdPublicacao);
+
+		List<PublicacaoComentario> listaPublicacaoComentario = publicacaoComentarioRepository.buscarComentariosPorListaPublicacao(listaIdPublicacao);
+		
+		HashMap<Long, ArrayList<PublicacaoComentario>> mapaComentarios = new HashMap<Long, ArrayList<PublicacaoComentario>>();
+		
+		for (PublicacaoComentario publicacaoComentario : listaPublicacaoComentario) {
+			
+			if (!mapaComentarios.containsKey(publicacaoComentario.getPublicacao().getId())) {
+				mapaComentarios.put(publicacaoComentario.getPublicacao().getId(), new ArrayList<PublicacaoComentario>());
+			}
+			
+			mapaComentarios.get(publicacaoComentario.getPublicacao().getId()).add(publicacaoComentario);
+		}
+		
+		return mapaComentarios;
+	}
+	
+	private void validarPeloMenosUmaPublicacaoInformada(List<Long> listaIdPublicacao) {
+		
+		if (listaIdPublicacao == null || listaIdPublicacao.isEmpty()) {
+			throw new BusinessException("Nenhuma publicação informada!");
+		}
+		
+	}
+	
 }

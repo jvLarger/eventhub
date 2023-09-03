@@ -1,6 +1,7 @@
 package com.jlarger.eventhub.services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -138,5 +139,52 @@ public class PublicacaoCurtidaService {
 		}
 		
 		return listaUsuariosDTO;
+	}
+
+	@Transactional(readOnly = true)
+	public HashMap<Long, Integer> getMapaTotalCurtidasPorListaPublicacao(List<Long> listaIdPublicacao) {
+		
+		validarPeloMenosUmaPublicacaoInformada(listaIdPublicacao);
+		
+		List<PublicacaoCurtida> listaPublicacaoCurtida = publicacaoCurtidaRepository.buscarCurtidasPorListaPublicacao(listaIdPublicacao);
+		
+		HashMap<Long, Integer> mapaTotalCurtidas = new HashMap<Long, Integer>();
+		
+		for (PublicacaoCurtida publicacaoCurtida : listaPublicacaoCurtida) {
+			
+			if (!mapaTotalCurtidas.containsKey(publicacaoCurtida.getPublicacao().getId())) {
+				mapaTotalCurtidas.put(publicacaoCurtida.getPublicacao().getId(), 0);
+			}
+			
+			Integer totalCurtidas = mapaTotalCurtidas.get(publicacaoCurtida.getPublicacao().getId());
+			totalCurtidas++;
+			
+			mapaTotalCurtidas.put(publicacaoCurtida.getPublicacao().getId(), totalCurtidas);
+		}
+		
+		return mapaTotalCurtidas;
+	}
+	
+	private void validarPeloMenosUmaPublicacaoInformada(List<Long> listaIdPublicacao) {
+		
+		if (listaIdPublicacao == null || listaIdPublicacao.isEmpty()) {
+			throw new BusinessException("Nenhuma publicação informada!");
+		}
+		
+	}
+
+	public HashMap<Long, Long> getMapaPublicacoesQueEuCurtiPorListaPublicacao(List<Long> listaIdPublicacao) {
+
+		validarPeloMenosUmaPublicacaoInformada(listaIdPublicacao);
+		
+		List<PublicacaoCurtida> listaPublicacaoCurtida = publicacaoCurtidaRepository.buscarCurtidasPorPublicacoesEUsuario(listaIdPublicacao, ServiceLocator.getUsuarioLogado().getId());
+		
+		HashMap<Long, Long> mapaPublicacoesQueCurti = new HashMap<Long, Long>();
+		
+		for (PublicacaoCurtida publicacaoCurtida : listaPublicacaoCurtida) {
+			mapaPublicacoesQueCurti.put(publicacaoCurtida.getPublicacao().getId(), publicacaoCurtida.getPublicacao().getId());
+		}
+		
+		return mapaPublicacoesQueCurti;
 	}
 }

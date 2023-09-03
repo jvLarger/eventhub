@@ -19,4 +19,10 @@ public interface PublicacaoCurtidaRepository extends JpaRepository<PublicacaoCur
 	@Query("SELECT pc FROM PublicacaoCurtida pc WHERE pc.publicacao.id = :idPublicacao ORDER BY pc.usuario.nomeCompleto ASC")
 	List<PublicacaoCurtida> buscarCurtidasPorPublicacao(Long idPublicacao);
 	
+	@Query("SELECT pc FROM PublicacaoCurtida pc WHERE pc.publicacao.id IN (:listaIdPublicacao)")
+	List<PublicacaoCurtida> buscarCurtidasPorListaPublicacao(List<Long> listaIdPublicacao);
+	
+	@Query("SELECT pc FROM PublicacaoCurtida pc WHERE pc.publicacao.id IN (:listaIdPublicacao) AND pc.usuario.id = :idUsuario")
+	List<PublicacaoCurtida> buscarCurtidasPorPublicacoesEUsuario(List<Long> listaIdPublicacao, Long idUsuario);
+	
 }

@@ -140,6 +140,14 @@ public class AmizadeService {
 		amizadeRepository.save(amizade);
 	}
 	
+	@Transactional(readOnly = true)
+	public List<Amizade> buscarAmizadesComUsuarioLogado() {
+		
+		List<Amizade> listaAmizades = amizadeRepository.findAmizadeUsuario(ServiceLocator.getUsuarioLogado().getId());
+	
+		return listaAmizades;
+	}
+	
 	
 	
 }

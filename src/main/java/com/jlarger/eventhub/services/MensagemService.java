@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -144,7 +145,9 @@ public class MensagemService {
 	@Transactional
 	public MensagemDTO enviarMensagem(Long id, MensagemDTO dto) {
 		
-		validarCamposEnvioMensagem(id, dto);
+		validarIdUsuarioInformado(id);
+		
+		validarCamposEnvioMensagem(dto);
 		
 		Usuario usuarioOrigem = usuarioService.getUsuarioLogado();
 		
@@ -165,16 +168,58 @@ public class MensagemService {
 		return new MensagemDTO(mensagem);
 	}
 
-	private void validarCamposEnvioMensagem(Long id, MensagemDTO dto) {
-		
-		if (id == null || id.compareTo(0L) <= 0) {
-			throw new BusinessException("Usuário destino não informado!");
-		}
+	private void validarCamposEnvioMensagem(MensagemDTO dto) {
 		
 		if (dto == null || dto.getDescricao().trim().isEmpty()) {
 			throw new BusinessException("Mensagem não informada!");
 		}
 		
+	}
+	
+	@Transactional
+	public List<MensagemDTO> buscarMensagens(Long idUsuario) {
+		
+		validarIdUsuarioInformado(idUsuario);
+		
+		List<Mensagem> listaMensagem = mensagemRepository.buscarMensagensEntreUsuarios(ServiceLocator.getUsuarioLogado().getId(), idUsuario);
+		
+		marcarMensagensComoLidas(listaMensagem);
+		
+		return listaMensagem.stream().map(x -> new MensagemDTO(x)).collect(Collectors.toList());
+	}
+	
+	@Transactional
+	private void marcarMensagensComoLidas(List<Mensagem> listaMensagem) {
+		
+		for (Mensagem mensagem : listaMensagem) {
+			
+			if (mensagem.getDataLeitura() == null) {
+				mensagem.setDataLeitura(LocalDateTime.now());
+				mensagemRepository.save(mensagem);
+			}
+			
+		}
+		
+	}
+
+	private void validarIdUsuarioInformado(Long id) {
+		
+		if (id == null || id.compareTo(0L) <= 0) {
+			throw new BusinessException("Usuário destino não informado!");
+		}
+		
+	}
+	
+	@Transactional
+	public List<MensagemDTO> buscarNovasMensagens(Long idUsuario) {
+		
+		validarIdUsuarioInformado(idUsuario);
+		
+		List<Mensagem> listaMensagem = mensagemRepository.buscarNovasMensagensEntreUsuarios(ServiceLocator.getUsuarioLogado().getId(), idUsuario);
+		
+		marcarMensagensComoLidas(listaMensagem);
+		
+		return listaMensagem.stream().map(x -> new MensagemDTO(x)).collect(Collectors.toList());
 	}
 
 }

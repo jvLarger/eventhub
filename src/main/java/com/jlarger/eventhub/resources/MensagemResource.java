@@ -42,4 +42,20 @@ public class MensagemResource {
 		return ResponseEntity.created(uri).body(mensagemDTO);
 	}
 	
+	@GetMapping("/{id}")
+	public ResponseEntity<List<MensagemDTO>> buscarMensagens(@PathVariable Long id) {
+		
+		List<MensagemDTO> listaMensagemDTO = mensagemService.buscarMensagens(id);
+		
+		return ResponseEntity.ok().body(listaMensagemDTO);
+	}
+	
+	@GetMapping("/{id}/novas")
+	public ResponseEntity<List<MensagemDTO>> buscarNovasMensagens(@PathVariable Long id) {
+		
+		List<MensagemDTO> listaMensagemDTO = mensagemService.buscarNovasMensagens(id);
+		
+		return ResponseEntity.ok().body(listaMensagemDTO);
+	}
+	
 }

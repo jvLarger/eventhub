@@ -1,13 +1,19 @@
 package com.jlarger.eventhub.resources;
 
+import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.jlarger.eventhub.dto.MensagemDTO;
 import com.jlarger.eventhub.dto.SalaBatePapoDTO;
 import com.jlarger.eventhub.services.MensagemService;
 
@@ -24,6 +30,16 @@ public class MensagemResource {
 		List<SalaBatePapoDTO> listaSalaBatePapoDTO = mensagemService.buscarSalasBatePapo();
 		
 		return ResponseEntity.ok().body(listaSalaBatePapoDTO);
+	}
+	
+	@PostMapping("/{id}")
+	public ResponseEntity<MensagemDTO> enviarMensagem(@PathVariable Long id, @RequestBody MensagemDTO dto) {
+		
+		MensagemDTO mensagemDTO = mensagemService.enviarMensagem(id, dto);
+		
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(mensagemDTO.getId()).toUri();
+		
+		return ResponseEntity.created(uri).body(mensagemDTO);
 	}
 	
 }

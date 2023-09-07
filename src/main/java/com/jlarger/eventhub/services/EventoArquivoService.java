@@ -123,7 +123,8 @@ public class EventoArquivoService {
 	
 		return listaEventoArquivo;
 	}
-
+	
+	@Transactional(readOnly = true)
 	public HashMap<Long, ArrayList<EventoArquivo>> getMapaArquivosPorEventos(List<Long> listaIdEvento) {
 		
 		HashMap<Long, ArrayList<EventoArquivo>> mapaArquivosPorEventos = new HashMap<Long, ArrayList<EventoArquivo>>();

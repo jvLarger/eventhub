@@ -115,7 +115,8 @@ public class EventoCategoriaService {
 		
 		return listaEventoCategoria;
 	}
-
+	
+	@Transactional(readOnly = true)
 	public HashMap<Long, ArrayList<EventoCategoria>> getMapaCategoriasPorEventos(List<Long> listaIdEvento) {
 		
 		HashMap<Long, ArrayList<EventoCategoria>> mapaCategoriasPorEvento = new HashMap<Long, ArrayList<EventoCategoria>>();

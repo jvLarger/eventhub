@@ -1,11 +1,14 @@
 package com.jlarger.eventhub.services;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jlarger.eventhub.dto.CategoriaDTO;
 import com.jlarger.eventhub.entities.Categoria;
 import com.jlarger.eventhub.repositories.CategoriaRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
@@ -34,6 +37,14 @@ public class CategoriaService {
 			throw new BusinessException("Categoria não informada");
 		}
 		
+	}
+	
+	@Transactional(readOnly = true)
+	public List<CategoriaDTO> buscarCategorias() {
+		
+		List<Categoria> listaCategoria = categoriaRepository.buscarCategoriasOrdenadas();
+		
+		return listaCategoria.stream().map(x -> new CategoriaDTO(x)).collect(Collectors.toList());
 	}
 
 }

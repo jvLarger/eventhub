@@ -14,6 +14,7 @@ import com.jlarger.eventhub.entities.Arquivo;
 import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.EventoArquivo;
 import com.jlarger.eventhub.repositories.EventoArquivoRepository;
+import com.jlarger.eventhub.services.exceptions.BusinessException;
 
 @Service
 public class EventoArquivoService {
@@ -87,6 +88,30 @@ public class EventoArquivoService {
 		}
 		
 		return listaEventoArquivo;
+	}
+	
+	@Transactional
+	public void excluirArquivosPorEvento(Long idEvento) {
+		
+		validarEventoInformado(idEvento);
+		
+		List<EventoArquivo> listaEventoArquivo = eventoArquivoRepository.buscarArquivosPorEvento(idEvento);
+		
+		for (EventoArquivo eventoArquivo : listaEventoArquivo) {
+			
+			eventoArquivoRepository.delete(eventoArquivo);
+			
+			arquivoService.excluirArquivo(eventoArquivo.getArquivo());
+			
+		}
+	}
+
+	private void validarEventoInformado(Long idEvento) {
+		
+		if (idEvento == null || idEvento.compareTo(0L) <= 0) {
+			throw new BusinessException("Evento não informado!");
+		}
+		
 	}
 	
 }

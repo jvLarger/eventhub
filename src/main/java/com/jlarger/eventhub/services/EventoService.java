@@ -39,6 +39,12 @@ public class EventoService {
 	private EventoArquivoService eventoArquivoService;
 	
 	@Autowired
+	private EventoInteresseService eventoInteresseService;
+	
+	@Autowired
+	private IngressoService ingressoService;
+	
+	@Autowired
 	private GeolocalizacaoService geolocalizacaoService;
 	
 	@Autowired
@@ -258,6 +264,30 @@ public class EventoService {
 			throw new BusinessException("Evento não informado!");
 		}
 		
+	}
+	
+	@Transactional
+	public void excluirEvento(Long idEvento) {
+
+		validarIdEventoInformado(idEvento);
+		
+		Evento evento = getEvento(idEvento);
+		
+		validarDonoEvento(evento);
+		
+		validarSeEventoJaFoiConcluido(evento);
+		
+		eventoArquivoService.excluirArquivosPorEvento(idEvento);
+		
+		eventoCategoriaService.excluirCategoriasPorEvento(idEvento);
+		
+		eventoInteresseService.excluirInteressesPorEvento(idEvento);
+		
+		ingressoService.excluirIngressosPorEvento(idEvento);
+		
+		faturamentoService.excluirFaturamentoPorEvento(idEvento);
+		
+		eventoRepository.delete(evento);
 	}
 
 }

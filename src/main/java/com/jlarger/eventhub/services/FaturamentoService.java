@@ -67,4 +67,29 @@ public class FaturamentoService {
 
 		return faturamento;
 	}
+	
+	@Transactional
+	public void excluirFaturamentoPorEvento(Long idEvento) {
+		
+		validarEventoInformado(idEvento);
+		
+		Optional<Faturamento> optionalFaturamento = faturamentoRepository.buscarFaturamentoPorEvento(idEvento);
+		
+		if (optionalFaturamento.isPresent()) {
+			
+			Faturamento faturamento = optionalFaturamento.get();
+			
+			faturamentoRepository.delete(faturamento);
+			
+		}
+		
+	}
+	
+	private void validarEventoInformado(Long idEvento) {
+		
+		if (idEvento == null || idEvento.compareTo(0L) <= 0) {
+			throw new BusinessException("Evento não informado!");
+		}
+		
+	}
 }

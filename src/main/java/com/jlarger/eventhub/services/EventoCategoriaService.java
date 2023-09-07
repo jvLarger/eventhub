@@ -14,6 +14,7 @@ import com.jlarger.eventhub.entities.Categoria;
 import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.EventoCategoria;
 import com.jlarger.eventhub.repositories.EventoCategoriaRepository;
+import com.jlarger.eventhub.services.exceptions.BusinessException;
 
 @Service
 public class EventoCategoriaService {
@@ -84,5 +85,24 @@ public class EventoCategoriaService {
 		
 		return listaEventoCategoria;
 	}
+
+	public void excluirCategoriasPorEvento(Long idEvento) {
+		
+		validarEventoInformado(idEvento);
+		
+		List<EventoCategoria> listaEventoCategoria = eventoCategoriaRepository.buscarCategoriasPorEvento(idEvento);
+		
+		for (EventoCategoria eventoCategoria : listaEventoCategoria) {
+			eventoCategoriaRepository.delete(eventoCategoria);
+		}
+		
+	}
 	
+	private void validarEventoInformado(Long idEvento) {
+		
+		if (idEvento == null || idEvento.compareTo(0L) <= 0) {
+			throw new BusinessException("Evento não informado!");
+		}
+		
+	}
 }

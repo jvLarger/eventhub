@@ -193,7 +193,7 @@ public class MensagemService {
 		
 		for (Mensagem mensagem : listaMensagem) {
 			
-			if (mensagem.getDataLeitura() == null) {
+			if (mensagem.getDataLeitura() == null && mensagem.getUsuarioDestino().getId().compareTo(ServiceLocator.getUsuarioLogado().getId()) == 0) {
 				mensagem.setDataLeitura(LocalDateTime.now());
 				mensagemRepository.save(mensagem);
 			}

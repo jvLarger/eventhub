@@ -15,7 +15,7 @@ public interface MensagemRepository extends JpaRepository<Mensagem, Long> {
 	@Query("SELECT m FROM Mensagem m WHERE ((m.usuarioOrigem.id = :idUsuarioPrimeiro AND m.usuarioDestino.id = :idUsuarioSegundo) OR (m.usuarioOrigem.id = :idUsuarioSegundo AND m.usuarioDestino.id = :idUsuarioPrimeiro)) ORDER BY m.dataMensagem ASC")
 	List<Mensagem> buscarMensagensEntreUsuarios(Long idUsuarioPrimeiro, Long idUsuarioSegundo);
 	
-	@Query("SELECT m FROM Mensagem m WHERE ((m.usuarioOrigem.id = :idUsuarioPrimeiro AND m.usuarioDestino.id = :idUsuarioSegundo) OR (m.usuarioOrigem.id = :idUsuarioSegundo AND m.usuarioDestino.id = :idUsuarioPrimeiro)) AND m.dataLeitura IS NULL ORDER BY m.dataMensagem ASC")
-	List<Mensagem> buscarNovasMensagensEntreUsuarios(Long idUsuarioPrimeiro, Long idUsuarioSegundo);
+	@Query("SELECT m FROM Mensagem m WHERE m.usuarioOrigem.id = :idUsuarioOrigem AND m.usuarioDestino.id = :idUsuarioDestino AND m.dataLeitura IS NULL ORDER BY m.dataMensagem ASC")
+	List<Mensagem> buscarNovasMensagensEntreUsuarios(Long idUsuarioDestino, Long idUsuarioOrigem);
 	
 }

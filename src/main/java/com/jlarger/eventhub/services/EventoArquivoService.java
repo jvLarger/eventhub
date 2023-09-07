@@ -1,6 +1,8 @@
 package com.jlarger.eventhub.services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,50 @@ public class EventoArquivoService {
 			eventoArquivo = eventoArquivoRepository.save(eventoArquivo);
 			
 			listaEventoArquivo.add(eventoArquivo);
+		}
+		
+		return listaEventoArquivo;
+	}
+	
+	@Transactional
+	public List<EventoArquivo> atualizarArquivosVinculadosAUmEvento(Evento evento, List<EventoArquivoDTO> arquivos) {
+		
+		HashMap<Long, Long> mapaEventoARquivoQueSeguemExistindoOuForamCriados = new HashMap<Long, Long>();
+		
+		for (EventoArquivoDTO eventoArquivoDTO : arquivos) {
+			
+			if (eventoArquivoDTO.getId() == null) {
+				
+				Arquivo arquivo = arquivoService.getArquivo(eventoArquivoDTO.getArquivo().getId());
+				
+				EventoArquivo eventoArquivo = new EventoArquivo();
+				eventoArquivo.setEvento(evento);
+				eventoArquivo.setArquivo(arquivo);
+				
+				eventoArquivo = eventoArquivoRepository.save(eventoArquivo);
+				
+				mapaEventoARquivoQueSeguemExistindoOuForamCriados.put(eventoArquivo.getId(), eventoArquivo.getId());
+
+			} else {
+				mapaEventoARquivoQueSeguemExistindoOuForamCriados.put(eventoArquivoDTO.getId(), eventoArquivoDTO.getId());
+			}
+			
+		}
+		
+		List<EventoArquivo> listaEventoArquivo = eventoArquivoRepository.buscarArquivosPorEvento(evento.getId());
+		
+		for (Iterator<EventoArquivo> iterator = listaEventoArquivo.iterator(); iterator.hasNext();) {
+			EventoArquivo eventoArquivo = (EventoArquivo) iterator.next();
+			
+			if (!mapaEventoARquivoQueSeguemExistindoOuForamCriados.containsKey(eventoArquivo.getId())) {
+				
+				eventoArquivoRepository.delete(eventoArquivo);
+				
+				arquivoService.excluirArquivo(eventoArquivo.getArquivo());
+				
+				iterator.remove();
+			}
+			
 		}
 		
 		return listaEventoArquivo;

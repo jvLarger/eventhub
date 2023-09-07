@@ -2,6 +2,7 @@ package com.jlarger.eventhub.services;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.Faturamento;
 import com.jlarger.eventhub.repositories.FaturamentoRepository;
+import com.jlarger.eventhub.services.exceptions.BusinessException;
 
 @Service
 public class FaturamentoService {
@@ -31,7 +33,7 @@ public class FaturamentoService {
 		
 		return faturamento;
 	}
-
+	
 	private LocalDateTime calcularDataLiberacao(Evento evento) {
 		
 		LocalDate localDate = evento.getData().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
@@ -40,5 +42,29 @@ public class FaturamentoService {
 		LocalDateTime dataLiberacao = localDateTime.plusDays(10);
 		
 		return dataLiberacao;
+	}
+	
+	@Transactional
+	public Faturamento tratarEAtualizarDataLiberacaoPagamento(Evento evento) {
+		
+		Faturamento faturamento = getFaturamentoPorEvento(evento);
+		
+		LocalDateTime dataLiberacao = calcularDataLiberacao(evento);
+		
+		if (dataLiberacao.compareTo(faturamento.getDataLiberacao()) != 0) {
+			faturamento.setDataLiberacao(dataLiberacao);
+			faturamento = faturamentoRepository.save(faturamento);
+		}
+		
+		return faturamento;
+	}
+
+	private Faturamento getFaturamentoPorEvento(Evento evento) {
+		
+		Optional<Faturamento> optionalFaturamento = faturamentoRepository.buscarFaturamentoPorEvento(evento.getId());
+		
+		Faturamento faturamento = optionalFaturamento.orElseThrow(() -> new BusinessException("Faturamento não encontrado"));
+
+		return faturamento;
 	}
 }

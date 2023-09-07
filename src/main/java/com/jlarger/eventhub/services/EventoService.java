@@ -2,6 +2,7 @@ package com.jlarger.eventhub.services;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,11 @@ import com.jlarger.eventhub.dto.GeoCoding;
 import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.EventoArquivo;
 import com.jlarger.eventhub.entities.EventoCategoria;
+import com.jlarger.eventhub.entities.Ingresso;
 import com.jlarger.eventhub.repositories.EventoRepository;
+import com.jlarger.eventhub.repositories.IngressoRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
+import com.jlarger.eventhub.utils.ServiceLocator;
 import com.jlarger.eventhub.utils.Util;
 
 @Service
@@ -38,12 +42,15 @@ public class EventoService {
 	private GeolocalizacaoService geolocalizacaoService;
 	
 	@Autowired
+	private IngressoRepository ingressoRepository;
+	
+	@Autowired
 	private EventoRepository eventoRepository;
 	
 	@Transactional
 	public EventoDTO criarEvento(EventoDTO dto) {
 		
-		validarInformacoesNovoEvento(dto);
+		validarInformacoesEvento(dto);
 		
 		Evento evento = popularCamposEvento(dto);
 	
@@ -65,7 +72,6 @@ public class EventoService {
 	private Evento popularCamposEvento(EventoDTO dto) {
 	
 		Evento evento = new Evento();
-		evento.setId(dto.getId());
 		evento.setBairro(dto.getBairro().trim());
 		evento.setCep(Util.getSomenteNumeros(dto.getCep().trim()));
 		evento.setCidade(dto.getCidade().trim());
@@ -103,7 +109,7 @@ public class EventoService {
 		evento.setLongitude(geoCoding.getGeoCodingResults()[0].getGeometry().getLocation().getLng());
 	}
 
-	private void validarInformacoesNovoEvento(EventoDTO eventoDTO) {
+	private void validarInformacoesEvento(EventoDTO eventoDTO) {
 		
 		if (eventoDTO.getNome() == null || eventoDTO.getNome().trim().isEmpty()) {
 			throw new BusinessException("O nome do evento deve ser informado!");
@@ -167,6 +173,89 @@ public class EventoService {
 		
 		if (eventoDTO.getArquivos() == null || eventoDTO.getArquivos().isEmpty()) {
 			throw new BusinessException("Pelo menos uma foto deve ser adicionada!");
+		}
+		
+	}
+	
+	@Transactional
+	public EventoDTO alterarEvento(Long idEvento, EventoDTO dto) {
+		
+		validarIdEventoInformado(idEvento);
+		
+		validarInformacoesEvento(dto);
+		
+		Evento eventoAntigo = getEvento(idEvento);
+		
+		validarDonoEvento(eventoAntigo);
+		
+		validarSeEventoJaFoiConcluido(eventoAntigo);
+		
+		validarAlteracaoDataTerminoComIngressosJaVendidos(eventoAntigo, dto);
+		
+		Evento evento = popularCamposEvento(dto);
+		evento.setId(idEvento);
+		
+		evento = eventoRepository.save(evento);
+		
+		List<EventoCategoria> listaEventoCategoria = eventoCategoriaService.atualizarCategoriasVinculadasAUmEvento(evento, dto.getCategorias());
+
+		List<EventoArquivo> listaEventoArquivo = eventoArquivoService.atualizarArquivosVinculadosAUmEvento(evento, dto.getArquivos());
+		
+		faturamentoService.tratarEAtualizarDataLiberacaoPagamento(evento);
+		
+		EventoDTO eventoDTO = new EventoDTO(evento);
+		eventoDTO.setArquivos(listaEventoArquivo.stream().map(x -> new EventoArquivoDTO(x)).collect(Collectors.toList()));
+		eventoDTO.setCategorias(listaEventoCategoria.stream().map(x -> new EventoCategoriaDTO(x)).collect(Collectors.toList()));
+		
+		return eventoDTO;
+	}
+	
+	private void validarDonoEvento(Evento eventoAntigo) {
+		
+		if (eventoAntigo.getUsuario().getId().compareTo(ServiceLocator.getUsuarioLogado().getId()) != 0 ) {
+			throw new BusinessException("Somente o dono do evento pode altera-lo!");
+		}
+		
+	}
+
+	private void validarSeEventoJaFoiConcluido(Evento eventoAntigo) {
+		
+		if (eventoAntigo.getData().compareTo(new Date()) < 0 ) {
+			throw new BusinessException("Evento já está concluído!");
+		}
+		
+	}
+
+	@Transactional(readOnly = true)
+	private Evento getEvento(Long idEvento) {
+		
+		validarIdEventoInformado(idEvento);
+		
+		Optional<Evento> optionalEvento = eventoRepository.findById(idEvento);
+
+		Evento evento = optionalEvento.orElseThrow(() -> new BusinessException("Evento não encontrada"));
+
+		return evento;
+	}
+
+	private void validarAlteracaoDataTerminoComIngressosJaVendidos(Evento eventoAntigo, EventoDTO eventoDTO) {
+		
+		if (eventoAntigo.getHoraInicio().compareTo(eventoDTO.getHoraInicio()) != 0 || eventoAntigo.getData().compareTo(eventoDTO.getData()) != 0) {
+			
+			List<Ingresso> listaIngresso = ingressoRepository.buscarIngressosPorEvento(eventoAntigo.getId());
+			
+			if (listaIngresso.size() > 0) {
+				throw new BusinessException("Não é possível aletrar a data de inicío de eventos que já possuem ingressos vendidos!");
+			}
+			
+		}
+		
+	}
+
+	private void validarIdEventoInformado(Long idEvento) {
+		
+		if (idEvento == null || idEvento.compareTo(0L) <= 0) {
+			throw new BusinessException("Evento não informado!");
 		}
 		
 	}

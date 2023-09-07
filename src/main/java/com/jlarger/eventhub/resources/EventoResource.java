@@ -4,7 +4,9 @@ import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +30,14 @@ public class EventoResource {
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(eventoDTO.getId()).toUri();
 		
 		return ResponseEntity.created(uri).body(eventoDTO);
+	}
+	
+	@PutMapping("/{id}")
+	public ResponseEntity<EventoDTO> alterarEvento(@PathVariable Long id, @RequestBody EventoDTO dto) {
+		
+		EventoDTO eventoDTO = eventoService.alterarEvento(id, dto);
+		
+		return ResponseEntity.ok().body(eventoDTO);
 	}
 	
 }

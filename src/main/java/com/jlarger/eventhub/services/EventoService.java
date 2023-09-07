@@ -1,6 +1,9 @@
 package com.jlarger.eventhub.services;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -288,6 +291,103 @@ public class EventoService {
 		faturamentoService.excluirFaturamentoPorEvento(idEvento);
 		
 		eventoRepository.delete(evento);
+	}
+	
+	@Transactional(readOnly = true)
+	public EventoDTO buscarEvento(Long idEvento) {
+		
+		validarIdEventoInformado(idEvento);
+		
+		Evento evento = getEvento(idEvento);
+		
+		List<EventoArquivo> listaEventoArquivo = eventoArquivoService.buscarArquviosPorEvento(idEvento);
+		
+		List<EventoCategoria> listaEventoCategoria = eventoCategoriaService.buscarCategoriasPorEvento(idEvento);
+
+		EventoDTO eventoDTO = new EventoDTO(evento);
+		eventoDTO.setArquivos(listaEventoArquivo.stream().map(x -> new EventoArquivoDTO(x)).collect(Collectors.toList()));
+		eventoDTO.setCategorias(listaEventoCategoria.stream().map(x -> new EventoCategoriaDTO(x)).collect(Collectors.toList()));
+		
+		return eventoDTO;
+	}
+	
+	@Transactional(readOnly = true)
+	public List<EventoDTO> buscarMeusEventosPendentes() {
+		
+		List<Evento> listaEvento = eventoRepository.buscarEventosPedentesDoUsuario(ServiceLocator.getUsuarioLogado().getId(), new Date(), LocalTime.now());
+		
+		List<Long> listaIdEvento = getListaIdEvento(listaEvento);
+		
+		HashMap<Long, ArrayList<EventoArquivo>> mapaArquivosPorEvento = eventoArquivoService.getMapaArquivosPorEventos(listaIdEvento);
+		HashMap<Long, ArrayList<EventoCategoria>> mapaCategoriasPorEvento = eventoCategoriaService.getMapaCategoriasPorEventos(listaIdEvento);
+
+		List<EventoDTO> listaEventoDTO = new ArrayList<EventoDTO>();
+		
+		if (listaIdEvento.size() > 0) {
+			
+			for (Evento evento : listaEvento) {
+				
+				EventoDTO eventoDTO = new EventoDTO(evento);
+
+				if (mapaArquivosPorEvento.containsKey(evento.getId())) {
+					eventoDTO.setArquivos(mapaArquivosPorEvento.get(evento.getId()).stream().map(x -> new EventoArquivoDTO(x)).collect(Collectors.toList()));
+				}
+				
+				if (mapaCategoriasPorEvento.containsKey(evento.getId())) {
+					eventoDTO.setCategorias(mapaCategoriasPorEvento.get(evento.getId()).stream().map(x -> new EventoCategoriaDTO(x)).collect(Collectors.toList()));
+				}
+				
+				listaEventoDTO.add(eventoDTO);
+			}
+			
+		}
+		
+		return listaEventoDTO;
+	}
+	
+	private List<Long> getListaIdEvento(List<Evento> listaEvento) {
+		
+		List<Long> listaIdEvento = new ArrayList<Long>();
+		
+		for (Evento evento : listaEvento) {
+			listaIdEvento.add(evento.getId());
+		}
+		
+		return listaIdEvento;
+	}
+
+	@Transactional(readOnly = true)
+	public List<EventoDTO> buscarMeusEventosConcluidos() {
+		
+		List<Evento> listaEvento = eventoRepository.buscarMeusEventosConcluidos(ServiceLocator.getUsuarioLogado().getId(), new Date(), LocalTime.now());
+		
+		List<Long> listaIdEvento = getListaIdEvento(listaEvento);
+		
+		HashMap<Long, ArrayList<EventoArquivo>> mapaArquivosPorEvento = eventoArquivoService.getMapaArquivosPorEventos(listaIdEvento);
+		HashMap<Long, ArrayList<EventoCategoria>> mapaCategoriasPorEvento = eventoCategoriaService.getMapaCategoriasPorEventos(listaIdEvento);
+
+		List<EventoDTO> listaEventoDTO = new ArrayList<EventoDTO>();
+		
+		if (listaIdEvento.size() > 0) {
+			
+			for (Evento evento : listaEvento) {
+				
+				EventoDTO eventoDTO = new EventoDTO(evento);
+
+				if (mapaArquivosPorEvento.containsKey(evento.getId())) {
+					eventoDTO.setArquivos(mapaArquivosPorEvento.get(evento.getId()).stream().map(x -> new EventoArquivoDTO(x)).collect(Collectors.toList()));
+				}
+				
+				if (mapaCategoriasPorEvento.containsKey(evento.getId())) {
+					eventoDTO.setCategorias(mapaCategoriasPorEvento.get(evento.getId()).stream().map(x -> new EventoCategoriaDTO(x)).collect(Collectors.toList()));
+				}
+				
+				listaEventoDTO.add(eventoDTO);
+			}
+			
+		}
+		
+		return listaEventoDTO;
 	}
 
 }

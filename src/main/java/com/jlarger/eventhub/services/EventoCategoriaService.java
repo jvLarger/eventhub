@@ -105,4 +105,36 @@ public class EventoCategoriaService {
 		}
 		
 	}
+	
+	@Transactional(readOnly = true)
+	public List<EventoCategoria> buscarCategoriasPorEvento(Long idEvento) {
+		
+		validarEventoInformado(idEvento);
+		
+		List<EventoCategoria> listaEventoCategoria = eventoCategoriaRepository.buscarCategoriasPorEvento(idEvento);
+		
+		return listaEventoCategoria;
+	}
+
+	public HashMap<Long, ArrayList<EventoCategoria>> getMapaCategoriasPorEventos(List<Long> listaIdEvento) {
+		
+		HashMap<Long, ArrayList<EventoCategoria>> mapaCategoriasPorEvento = new HashMap<Long, ArrayList<EventoCategoria>>();
+		
+		if (listaIdEvento.size() > 0) {
+			
+			List<EventoCategoria> listEventoCategoria = eventoCategoriaRepository.buscarCategoriasPorListaEventos(listaIdEvento);
+			
+			for (EventoCategoria eventoCategoria : listEventoCategoria) {
+				
+				if (!mapaCategoriasPorEvento.containsKey(eventoCategoria.getEvento().getId())) {
+					mapaCategoriasPorEvento.put(eventoCategoria.getEvento().getId(), new ArrayList<EventoCategoria>());
+				}
+				
+				mapaCategoriasPorEvento.get(eventoCategoria.getEvento().getId()).add(eventoCategoria);
+			}
+			
+		}
+		
+		return mapaCategoriasPorEvento;
+	}
 }

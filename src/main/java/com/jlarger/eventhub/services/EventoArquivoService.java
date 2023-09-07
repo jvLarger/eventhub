@@ -113,5 +113,37 @@ public class EventoArquivoService {
 		}
 		
 	}
+
+	@Transactional(readOnly = true)
+	public List<EventoArquivo> buscarArquviosPorEvento(Long idEvento) {
+		
+		validarEventoInformado(idEvento);
+		
+		List<EventoArquivo> listaEventoArquivo = eventoArquivoRepository.buscarArquivosPorEvento(idEvento);
+	
+		return listaEventoArquivo;
+	}
+
+	public HashMap<Long, ArrayList<EventoArquivo>> getMapaArquivosPorEventos(List<Long> listaIdEvento) {
+		
+		HashMap<Long, ArrayList<EventoArquivo>> mapaArquivosPorEventos = new HashMap<Long, ArrayList<EventoArquivo>>();
+		
+		if (listaIdEvento.size() > 0) {
+			
+			List<EventoArquivo> listaEventoArquivo = eventoArquivoRepository.buscarArquivosPorListaEventos(listaIdEvento);
+			
+			for (EventoArquivo eventoArquivo : listaEventoArquivo) {
+				
+				if (!mapaArquivosPorEventos.containsKey(eventoArquivo.getEvento().getId())) {
+					mapaArquivosPorEventos.put(eventoArquivo.getEvento().getId(), new ArrayList<EventoArquivo>());
+				}
+				
+				mapaArquivosPorEventos.get(eventoArquivo.getEvento().getId()).add(eventoArquivo);
+			}
+			
+		}
+		
+		return mapaArquivosPorEventos;
+	}
 	
 }

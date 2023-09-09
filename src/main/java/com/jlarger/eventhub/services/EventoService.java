@@ -128,8 +128,10 @@ public class EventoService {
 			throw new BusinessException("A data de início do evento não foi informada!");
 		}
 		
-		if (eventoDTO.getData().compareTo(new Date()) <= 0) {
+		if (Util.comprarDatasSemHora(eventoDTO.getData(), new Date()) < 0) {
 			throw new BusinessException("A data de início do evento deve ser superior a data atual!");
+		} else if (Util.comprarDatasSemHora(eventoDTO.getData(), new Date()) == 0 && eventoDTO.getHoraInicio().compareTo(LocalTime.now()) <= 0) {
+			throw new BusinessException("A hora de início do evento deve ser superior a data atual!");
 		}
 		
 		if (eventoDTO.getHoraInicio() == null) {

@@ -1,5 +1,7 @@
 package com.jlarger.eventhub.utils;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,6 +76,25 @@ public class Util {
         }
         
         return numerosString.toString();
+	}
+	
+	public static Integer comprarDatasSemHora(Date dataUm, Date dataDois) {
+		
+		Calendar calendarDataUm = Calendar.getInstance();
+		calendarDataUm.setTime(dataUm);
+		calendarDataUm.set(Calendar.HOUR_OF_DAY, 0);
+		calendarDataUm.set(Calendar.MINUTE, 0);
+		calendarDataUm.set(Calendar.SECOND, 0);
+		calendarDataUm.set(Calendar.MILLISECOND, 0);
+		
+		Calendar calendarDataDois = Calendar.getInstance();
+		calendarDataDois.setTime(dataDois);
+		calendarDataDois.set(Calendar.HOUR_OF_DAY, 0);
+		calendarDataDois.set(Calendar.MINUTE, 0);
+		calendarDataDois.set(Calendar.SECOND, 0);
+		calendarDataDois.set(Calendar.MILLISECOND, 0);
+		
+		return calendarDataUm.getTime().compareTo(calendarDataDois.getTime());
 	}
 	
 }

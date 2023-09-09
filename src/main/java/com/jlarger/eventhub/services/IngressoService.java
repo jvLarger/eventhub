@@ -24,7 +24,7 @@ public class IngressoService {
 		
 		validarEventoInformado(idEvento);
 		
-		List<Ingresso> listaIngresso = ingressoRepository.buscarIngressosPorEvento(idEvento);
+		List<Ingresso> listaIngresso = buscarIngressosPorEvento(idEvento);
 		
 		for (Ingresso ingresso : listaIngresso) {
 			
@@ -43,5 +43,15 @@ public class IngressoService {
 		}
 		
 	}
-
+	
+	@Transactional(readOnly = true)
+	public List<Ingresso> buscarIngressosPorEvento(Long idEvento) {
+		
+		validarEventoInformado(idEvento);
+		
+		List<Ingresso> listaIngresso = ingressoRepository.buscarIngressosPorEvento(idEvento);
+		
+		return listaIngresso;
+	}
+	
 }

@@ -15,7 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.jlarger.eventhub.dto.EventoArquivoDTO;
 import com.jlarger.eventhub.dto.EventoCategoriaDTO;
 import com.jlarger.eventhub.dto.EventoDTO;
+import com.jlarger.eventhub.dto.FaturamentoDTO;
 import com.jlarger.eventhub.dto.GeoCoding;
+import com.jlarger.eventhub.dto.IndicadoresEventoDTO;
+import com.jlarger.eventhub.dto.IngressoDTO;
 import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.EventoArquivo;
 import com.jlarger.eventhub.entities.EventoCategoria;
@@ -224,7 +227,7 @@ public class EventoService {
 	private void validarDonoEvento(Evento eventoAntigo) {
 		
 		if (eventoAntigo.getUsuario().getId().compareTo(ServiceLocator.getUsuarioLogado().getId()) != 0 ) {
-			throw new BusinessException("Somente o dono do evento pode altera-lo!");
+			throw new BusinessException("Somente o dono do evento pode realizar essa ação!");
 		}
 		
 	}
@@ -390,6 +393,39 @@ public class EventoService {
 		}
 		
 		return listaEventoDTO;
+	}
+	
+	@Transactional(readOnly = true)
+	public IndicadoresEventoDTO buscarIndicadoresEvento(Long idEvento) {
+		
+		validarIdEventoInformado(idEvento);
+		
+		Evento evento = getEvento(idEvento);
+		
+		validarDonoEvento(evento);
+		
+		EventoDTO eventoDTO = buscarEvento(idEvento);
+		FaturamentoDTO faturamentoDTO = new FaturamentoDTO(faturamentoService.getFaturamentoPorEvento(evento));
+		
+		IndicadoresEventoDTO indicadoresEventoDTO = new IndicadoresEventoDTO();
+		indicadoresEventoDTO.setEvento(eventoDTO);
+		indicadoresEventoDTO.setFaturamento(faturamentoDTO);
+		
+		return indicadoresEventoDTO;
+	}
+	
+	@Transactional(readOnly = true)
+	public List<IngressoDTO> buscarParticipantesDoEvento(Long idEvento) {
+		
+		validarIdEventoInformado(idEvento);
+		
+		Evento evento = getEvento(idEvento);
+		
+		validarDonoEvento(evento);
+		
+		List<Ingresso> listaIngresso = ingressoService.buscarIngressosPorEvento(idEvento);
+		
+		return listaIngresso.stream().map(x -> new IngressoDTO(x)).collect(Collectors.toList());
 	}
 
 }

@@ -12,7 +12,7 @@ public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
     @Query("SELECT count(i) FROM Ingresso i WHERE i.usuario.id = :idUsuario")
 	Integer countByIdUsuario(Long idUsuario);
     
-    @Query("SELECT i FROM Ingresso i WHERE i.evento.id = :idEvento")
+    @Query("SELECT i FROM Ingresso i WHERE i.evento.id = :idEvento ORDER BY i.nome ASC")
 	List<Ingresso> buscarIngressosPorEvento(Long idEvento);
 	
 }

@@ -59,7 +59,7 @@ public class FaturamentoService {
 		return faturamento;
 	}
 
-	private Faturamento getFaturamentoPorEvento(Evento evento) {
+	public Faturamento getFaturamentoPorEvento(Evento evento) {
 		
 		Optional<Faturamento> optionalFaturamento = faturamentoRepository.buscarFaturamentoPorEvento(evento.getId());
 		

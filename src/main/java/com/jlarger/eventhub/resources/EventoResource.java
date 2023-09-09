@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.jlarger.eventhub.dto.EventoDTO;
+import com.jlarger.eventhub.dto.IndicadoresEventoDTO;
+import com.jlarger.eventhub.dto.IngressoDTO;
 import com.jlarger.eventhub.services.EventoService;
 
 @RestController
@@ -73,6 +75,22 @@ public class EventoResource {
 		List<EventoDTO> listaEventoDTO = eventoService.buscarMeusEventosConcluidos();
 		
 		return ResponseEntity.ok().body(listaEventoDTO);
+	}
+	
+	@GetMapping("/{id}/indicadores")
+	public ResponseEntity<IndicadoresEventoDTO> buscarIndicadoresEvento(@PathVariable Long id) {
+		
+		IndicadoresEventoDTO indicadoresEventoDTO = eventoService.buscarIndicadoresEvento(id);
+		
+		return ResponseEntity.ok().body(indicadoresEventoDTO);
+	}
+	
+	@GetMapping("/{id}/indicadores/participantes")
+	public ResponseEntity<List<IngressoDTO>> buscarParticipantesDoEvento(@PathVariable Long id) {
+		
+		List<IngressoDTO> listaIngressos = eventoService.buscarParticipantesDoEvento(id);
+		
+		return ResponseEntity.ok().body(listaIngressos);
 	}
 	
 }

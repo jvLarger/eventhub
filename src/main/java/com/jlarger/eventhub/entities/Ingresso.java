@@ -167,6 +167,14 @@ public class Ingresso {
 		this.identificadorTransacaoPagamento = identificadorTransacaoPagamento;
 	}
 
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(dataComemorativa, documentoPrincipal, email, evento, id, identificadorTransacaoPagamento,

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.jlarger.eventhub.entities.Evento;
+import com.jlarger.eventhub.utils.Util;
 
 public class EventoDTO implements Serializable {
 	
@@ -31,11 +32,13 @@ public class EventoDTO implements Serializable {
 	private Boolean restrito;
 	private List<EventoArquivoDTO> arquivos = new ArrayList<EventoArquivoDTO>();
 	private List<EventoCategoriaDTO> categorias = new ArrayList<EventoCategoriaDTO>();
-
+	
+	private String dataEHoraFormatada;
+	
 	public EventoDTO() {
 	}
 	
-	public EventoDTO(Long id, UsuarioDTO usuario, String nome, Date data, LocalTime horaInicio, Double valor,String descricao, String cep, String cidade, String estado, String logradouro, String bairro, String complemento, String numero, Double latitude, Double longitude, Boolean restrito, List<EventoArquivoDTO> arquivos, List<EventoCategoriaDTO> categorias) {
+	public EventoDTO(Long id, UsuarioDTO usuario, String nome, Date data, LocalTime horaInicio, Double valor,String descricao, String cep, String cidade, String estado, String logradouro, String bairro, String complemento, String numero, Double latitude, Double longitude, Boolean restrito, List<EventoArquivoDTO> arquivos, List<EventoCategoriaDTO> categorias, String dataEHoraFormatada) {
 		this.id = id;
 		this.usuario = usuario;
 		this.nome = nome;
@@ -55,6 +58,7 @@ public class EventoDTO implements Serializable {
 		this.restrito = restrito;
 		this.arquivos = arquivos;
 		this.categorias = categorias;
+		this.dataEHoraFormatada = dataEHoraFormatada;
 	}
 
 	public EventoDTO(Evento evento) {
@@ -75,6 +79,7 @@ public class EventoDTO implements Serializable {
 		this.latitude = evento.getLatitude();
 		this.longitude = evento.getLongitude();
 		this.restrito = evento.getRestrito();
+		this.dataEHoraFormatada = Util.formatarApresentacaoDeDataComHoraEDiaSemana(evento.getData(), evento.getHoraInicio());
 	}
 
 	public Long getId() {
@@ -194,6 +199,14 @@ public class EventoDTO implements Serializable {
 
 	public void setCategorias(List<EventoCategoriaDTO> categorias) {
 		this.categorias = categorias;
+	}
+
+	public String getDataEHoraFormatada() {
+		return dataEHoraFormatada;
+	}
+
+	public void setDataEHoraFormatada(String dataEHoraFormatada) {
+		this.dataEHoraFormatada = dataEHoraFormatada;
 	}
 
 }

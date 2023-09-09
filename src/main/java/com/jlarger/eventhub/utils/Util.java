@@ -1,5 +1,7 @@
 package com.jlarger.eventhub.utils;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -9,7 +11,8 @@ public class Util {
 	
 	private static final String REGEX_NUMERO_NA_STRING = ".*\\d.*";
 	private static final String REGEX_EMAIL_VALIDO = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
-	
+	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
 	public static Boolean isExisteNumeroNoTexto(String texto) {
 		
 		Pattern pattern = Pattern.compile(REGEX_NUMERO_NA_STRING);
@@ -95,6 +98,102 @@ public class Util {
 		calendarDataDois.set(Calendar.MILLISECOND, 0);
 		
 		return calendarDataUm.getTime().compareTo(calendarDataDois.getTime());
+	}
+	
+	public static String formatarApresentacaoDeDataComHoraEDiaSemana(Date data, LocalTime hora) {
+		
+		Calendar dataBase = Calendar.getInstance();
+		dataBase.setTime(data);
+		
+		String diaSemana = getDiaSemana(dataBase);
+		String mes = getMes(dataBase);
+		String horaFormatada = hora.format(TIME_FORMATTER);
+		
+		StringBuilder dataFormatada = new StringBuilder();
+		dataFormatada.append(diaSemana.substring(0, 3));
+		dataFormatada.append(", ");
+		dataFormatada.append(dataBase.get(Calendar.DAY_OF_MONTH));
+		dataFormatada.append(" de ");
+		dataFormatada.append(mes);
+		dataFormatada.append(" • ");
+		dataFormatada.append(horaFormatada);
+		
+		return dataFormatada.toString();
+	}
+
+	private static String getDiaSemana(Calendar dataBase) {
+		
+		int diaSemana = dataBase.get(Calendar.DAY_OF_WEEK);
+
+		switch (diaSemana) {
+			case 1: {
+				return "Domingo";
+			}
+			case 2: {
+				return "Segunda-Feira";
+			}
+			case 3: {
+				return "Terça-Feira";
+			}
+			case 4: {
+				return "Quarta-Feira";
+			}
+			case 5: {
+				return "Quinta-Feira";
+			}
+			case 6: {
+				return "Sexta-Feira";
+			}
+			case 7: {
+				return "Sábado";
+			}
+		}
+		return null;
+	}
+	
+	private static String getMes(Calendar dataBase) {
+		
+		int mes = dataBase.get(Calendar.MONTH);
+
+		switch (mes) {
+			case 0: {
+				return "Janeiro";
+			}
+			case 1: {
+				return "Fevereiro";
+			}
+			case 2: {
+				return "Março";
+			}
+			case 3: {
+				return "Abril";
+			}
+			case 4: {
+				return "Maio";
+			}
+			case 5: {
+				return "Junho";
+			}
+			case 6: {
+				return "Julho";
+			}
+			case 7: {
+				return "Agosto";
+			}
+			case 8: {
+				return "Setembro";
+			}
+			case 9: {
+				return "Outubro";
+			}
+			case 10: {
+				return "Novembro";
+			}
+			case 11: {
+				return "Dezembro";
+			}
+		}
+		return null;
 	}
 	
 }

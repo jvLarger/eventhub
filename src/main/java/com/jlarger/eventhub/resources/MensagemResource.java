@@ -58,4 +58,12 @@ public class MensagemResource {
 		return ResponseEntity.ok().body(listaMensagemDTO);
 	}
 	
+	@GetMapping("/nao-lidas")
+	public ResponseEntity<Integer> getNumeroMensagensNaoLidas() {
+		
+		Integer countMensagensNaoLidasUsuario = mensagemService.getNumeroMensagensNaoLidas();
+		
+		return ResponseEntity.ok().body(countMensagensNaoLidasUsuario);
+	}
+	
 }

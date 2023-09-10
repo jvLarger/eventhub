@@ -18,4 +18,11 @@ public interface MensagemRepository extends JpaRepository<Mensagem, Long> {
 	@Query("SELECT m FROM Mensagem m WHERE m.usuarioOrigem.id = :idUsuarioOrigem AND m.usuarioDestino.id = :idUsuarioDestino AND m.dataLeitura IS NULL ORDER BY m.dataMensagem ASC")
 	List<Mensagem> buscarNovasMensagensEntreUsuarios(Long idUsuarioDestino, Long idUsuarioOrigem);
 	
+	@Query("SELECT count(m) FROM Mensagem m WHERE m.usuarioDestino.id = :idUsuarioDestino AND m.dataLeitura IS NULL")
+	Integer countMensagensNaoLidasUsuario(Long idUsuarioDestino);
+	
+	@Query("SELECT m FROM Mensagem m WHERE m.usuarioOrigem.id = :idUsuarioOrigem AND m.usuarioDestino.id = :idUsuarioDestino AND m.dataLeitura IS NULL ORDER BY m.dataMensagem ASC")
+	List<Mensagem> buscarMensagensNaoLidasEntreUsuarios(Long idUsuarioDestino, Long idUsuarioOrigem);
+	
+	
 }

@@ -1,6 +1,7 @@
 package com.jlarger.eventhub.services;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -161,9 +162,11 @@ public class MensagemService {
 		
 		mensagem = mensagemRepository.save(mensagem);
 		
-		if (usuarioDestino.getIdentificadorNotificacao() != null) {
+		/*
+		if (usuarioDestino.getIdentificadorNotificacao() != null ) {
 			pushNotificationService.sendPushNotificationToToken(new PushNotificationRequest("Event Hub", "Você recebeu uma nova mensagem", "", usuarioDestino.getIdentificadorNotificacao()));
 		}
+		*/
 		
 		return new MensagemDTO(mensagem);
 	}
@@ -220,6 +223,14 @@ public class MensagemService {
 		marcarMensagensComoLidas(listaMensagem);
 		
 		return listaMensagem.stream().map(x -> new MensagemDTO(x)).collect(Collectors.toList());
+	}
+	
+	@Transactional(readOnly = true)
+	public Integer getNumeroMensagensNaoLidas() {
+		
+		Integer countMensagensNaoLidasUsuario = mensagemRepository.countMensagensNaoLidasUsuario(ServiceLocator.getUsuarioLogado().getId());
+		
+		return countMensagensNaoLidasUsuario;
 	}
 
 }

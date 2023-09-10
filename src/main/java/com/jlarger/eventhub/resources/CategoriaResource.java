@@ -26,4 +26,12 @@ public class CategoriaResource {
 		return ResponseEntity.ok().body(listaCategorias);
 	}
 	
+	@GetMapping("/populares")
+	public ResponseEntity<List<CategoriaDTO>> buscarCategoriasMaisUtilizadas() {
+		
+		List<CategoriaDTO> listaCategorias = categoriaService.buscarCategoriasMaisUtilizadas();
+		
+		return ResponseEntity.ok().body(listaCategorias);
+	}
+	
 }

@@ -13,11 +13,17 @@ import com.jlarger.eventhub.entities.Categoria;
 import com.jlarger.eventhub.repositories.CategoriaRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
+
 @Service
 public class CategoriaService {
 	
 	@Autowired
 	private CategoriaRepository categoriaRepository;
+	
+	@Autowired
+	private EntityManager entityManager;
 	
 	@Transactional(readOnly = true)
 	public Categoria getCategoria(Long idCategoria) {
@@ -44,6 +50,20 @@ public class CategoriaService {
 		
 		List<Categoria> listaCategoria = categoriaRepository.buscarCategoriasOrdenadas();
 		
+		return listaCategoria.stream().map(x -> new CategoriaDTO(x)).collect(Collectors.toList());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
+	public List<CategoriaDTO> buscarCategoriasMaisUtilizadas() {
+
+		String sql = "SELECT c.* FROM test.categoria c INNER JOIN test.evento_categoria ec ON c.id = ec.id_categoria GROUP BY c.nome, c.id ORDER BY COUNT(ec.id) DESC";
+
+		Query query = entityManager.createNativeQuery(sql, Categoria.class);
+		query.setMaxResults(5);
+
+		List<Categoria> listaCategoria = query.getResultList();
+
 		return listaCategoria.stream().map(x -> new CategoriaDTO(x)).collect(Collectors.toList());
 	}
 

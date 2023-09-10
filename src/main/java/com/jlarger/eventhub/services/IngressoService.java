@@ -53,5 +53,14 @@ public class IngressoService {
 		
 		return listaIngresso;
 	}
+
+	public Integer countIngressosPorEvento(Long idEvento) {
+		
+		validarEventoInformado(idEvento);
+		
+		 Integer countIngressosPorEvento = ingressoRepository.countIngressosPorEvento(idEvento);
+		
+		return countIngressosPorEvento;
+	}
 	
 }

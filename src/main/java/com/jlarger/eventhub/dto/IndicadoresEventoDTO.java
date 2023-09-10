@@ -8,6 +8,7 @@ public class IndicadoresEventoDTO implements Serializable {
 	
 	private EventoDTO evento;
 	private FaturamentoDTO faturamento;
+	private Integer ingressosVendidos;
 	
 	public IndicadoresEventoDTO() {
 	}
@@ -26,6 +27,14 @@ public class IndicadoresEventoDTO implements Serializable {
 
 	public void setFaturamento(FaturamentoDTO faturamento) {
 		this.faturamento = faturamento;
+	}
+
+	public Integer getIngressosVendidos() {
+		return ingressosVendidos;
+	}
+
+	public void setIngressosVendidos(Integer ingressosVendidos) {
+		this.ingressosVendidos = ingressosVendidos;
 	}
 	
 }

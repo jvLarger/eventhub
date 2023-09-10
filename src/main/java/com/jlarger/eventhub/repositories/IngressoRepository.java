@@ -14,5 +14,8 @@ public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
     
     @Query("SELECT i FROM Ingresso i WHERE i.evento.id = :idEvento ORDER BY i.nome ASC")
 	List<Ingresso> buscarIngressosPorEvento(Long idEvento);
+    
+    @Query("SELECT count(i) FROM Ingresso i WHERE i.evento.id = :idEvento")
+	Integer countIngressosPorEvento(Long idEvento);
 	
 }

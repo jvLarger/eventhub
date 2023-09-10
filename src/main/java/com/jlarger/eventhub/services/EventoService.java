@@ -410,6 +410,7 @@ public class EventoService {
 		IndicadoresEventoDTO indicadoresEventoDTO = new IndicadoresEventoDTO();
 		indicadoresEventoDTO.setEvento(eventoDTO);
 		indicadoresEventoDTO.setFaturamento(faturamentoDTO);
+		indicadoresEventoDTO.setIngressosVendidos(ingressoService.countIngressosPorEvento(idEvento));
 		
 		return indicadoresEventoDTO;
 	}

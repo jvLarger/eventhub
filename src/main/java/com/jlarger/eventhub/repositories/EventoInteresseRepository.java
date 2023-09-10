@@ -11,5 +11,8 @@ public interface EventoInteresseRepository extends JpaRepository<EventoInteresse
 
 	@Query("SELECT ei FROM EventoInteresse ei WHERE ei.evento.id = :idEvento")
 	List<EventoInteresse> buscarInteressesPorEvento(Long idEvento);
+	
+	@Query("SELECT ei FROM EventoInteresse ei WHERE ei.evento.id IN (:listaIdEvento) AND ei.usuario.id = :idUsuario")
+	List<EventoInteresse> buscarEventosQueUsuarioDemonstrouInteresse(List<Long> listaIdEvento, Long idUsuario);
 
 }

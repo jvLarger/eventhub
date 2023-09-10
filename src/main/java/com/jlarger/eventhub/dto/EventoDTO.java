@@ -34,7 +34,8 @@ public class EventoDTO implements Serializable {
 	private List<EventoCategoriaDTO> categorias = new ArrayList<EventoCategoriaDTO>();
 	
 	private String dataEHoraFormatada;
-	
+	private Boolean demonstreiInteresse;
+
 	public EventoDTO() {
 	}
 	
@@ -207,6 +208,14 @@ public class EventoDTO implements Serializable {
 
 	public void setDataEHoraFormatada(String dataEHoraFormatada) {
 		this.dataEHoraFormatada = dataEHoraFormatada;
+	}
+
+	public Boolean getDemonstreiInteresse() {
+		return demonstreiInteresse;
+	}
+
+	public void setDemonstreiInteresse(Boolean demonstreiInteresse) {
+		this.demonstreiInteresse = demonstreiInteresse;
 	}
 
 }

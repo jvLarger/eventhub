@@ -1,9 +1,11 @@
 package com.jlarger.eventhub.resources;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -91,6 +94,14 @@ public class EventoResource {
 		List<IngressoDTO> listaIngressos = eventoService.buscarParticipantesDoEvento(id);
 		
 		return ResponseEntity.ok().body(listaIngressos);
+	}
+	
+	@GetMapping
+	public ResponseEntity<List<EventoDTO>> buscarEventos(@RequestParam(required = false) String nome, @RequestParam Double valorInicial, @RequestParam Double valorFinal,  @RequestParam Double latitude, @RequestParam Double longitude, @RequestParam(required = false) Double raio, @RequestParam(required = false) String categorias, @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date data, @RequestParam(required = false,name = "page") Integer pageNumber) {
+		
+		List<EventoDTO> listaEventoDTO = eventoService.buscarEventos(nome, latitude, longitude, raio, categorias, data, pageNumber != null ? pageNumber : 0, 10, valorInicial, valorFinal);
+		
+		return ResponseEntity.ok().body(listaEventoDTO);
 	}
 	
 }

@@ -1,7 +1,6 @@
 package com.jlarger.eventhub.services;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jlarger.eventhub.dto.MensagemDTO;
-import com.jlarger.eventhub.dto.PushNotificationRequest;
 import com.jlarger.eventhub.dto.SalaBatePapoDTO;
 import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.entities.Amizade;
@@ -36,8 +34,8 @@ public class MensagemService {
 	@Autowired
 	private MensagemRepository mensagemRepository;
 	
-	@Autowired 
-	private PushNotificationService pushNotificationService;
+	//@Autowired 
+	//private PushNotificationService pushNotificationService;
 	
 	@Transactional(readOnly = true)
 	public List<SalaBatePapoDTO> buscarSalasBatePapo() {

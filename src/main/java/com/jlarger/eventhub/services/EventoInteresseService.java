@@ -1,5 +1,6 @@
 package com.jlarger.eventhub.services;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.jlarger.eventhub.entities.EventoInteresse;
 import com.jlarger.eventhub.repositories.EventoInteresseRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
+import com.jlarger.eventhub.utils.ServiceLocator;
 
 @Service
 public class EventoInteresseService {
@@ -35,6 +37,24 @@ public class EventoInteresseService {
 			throw new BusinessException("Evento não informado!");
 		}
 		
+	}
+	
+	@Transactional(readOnly = true)
+	public HashMap<Long, Long> getMapaMapaEventosQueDemonstreiInteresse(List<Long> listaIdEvento) {
+		
+		HashMap<Long, Long> mapaMapaEventosQueDemonstreiInteresse = new HashMap<Long, Long>();
+		
+		if (listaIdEvento != null && listaIdEvento.size() > 0) {
+			
+			List<EventoInteresse> listaEventoInteresse = eventoInteresseRepository.buscarEventosQueUsuarioDemonstrouInteresse(listaIdEvento, ServiceLocator.getUsuarioLogado().getId());
+			
+			for (EventoInteresse eventoInteresse : listaEventoInteresse) {
+				mapaMapaEventosQueDemonstreiInteresse.put(eventoInteresse.getEvento().getId(), eventoInteresse.getEvento().getId());
+			}
+			
+		}
+		
+		return mapaMapaEventosQueDemonstreiInteresse;
 	}
 
 }

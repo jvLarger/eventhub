@@ -29,6 +29,9 @@ import com.jlarger.eventhub.services.exceptions.BusinessException;
 import com.jlarger.eventhub.utils.ServiceLocator;
 import com.jlarger.eventhub.utils.Util;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
+
 @Service
 public class EventoService {
 	
@@ -58,6 +61,9 @@ public class EventoService {
 	
 	@Autowired
 	private EventoRepository eventoRepository;
+	
+	@Autowired
+	private EntityManager entityManager;
 	
 	@Transactional
 	public EventoDTO criarEvento(EventoDTO dto) {
@@ -427,6 +433,94 @@ public class EventoService {
 		List<Ingresso> listaIngresso = ingressoService.buscarIngressosPorEvento(idEvento);
 		
 		return listaIngresso.stream().map(x -> new IngressoDTO(x)).collect(Collectors.toList());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
+	public List<EventoDTO> buscarEventos(String nome, Double latitude, Double longitude, Double raio, String categorias, Date data, int pageNumber, int pageSize, Double valorInicial, Double valorFinal) {
+		
+		String sql = "SELECT e.* FROM test.evento e ";
+		
+		if (categorias != null && !categorias.trim().isEmpty()) {
+			sql += "INNER JOIN test.evento_categoria ec ON ec.id_evento = e.id ";
+		}
+				
+		sql += "WHERE earth_distance(ll_to_earth(:latitude, :longitude), ll_to_earth(e.latitude, e.longitude)) <= :raioKm * 1000 ";
+		sql += "AND e.restrito = false ";
+		sql += "AND (e.valor >= :valorInicial AND e.valor <= :valorFinal) ";
+		
+		if (categorias != null && !categorias.trim().isEmpty()) {
+			sql += "AND ec.id_categoria IN (:listaIdCategoria) ";
+		}
+		
+		if (nome != null && !nome.trim().isEmpty()) {
+			sql += "AND e.nome ILIKE :nome ";
+		}
+		
+		if (data != null) {
+			sql += "AND e.data = :data ";
+		}
+		
+		sql += "ORDER BY e.data ASC, e.hora_inicio ASC ";
+
+		sql += "LIMIT :pageSize OFFSET :offset ";
+
+		Query query = entityManager.createNativeQuery(sql, Evento.class);
+		query.setParameter("latitude", latitude);
+		query.setParameter("longitude", longitude);
+		query.setParameter("raioKm", raio);
+        query.setParameter("pageSize", pageSize);
+        query.setParameter("offset", pageNumber * pageSize);
+        query.setParameter("valorInicial", valorInicial);
+        query.setParameter("valorFinal", valorFinal);
+        
+        if (nome != null && !nome.trim().isEmpty()) {
+        	query.setParameter("nome", nome + "%");
+        }
+        
+        if (categorias != null && !categorias.trim().isEmpty()) {
+    	  query.setParameter("listaIdCategoria", getListaIdCategoria(categorias));
+		}
+        
+        if (data != null) {
+        	query.setParameter("data", data);
+		}
+        
+		List<Evento> listaEvento = query.getResultList();
+		
+		List<EventoDTO> listaEventoDTO = new ArrayList<EventoDTO>();
+		
+		List<Long> listaIdEvento = getListaIdEvento(listaEvento);
+		
+		HashMap<Long, ArrayList<EventoArquivo>> mapaArquivosPorEvento = eventoArquivoService.getMapaArquivosPorEventos(listaIdEvento);
+		HashMap<Long, Long> mapaEventosQueDemonstreiInteresse = eventoInteresseService.getMapaMapaEventosQueDemonstreiInteresse(listaIdEvento);
+
+		for (Evento evento : listaEvento) {
+			
+			EventoDTO eventoDTO = new EventoDTO(evento);
+			eventoDTO.setDemonstreiInteresse(mapaEventosQueDemonstreiInteresse.containsKey(evento.getId()));
+			
+			if (mapaArquivosPorEvento.containsKey(evento.getId())) {
+				eventoDTO.setArquivos(mapaArquivosPorEvento.get(evento.getId()).stream().map(x -> new EventoArquivoDTO(x)).collect(Collectors.toList()));
+			}
+			
+			listaEventoDTO.add(eventoDTO);
+		}
+
+		return listaEventoDTO;
+	}
+
+	private List<Long> getListaIdCategoria(String categorias) {
+		
+		List<Long> listaIdCategoria = new ArrayList<Long>();
+		
+		String[] ids = categorias.split(",");
+		
+		for (String id : ids) {
+			listaIdCategoria.add(Long.parseLong(id));
+		}
+		
+		return listaIdCategoria;
 	}
 
 }

@@ -99,7 +99,7 @@ public class EventoResource {
 	@GetMapping
 	public ResponseEntity<List<EventoDTO>> buscarEventos(@RequestParam(required = false) String nome, @RequestParam Double valorInicial, @RequestParam Double valorFinal,  @RequestParam Double latitude, @RequestParam Double longitude, @RequestParam(required = false) Double raio, @RequestParam(required = false) String categorias, @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date data, @RequestParam(required = false,name = "page") Integer pageNumber) {
 		
-		List<EventoDTO> listaEventoDTO = eventoService.buscarEventos(nome, latitude, longitude, raio, categorias, data, pageNumber != null ? pageNumber : 0, 10, valorInicial, valorFinal);
+		List<EventoDTO> listaEventoDTO = eventoService.buscarEventos(nome, latitude, longitude, raio, categorias, data, pageNumber != null ? pageNumber : 0, 4, valorInicial, valorFinal);
 		
 		return ResponseEntity.ok().body(listaEventoDTO);
 	}

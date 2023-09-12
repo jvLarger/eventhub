@@ -448,6 +448,7 @@ public class EventoService {
 		sql += "WHERE earth_distance(ll_to_earth(:latitude, :longitude), ll_to_earth(e.latitude, e.longitude)) <= :raioKm * 1000 ";
 		sql += "AND e.restrito = false ";
 		sql += "AND (e.valor >= :valorInicial AND e.valor <= :valorFinal) ";
+		sql += "AND ((e.data > CURRENT_DATE) OR (e.data = CURRENT_DATE AND e.hora_inicio >= CURRENT_TIME)) ";
 		
 		if (categorias != null && !categorias.trim().isEmpty()) {
 			sql += "AND ec.id_categoria IN (:listaIdCategoria) ";

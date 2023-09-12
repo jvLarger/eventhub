@@ -318,6 +318,9 @@ public class EventoService {
 		EventoDTO eventoDTO = new EventoDTO(evento);
 		eventoDTO.setArquivos(listaEventoArquivo.stream().map(x -> new EventoArquivoDTO(x)).collect(Collectors.toList()));
 		eventoDTO.setCategorias(listaEventoCategoria.stream().map(x -> new EventoCategoriaDTO(x)).collect(Collectors.toList()));
+		eventoDTO.setIngressosVendidos(ingressoService.countIngressosPorEvento(idEvento));
+		eventoDTO.setUltimosIngressoVendidos(ingressoService.buscarUltimosIngressosVendidosDoEvento(idEvento).stream().map(x -> new IngressoDTO(x)).collect(Collectors.toList()));
+		eventoDTO.setDemonstreiInteresse(eventoInteresseService.isDemonstreiInteresseEvento(idEvento));
 		
 		return eventoDTO;
 	}

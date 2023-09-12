@@ -2,6 +2,7 @@ package com.jlarger.eventhub.services;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,16 @@ public class EventoInteresseService {
 		}
 		
 		return mapaMapaEventosQueDemonstreiInteresse;
+	}
+	
+	@Transactional(readOnly = true)
+	public Boolean isDemonstreiInteresseEvento(Long idEvento) {
+		
+		validarEventoInformado(idEvento);
+		
+		Optional<EventoInteresse> optionalEventoInteresse = eventoInteresseRepository.buscarInteressesPorEventoEUsuario(idEvento, ServiceLocator.getUsuarioLogado().getId());
+		
+		return optionalEventoInteresse.isPresent();
 	}
 
 }

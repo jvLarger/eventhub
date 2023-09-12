@@ -35,7 +35,9 @@ public class EventoDTO implements Serializable {
 	
 	private String dataEHoraFormatada;
 	private Boolean demonstreiInteresse;
-
+	private Integer ingressosVendidos;
+	private List<IngressoDTO> ultimosIngressoVendidos = new ArrayList<IngressoDTO>();
+	
 	public EventoDTO() {
 	}
 	
@@ -218,4 +220,19 @@ public class EventoDTO implements Serializable {
 		this.demonstreiInteresse = demonstreiInteresse;
 	}
 
+	public Integer getIngressosVendidos() {
+		return ingressosVendidos;
+	}
+
+	public void setIngressosVendidos(Integer ingressosVendidos) {
+		this.ingressosVendidos = ingressosVendidos;
+	}
+
+	public List<IngressoDTO> getUltimosIngressoVendidos() {
+		return ultimosIngressoVendidos;
+	}
+
+	public void setUltimosIngressoVendidos(List<IngressoDTO> ultimosIngressoVendidos) {
+		this.ultimosIngressoVendidos = ultimosIngressoVendidos;
+	}
 }

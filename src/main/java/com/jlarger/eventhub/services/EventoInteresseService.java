@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.EventoInteresse;
+import com.jlarger.eventhub.entities.Usuario;
 import com.jlarger.eventhub.repositories.EventoInteresseRepository;
+import com.jlarger.eventhub.repositories.EventoRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
 import com.jlarger.eventhub.utils.ServiceLocator;
 
@@ -17,7 +20,13 @@ import com.jlarger.eventhub.utils.ServiceLocator;
 public class EventoInteresseService {
 	
 	@Autowired
+	private UsuarioService usuarioService;
+	
+	@Autowired
 	private EventoInteresseRepository eventoInteresseRepository;
+	
+	@Autowired
+	private EventoRepository eventoRepository;
 	
 	@Transactional
 	public void excluirInteressesPorEvento(Long idEvento) {
@@ -66,6 +75,62 @@ public class EventoInteresseService {
 		Optional<EventoInteresse> optionalEventoInteresse = eventoInteresseRepository.buscarInteressesPorEventoEUsuario(idEvento, ServiceLocator.getUsuarioLogado().getId());
 		
 		return optionalEventoInteresse.isPresent();
+	}
+	
+	@Transactional
+	public void demonstrarInteresse(Long idEvento) {
+		
+		validarEventoInformado(idEvento);
+		
+		validarSeJaDemonstreiInteresse(idEvento);
+		
+		Evento evento = getEvento(idEvento);
+		
+		Usuario usuarioLogado = usuarioService.getUsuarioLogado();
+		
+		EventoInteresse eventoInteresse = new EventoInteresse();
+		eventoInteresse.setEvento(evento);
+		eventoInteresse.setUsuario(usuarioLogado);
+		
+		eventoInteresseRepository.save(eventoInteresse);
+	}
+
+	private void validarSeJaDemonstreiInteresse(Long idEvento) {
+		
+		Optional<EventoInteresse> optionalEventoInteresse = eventoInteresseRepository.buscarInteressesPorEventoEUsuario(idEvento, ServiceLocator.getUsuarioLogado().getId());
+
+		if (optionalEventoInteresse.isPresent()) {
+			throw new BusinessException("Interesse já demonstrado no evento!");
+		}
+		
+	}
+
+	@Transactional
+	public void removerInteresse(Long idEvento) {
+		
+		validarEventoInformado(idEvento);
+		
+		Optional<EventoInteresse> optionalEventoInteresse = eventoInteresseRepository.buscarInteressesPorEventoEUsuario(idEvento, ServiceLocator.getUsuarioLogado().getId());
+
+		if (optionalEventoInteresse.isEmpty()) {
+			throw new BusinessException("Interesse não encontrado no evento!");
+		}
+		
+		EventoInteresse eventoInteresse = optionalEventoInteresse.get();
+		
+		eventoInteresseRepository.delete(eventoInteresse);
+	}
+	
+	@Transactional(readOnly = true)
+	private Evento getEvento(Long idEvento) {
+		
+		validarEventoInformado(idEvento);
+		
+		Optional<Evento> optionalEvento = eventoRepository.findById(idEvento);
+
+		Evento evento = optionalEvento.orElseThrow(() -> new BusinessException("Evento não encontrada"));
+
+		return evento;
 	}
 
 }

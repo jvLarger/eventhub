@@ -32,6 +32,9 @@ public class EventoDTO implements Serializable {
 	private Boolean restrito;
 	private List<EventoArquivoDTO> arquivos = new ArrayList<EventoArquivoDTO>();
 	private List<EventoCategoriaDTO> categorias = new ArrayList<EventoCategoriaDTO>();
+    private Integer numeroMaximoIngressos;
+    private Integer numeroVisualizacoes;
+    private Boolean visivel;
 	
 	private String dataEHoraFormatada;
 	private Boolean demonstreiInteresse;
@@ -41,7 +44,7 @@ public class EventoDTO implements Serializable {
 	public EventoDTO() {
 	}
 	
-	public EventoDTO(Long id, UsuarioDTO usuario, String nome, Date data, LocalTime horaInicio, Double valor,String descricao, String cep, String cidade, String estado, String logradouro, String bairro, String complemento, String numero, Double latitude, Double longitude, Boolean restrito, List<EventoArquivoDTO> arquivos, List<EventoCategoriaDTO> categorias, String dataEHoraFormatada) {
+	public EventoDTO(Long id, UsuarioDTO usuario, String nome, Date data, LocalTime horaInicio, Double valor,String descricao, String cep, String cidade, String estado, String logradouro, String bairro, String complemento, String numero, Double latitude, Double longitude, Boolean restrito, List<EventoArquivoDTO> arquivos, List<EventoCategoriaDTO> categorias, String dataEHoraFormatada, Integer numeroMaximoIngressos, Integer numeroVisualizacoes, Boolean visivel) {
 		this.id = id;
 		this.usuario = usuario;
 		this.nome = nome;
@@ -62,6 +65,9 @@ public class EventoDTO implements Serializable {
 		this.arquivos = arquivos;
 		this.categorias = categorias;
 		this.dataEHoraFormatada = dataEHoraFormatada;
+		this.visivel = visivel;
+		this.numeroMaximoIngressos = numeroMaximoIngressos;
+		this.numeroVisualizacoes = numeroVisualizacoes;
 	}
 
 	public EventoDTO(Evento evento) {
@@ -83,6 +89,9 @@ public class EventoDTO implements Serializable {
 		this.longitude = evento.getLongitude();
 		this.restrito = evento.getRestrito();
 		this.dataEHoraFormatada = Util.formatarApresentacaoDeDataComHoraEDiaSemana(evento.getData(), evento.getHoraInicio());
+		this.numeroMaximoIngressos = evento.getNumeroMaximoIngressos();
+		this.numeroVisualizacoes = evento.getNumeroVisualizacoes();
+		this.visivel = evento.getVisivel();
 	}
 
 	public Long getId() {
@@ -234,5 +243,29 @@ public class EventoDTO implements Serializable {
 
 	public void setUltimosIngressoVendidos(List<IngressoDTO> ultimosIngressoVendidos) {
 		this.ultimosIngressoVendidos = ultimosIngressoVendidos;
+	}
+
+	public Integer getNumeroMaximoIngressos() {
+		return numeroMaximoIngressos;
+	}
+
+	public void setNumeroMaximoIngressos(Integer numeroMaximoIngressos) {
+		this.numeroMaximoIngressos = numeroMaximoIngressos;
+	}
+
+	public Integer getNumeroVisualizacoes() {
+		return numeroVisualizacoes;
+	}
+
+	public void setNumeroVisualizacoes(Integer numeroVisualizacoes) {
+		this.numeroVisualizacoes = numeroVisualizacoes;
+	}
+
+	public Boolean getVisivel() {
+		return visivel;
+	}
+
+	public void setVisivel(Boolean visivel) {
+		this.visivel = visivel;
 	}
 }

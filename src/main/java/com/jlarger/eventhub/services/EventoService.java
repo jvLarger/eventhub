@@ -71,7 +71,8 @@ public class EventoService {
 		validarInformacoesEvento(dto);
 		
 		Evento evento = popularCamposEvento(dto);
-	
+		evento.setNumeroVisualizacoes(0);
+		
 		evento = eventoRepository.save(evento);
 		
 		List<EventoCategoria> listaEventoCategoria = eventoCategoriaService.vincularCategoriasAUmEvento(evento, dto.getCategorias());
@@ -104,6 +105,8 @@ public class EventoService {
 		evento.setRestrito(dto.getRestrito());
 		evento.setValor(dto.getValor());
 		evento.setUsuario(usuarioService.getUsuarioLogado());
+		evento.setNumeroMaximoIngressos(dto.getNumeroMaximoIngressos());
+		evento.setVisivel(dto.getVisivel());
 		
 		popularCoordenadasEvento(evento);
 		
@@ -195,6 +198,14 @@ public class EventoService {
 			throw new BusinessException("Pelo menos uma foto deve ser adicionada!");
 		}
 		
+		if (eventoDTO.getNumeroMaximoIngressos() == null || eventoDTO.getNumeroMaximoIngressos().compareTo(0) <= 0) {
+			throw new BusinessException("O número máximo de ingressos deve ser maior do que 0!");
+		}
+		
+		if (eventoDTO.getVisivel() == null) {
+			throw new BusinessException("Indicador se o evento está visível não informado!");
+		}
+		
 	}
 	
 	@Transactional
@@ -214,6 +225,7 @@ public class EventoService {
 		
 		Evento evento = popularCamposEvento(dto);
 		evento.setId(idEvento);
+		evento.setNumeroVisualizacoes(eventoAntigo.getNumeroVisualizacoes());
 		
 		evento = eventoRepository.save(evento);
 		
@@ -450,6 +462,7 @@ public class EventoService {
 				
 		sql += "WHERE earth_distance(ll_to_earth(:latitude, :longitude), ll_to_earth(e.latitude, e.longitude)) <= :raioKm * 1000 ";
 		sql += "AND e.restrito = false ";
+		sql += "AND e.visivel = true ";
 		sql += "AND (e.valor >= :valorInicial AND e.valor <= :valorFinal) ";
 		sql += "AND ((e.data > CURRENT_DATE) OR (e.data = CURRENT_DATE AND e.hora_inicio >= CURRENT_TIME)) ";
 		
@@ -525,6 +538,17 @@ public class EventoService {
 		}
 		
 		return listaIdCategoria;
+	}
+	
+	@Transactional
+	public void registrarVisualizacaoEvento(Long idEvento) {
+		
+		validarIdEventoInformado(idEvento);
+		
+		Evento evento = getEvento(idEvento);
+		evento.setNumeroVisualizacoes(evento.getNumeroVisualizacoes() + 1);
+		
+		eventoRepository.save(evento);
 	}
 
 }

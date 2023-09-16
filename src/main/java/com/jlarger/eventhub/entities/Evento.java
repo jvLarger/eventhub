@@ -75,12 +75,21 @@ public class Evento {
     @Column(nullable=false)
 	private Boolean restrito;
     
+    @Column(nullable=false)
+    private Integer numeroMaximoIngressos;
+    
+    @Column(nullable=false)
+    private Integer numeroVisualizacoes;
+    
+    @Column(nullable=false)
+    private Boolean visivel;
+    
     public Evento() {
 	}
 
 	public Evento(Long id, Usuario usuario, String nome, Date data, LocalTime horaInicio, LocalTime horaTermino,
 			Double valor, String descricao, String cep, String cidade, String estado, String logradouro, String bairro,
-			String complemento, String numero, Double latitude, Double longitude, Boolean restrito) {
+			String complemento, String numero, Double latitude, Double longitude, Boolean restrito, Integer numeroMaximoIngressos, Integer numeroVisualizacoes, Boolean visivel) {
 		super();
 		this.id = id;
 		this.usuario = usuario;
@@ -99,6 +108,9 @@ public class Evento {
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.restrito = restrito;
+		this.numeroMaximoIngressos = numeroMaximoIngressos;
+		this.numeroVisualizacoes = numeroVisualizacoes;
+		this.visivel = visivel;
 	}
 
 	public Long getId() {
@@ -237,10 +249,35 @@ public class Evento {
 		this.restrito = restrito;
 	}
 
+	public Integer getNumeroMaximoIngressos() {
+		return numeroMaximoIngressos;
+	}
+
+	public void setNumeroMaximoIngressos(Integer numeroMaximoIngressos) {
+		this.numeroMaximoIngressos = numeroMaximoIngressos;
+	}
+
+	public Integer getNumeroVisualizacoes() {
+		return numeroVisualizacoes;
+	}
+
+	public void setNumeroVisualizacoes(Integer numeroVisualizacoes) {
+		this.numeroVisualizacoes = numeroVisualizacoes;
+	}
+
+	public Boolean getVisivel() {
+		return visivel;
+	}
+
+	public void setVisivel(Boolean visivel) {
+		this.visivel = visivel;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(bairro, cep, cidade, complemento, data, descricao, estado, horaInicio, id,
-				latitude, logradouro, longitude, nome, numero, restrito, usuario, valor);
+		return Objects.hash(bairro, cep, cidade, complemento, data, descricao, estado, horaInicio, id, latitude,
+				logradouro, longitude, nome, numero, numeroMaximoIngressos, numeroVisualizacoes, restrito, usuario,
+				valor, visivel);
 	}
 
 	@Override
@@ -256,11 +293,23 @@ public class Evento {
 				&& Objects.equals(cidade, other.cidade) && Objects.equals(complemento, other.complemento)
 				&& Objects.equals(data, other.data) && Objects.equals(descricao, other.descricao)
 				&& Objects.equals(estado, other.estado) && Objects.equals(horaInicio, other.horaInicio)
-				&& Objects.equals(id, other.id)
-				&& Objects.equals(latitude, other.latitude) && Objects.equals(logradouro, other.logradouro)
-				&& Objects.equals(longitude, other.longitude) && Objects.equals(nome, other.nome)
-				&& Objects.equals(numero, other.numero) && Objects.equals(restrito, other.restrito)
-				&& Objects.equals(usuario, other.usuario) && Objects.equals(valor, other.valor);
+				&& Objects.equals(id, other.id) && Objects.equals(latitude, other.latitude)
+				&& Objects.equals(logradouro, other.logradouro) && Objects.equals(longitude, other.longitude)
+				&& Objects.equals(nome, other.nome) && Objects.equals(numero, other.numero)
+				&& Objects.equals(numeroMaximoIngressos, other.numeroMaximoIngressos)
+				&& Objects.equals(numeroVisualizacoes, other.numeroVisualizacoes)
+				&& Objects.equals(restrito, other.restrito) && Objects.equals(usuario, other.usuario)
+				&& Objects.equals(valor, other.valor) && Objects.equals(visivel, other.visivel);
 	}
-    
+
+	@Override
+	public String toString() {
+		return "Evento [id=" + id + ", usuario=" + usuario + ", nome=" + nome + ", data=" + data + ", horaInicio="
+				+ horaInicio + ", valor=" + valor + ", descricao=" + descricao + ", cep=" + cep + ", cidade=" + cidade
+				+ ", estado=" + estado + ", logradouro=" + logradouro + ", bairro=" + bairro + ", complemento="
+				+ complemento + ", numero=" + numero + ", latitude=" + latitude + ", longitude=" + longitude
+				+ ", restrito=" + restrito + ", numeroMaximoIngressos=" + numeroMaximoIngressos
+				+ ", numeroVisualizacoes=" + numeroVisualizacoes + ", visivel=" + visivel + "]";
+	}
+	
 }

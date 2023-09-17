@@ -33,6 +33,9 @@ public class IngressoService {
 	@Autowired
 	private UsuarioService usuarioService;
 	
+	@Autowired
+	private FaturamentoService faturamentoService;
+	
 	@Transactional
 	public void excluirIngressosPorEvento(Long idEvento) {
 		
@@ -109,6 +112,8 @@ public class IngressoService {
 		ingresso.setIdentificadorTransacaoPagamento(indificadorPagamento);
 		
 		ingresso = ingressoRepository.save(ingresso);
+		
+		faturamentoService.atualizarValoresFaturamentoPorEvento(evento);
 		
 		return new IngressoDTO(ingresso);
 	}

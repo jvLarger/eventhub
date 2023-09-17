@@ -2,6 +2,7 @@ package com.jlarger.eventhub.services;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.Faturamento;
+import com.jlarger.eventhub.entities.Ingresso;
 import com.jlarger.eventhub.repositories.FaturamentoRepository;
+import com.jlarger.eventhub.repositories.IngressoRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
 
 @Service
@@ -18,6 +21,9 @@ public class FaturamentoService {
 	
 	@Autowired
 	private FaturamentoRepository faturamentoRepository;
+	
+	@Autowired
+	private IngressoRepository ingressoRepository;
 	
 	@Transactional
 	public Faturamento criarFaturamentoInicialParaEvento(Evento evento) {
@@ -91,5 +97,29 @@ public class FaturamentoService {
 			throw new BusinessException("Evento não informado!");
 		}
 		
+	}
+	
+	@Transactional
+	public void atualizarValoresFaturamentoPorEvento(Evento evento) {
+		
+		Faturamento faturamento = getFaturamentoPorEvento(evento);
+		
+		List<Ingresso> listaIngresso = ingressoRepository.buscarIngressosPorEvento(evento.getId());
+		
+		Double valorTotalIngressos = 0.0;
+		Double valorTotalTaxas = 0.0;
+		Double valorTotalFaturamento = 0.0;
+
+		for (Ingresso ingresso : listaIngresso) {
+			valorTotalIngressos += ingresso.getValorTotalIngresso();
+			valorTotalTaxas += ingresso.getValorTaxa();
+			valorTotalFaturamento += ingresso.getValorFaturamento();
+		}
+		
+		faturamento.setValorTotalIngressos(valorTotalIngressos);
+		faturamento.setValorTotalTaxas(valorTotalTaxas);
+		faturamento.setValorTotalFaturamento(valorTotalFaturamento);
+		
+		faturamentoRepository.save(faturamento);
 	}
 }

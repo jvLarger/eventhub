@@ -22,11 +22,12 @@ public class IngressoDTO implements Serializable {
 	private Double valorFaturamento;
 	private String identificadorTransacaoPagamento;
     private UsuarioDTO usuario;
+    private PagamentoDTO pagamento;
     
     public IngressoDTO() {
     }
 
-	public IngressoDTO(EventoDTO evento, Long id, String email, String nome, String documentoPrincipal, String telefone, Date dataComemorativa, Double valorTotalIngresso, Double valorTaxa, Double valorFaturamento, String identificadorTransacaoPagamento, UsuarioDTO usuario) {
+	public IngressoDTO(EventoDTO evento, Long id, String email, String nome, String documentoPrincipal, String telefone, Date dataComemorativa, Double valorTotalIngresso, Double valorTaxa, Double valorFaturamento, String identificadorTransacaoPagamento, UsuarioDTO usuario, PagamentoDTO pagamento) {
 		this.id = id;
 		this.evento = evento;
 		this.email = email;
@@ -39,6 +40,7 @@ public class IngressoDTO implements Serializable {
 		this.valorFaturamento = valorFaturamento;
 		this.identificadorTransacaoPagamento = identificadorTransacaoPagamento;
 		this.usuario = usuario;
+		this.pagamento = pagamento;
 	}
 	
 	public IngressoDTO(Ingresso ingresso) {
@@ -155,5 +157,12 @@ public class IngressoDTO implements Serializable {
 	public void setEvento(EventoDTO evento) {
 		this.evento = evento;
 	}
-    
+
+	public PagamentoDTO getPagamento() {
+		return pagamento;
+	}
+
+	public void setPagamento(PagamentoDTO pagamento) {
+		this.pagamento = pagamento;
+	}
 }

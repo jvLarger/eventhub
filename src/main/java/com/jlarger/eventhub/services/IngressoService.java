@@ -1,6 +1,7 @@
 package com.jlarger.eventhub.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -8,9 +9,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jlarger.eventhub.dto.IngressoDTO;
+import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.Ingresso;
+import com.jlarger.eventhub.repositories.EventoRepository;
 import com.jlarger.eventhub.repositories.IngressoRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
+import com.jlarger.eventhub.utils.CpfCnpjValidate;
+import com.jlarger.eventhub.utils.Util;
 
 @Service
 public class IngressoService {
@@ -20,6 +26,12 @@ public class IngressoService {
 	
 	@Autowired
 	private IngressoRepository ingressoRepository;
+
+	@Autowired
+	private EventoRepository eventoRepository;
+	
+	@Autowired
+	private UsuarioService usuarioService;
 	
 	@Transactional
 	public void excluirIngressosPorEvento(Long idEvento) {
@@ -60,7 +72,7 @@ public class IngressoService {
 		
 		validarEventoInformado(idEvento);
 		
-		 Integer countIngressosPorEvento = ingressoRepository.countIngressosPorEvento(idEvento);
+		Integer countIngressosPorEvento = ingressoRepository.countIngressosPorEvento(idEvento);
 		
 		return countIngressosPorEvento;
 	}
@@ -70,4 +82,96 @@ public class IngressoService {
 		Pageable pageable = PageRequest.of(0, 5);
         return ingressoRepository.findUltimosIngressosVendidosDoEvento(idEvento, pageable);
     }
+	
+	@Transactional
+	public IngressoDTO comprarIngresso(IngressoDTO dto) {
+		
+		validarEventoInformado(dto.getEvento().getId());
+		
+		Evento evento = getEvento(dto.getEvento().getId());
+		
+		validarCamposCompraIngresso(dto, evento);
+		
+		Ingresso ingresso = new Ingresso();
+		ingresso.setEvento(evento);
+		ingresso.setUsuario(usuarioService.getUsuarioLogado());
+		ingresso.setNome(dto.getNome().trim());
+		ingresso.setDocumentoPrincipal(Util.getSomenteNumeros(dto.getDocumentoPrincipal()));
+		ingresso.setTelefone(Util.getSomenteNumeros(dto.getTelefone()));
+		ingresso.setEmail(dto.getEmail().trim());
+		ingresso.setDataComemorativa(dto.getDataComemorativa());
+		ingresso.setValorTotalIngresso(evento.getValor());
+		ingresso.setValorTaxa(pagamentoService.calcularValorTaxaIngresso(evento.getValor()));
+		ingresso.setValorFaturamento(evento.getValor() - ingresso.getValorTaxa());
+		
+		String indificadorPagamento = pagamentoService.realizarPagamentoCartao(dto.getPagamento(), evento.getValor());
+		
+		ingresso.setIdentificadorTransacaoPagamento(indificadorPagamento);
+		
+		ingresso = ingressoRepository.save(ingresso);
+		
+		return new IngressoDTO(ingresso);
+	}
+	
+	@Transactional(readOnly = true)
+	private Evento getEvento(Long idEvento) {
+		
+		validarEventoInformado(idEvento);
+		
+		Optional<Evento> optionalEvento = eventoRepository.findById(idEvento);
+
+		Evento evento = optionalEvento.orElseThrow(() -> new BusinessException("Evento não encontrada"));
+
+		return evento;
+	}
+
+	private void validarCamposCompraIngresso(IngressoDTO ingressoDTO, Evento evento) {
+		
+		if (ingressoDTO.getDataComemorativa() == null) {
+			throw new BusinessException("Data comemorativa não informada!");
+		}
+		
+		if (ingressoDTO.getNome() == null || ingressoDTO.getNome().trim().isEmpty()) {
+			throw new BusinessException("Data comemorativa não informada!");
+		}
+		
+		if (ingressoDTO.getDocumentoPrincipal() == null || ingressoDTO.getDocumentoPrincipal().isEmpty()) {
+			throw new BusinessException("Documento não informado!");
+		}
+
+		String documento = Util.getSomenteNumeros(ingressoDTO.getDocumentoPrincipal());
+
+		if (documento.length() != 11 && documento.length() != 14) {
+			throw new BusinessException("CPF deve possui 11 dígitos e CNPJ 14. Por favor, verifique!");
+		}
+		
+		if (documento.length() == 11 && !CpfCnpjValidate.isCpfValid(documento)) {
+			throw new BusinessException("CPF inválido. Por favor, verifique!");
+		}
+		
+		if (documento.length() == 14 && !CpfCnpjValidate.isCnpjValid(documento)) {
+			throw new BusinessException("CNPJ inválido. Por favor, verifique!");
+		}
+		
+		if (ingressoDTO.getTelefone() == null || ingressoDTO.getTelefone().isEmpty()) {
+			throw new BusinessException("Telefone não informado!");
+		}
+		
+		if (Util.getSomenteNumeros(ingressoDTO.getTelefone()).length() != 11) {
+			throw new BusinessException("O telefone e a área devem totalizar 11 dígitos. Por favor, verifique!");
+		}
+
+		if (ingressoDTO.getEmail() == null || ingressoDTO.getEmail().trim().isEmpty()) {
+			throw new BusinessException("Email não informado. Por favor, verifique!");
+		}
+
+		if (!Util.isEmailValido(ingressoDTO.getEmail())) {
+			throw new BusinessException("O email informado não é válido. Por favor, verifique!");
+		}
+		
+		if (evento.getValor().compareTo(0.0) <= 0) {
+			pagamentoService.validarCamposPagamentoCartao(ingressoDTO.getPagamento());
+		}
+		
+	}
 }

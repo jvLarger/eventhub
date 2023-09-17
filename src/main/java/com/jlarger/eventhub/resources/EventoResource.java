@@ -104,7 +104,6 @@ public class EventoResource {
 		return ResponseEntity.ok().body(listaEventoDTO);
 	}
 	
-	
 	@PostMapping("/{id}/visualizacoes")
 	public ResponseEntity<EventoDTO> registrarVisualizacaoEvento(@PathVariable Long id) {
 		

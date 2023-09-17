@@ -33,14 +33,14 @@ public class Ingresso {
 	@Column(nullable=false, length = 255)
 	private String nome;
 	
-	@Column(nullable=true, length = 20)
+	@Column(nullable=false, length = 20)
 	private String documentoPrincipal;
 	
 	@Column(nullable=false, length = 15)
 	private String telefone;
 	
 	@Temporal(TemporalType.DATE)
-	@Column(nullable=true)
+	@Column(nullable=false)
 	private Date dataComemorativa;
 	
 	@Column(nullable=false)

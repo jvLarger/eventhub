@@ -230,5 +230,10 @@ public class MensagemService {
 		
 		return countMensagensNaoLidasUsuario;
 	}
+	
+	@Transactional
+	public void enviarMensagemCompartilhamentoEvento(Mensagem mensagem) {
+		mensagemRepository.save(mensagem);
+	}
 
 }

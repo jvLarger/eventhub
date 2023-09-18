@@ -1,5 +1,6 @@
 package com.jlarger.eventhub.services;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +24,8 @@ import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.EventoArquivo;
 import com.jlarger.eventhub.entities.EventoCategoria;
 import com.jlarger.eventhub.entities.Ingresso;
+import com.jlarger.eventhub.entities.Mensagem;
+import com.jlarger.eventhub.entities.Usuario;
 import com.jlarger.eventhub.repositories.EventoRepository;
 import com.jlarger.eventhub.repositories.IngressoRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
@@ -52,6 +55,9 @@ public class EventoService {
 	
 	@Autowired
 	private IngressoService ingressoService;
+	
+	@Autowired
+	private MensagemService mensagemService;
 	
 	@Autowired
 	private GeolocalizacaoService geolocalizacaoService;
@@ -288,6 +294,14 @@ public class EventoService {
 		
 		if (idEvento == null || idEvento.compareTo(0L) <= 0) {
 			throw new BusinessException("Evento não informado!");
+		}
+		
+	}
+	
+	private void validarIdUsuarioInformado(Long idUsuario) {
+		
+		if (idUsuario == null || idUsuario.compareTo(0L) <= 0) {
+			throw new BusinessException("Usuário não informado!");
 		}
 		
 	}
@@ -549,6 +563,34 @@ public class EventoService {
 		evento.setNumeroVisualizacoes(evento.getNumeroVisualizacoes() + 1);
 		
 		eventoRepository.save(evento);
+	}
+	
+	@Transactional
+	public void compratilharEvento(Long idEvento, Long idUsuario) {
+
+		validarIdEventoInformado(idEvento);
+		
+		validarIdUsuarioInformado(idUsuario);
+		
+		Evento evento = getEvento(idEvento);
+		
+		Usuario usuarioDestino = usuarioService.getUsuario(idUsuario);
+		
+		Mensagem mensagem = popularMensagemCompartilhamentoEvento(evento, usuarioDestino);
+		
+		mensagemService.enviarMensagemCompartilhamentoEvento(mensagem);
+	}
+
+	private Mensagem popularMensagemCompartilhamentoEvento(Evento evento, Usuario usuarioDestino) {
+		
+		Mensagem mensagem = new Mensagem();
+		mensagem.setUsuarioOrigem(usuarioService.getUsuarioLogado());
+		mensagem.setUsuarioDestino(usuarioDestino);
+		mensagem.setDataMensagem(LocalDateTime.now());
+		mensagem.setDescricao("Compartilhou o evento " + evento.getNome() + " com você!");
+		mensagem.setEvento(evento);
+		
+		return mensagem;
 	}
 
 }

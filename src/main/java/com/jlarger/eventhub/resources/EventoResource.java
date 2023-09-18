@@ -111,4 +111,12 @@ public class EventoResource {
 		
 		return ResponseEntity.noContent().build();
 	}
+	
+	@PostMapping("/{idEvento}/compartilhar/{idUsuario}")
+	public ResponseEntity<?> compratilharEvento(@PathVariable Long idEvento, @PathVariable Long idUsuario) {
+		
+		eventoService.compratilharEvento(idEvento, idUsuario);
+		
+		return ResponseEntity.noContent().build();
+	}
 }

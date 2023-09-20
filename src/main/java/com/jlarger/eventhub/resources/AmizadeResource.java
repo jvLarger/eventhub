@@ -1,13 +1,17 @@
 package com.jlarger.eventhub.resources;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.services.AmizadeService;
 
 @RestController
@@ -39,6 +43,14 @@ public class AmizadeResource {
 		amizadeService.removerAmizade(id);
 		
 		return ResponseEntity.noContent().build();
+	}
+	
+	@GetMapping
+	public ResponseEntity<List<UsuarioDTO>> buscarAmigos() {
+		
+		List<UsuarioDTO> listaUsuarioDTO = amizadeService.buscarAmigos();
+		
+		return ResponseEntity.ok().body(listaUsuarioDTO);
 	}
 	
 }

@@ -6,16 +6,20 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jlarger.eventhub.dto.EventoArquivoDTO;
+import com.jlarger.eventhub.dto.EventoDTO;
 import com.jlarger.eventhub.dto.MensagemDTO;
 import com.jlarger.eventhub.dto.SalaBatePapoDTO;
 import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.entities.Amizade;
+import com.jlarger.eventhub.entities.EventoArquivo;
 import com.jlarger.eventhub.entities.Mensagem;
 import com.jlarger.eventhub.entities.Usuario;
 import com.jlarger.eventhub.repositories.MensagemRepository;
@@ -32,10 +36,10 @@ public class MensagemService {
 	private UsuarioService usuarioService;
 	
 	@Autowired
-	private MensagemRepository mensagemRepository;
+	private EventoArquivoService eventoArquivoService;
 	
-	//@Autowired 
-	//private PushNotificationService pushNotificationService;
+	@Autowired
+	private MensagemRepository mensagemRepository;
 	
 	@Transactional(readOnly = true)
 	public List<SalaBatePapoDTO> buscarSalasBatePapo() {
@@ -186,7 +190,9 @@ public class MensagemService {
 		
 		marcarMensagensComoLidas(listaMensagem);
 		
-		return listaMensagem.stream().map(x -> new MensagemDTO(x)).collect(Collectors.toList());
+		List<MensagemDTO> listaMensagemDTO = popularMensagens(listaMensagem);
+		
+		return listaMensagemDTO;
 	}
 	
 	@Transactional
@@ -220,9 +226,56 @@ public class MensagemService {
 		
 		marcarMensagensComoLidas(listaMensagem);
 		
-		return listaMensagem.stream().map(x -> new MensagemDTO(x)).collect(Collectors.toList());
+		List<MensagemDTO> listaMensagemDTO = popularMensagens(listaMensagem);
+		
+		return listaMensagemDTO;
 	}
 	
+	private List<MensagemDTO> popularMensagens(List<Mensagem> listaMensagem) {
+				
+		List<Long> listaIdEvento = getListaIdEventos(listaMensagem);
+		
+		Map<Long, ArrayList<EventoArquivo>> mapaArquivosPorEventos = eventoArquivoService.getMapaArquivosPorEventos(listaIdEvento);
+		
+		List<MensagemDTO> listaMensagemDTO = new ArrayList<MensagemDTO>();
+
+		for (Mensagem mensagem : listaMensagem) {
+			
+			MensagemDTO mensagemDTO = new MensagemDTO(mensagem);
+			
+			if (mensagem.getEvento() != null) {
+				
+				EventoDTO eventoDTO = new EventoDTO(mensagem.getEvento());
+				
+				if (mapaArquivosPorEventos.containsKey(mensagem.getEvento().getId())) {
+					eventoDTO.setArquivos(mapaArquivosPorEventos.get(mensagem.getEvento().getId()).stream().map(x -> new EventoArquivoDTO(x)).collect(Collectors.toList()));
+				}
+				
+				mensagemDTO.setEvento(eventoDTO);
+			}
+			
+			listaMensagemDTO.add(mensagemDTO);
+			
+		}
+		
+		return listaMensagemDTO;
+	}
+
+	private List<Long> getListaIdEventos(List<Mensagem> listaMensagem) {
+		
+		List<Long> listaIdEvento = new ArrayList<Long>();
+		
+		for (Mensagem mensagem : listaMensagem) {
+			
+			if (mensagem.getEvento() != null) {
+				listaIdEvento.add(mensagem.getEvento().getId());
+			}
+			
+		}
+		
+		return listaIdEvento;
+	}
+
 	@Transactional(readOnly = true)
 	public Integer getNumeroMensagensNaoLidas() {
 		

@@ -1,6 +1,8 @@
 package com.jlarger.eventhub.services;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jlarger.eventhub.dto.PushNotificationRequest;
+import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.entities.Amizade;
 import com.jlarger.eventhub.entities.Notificacao;
 import com.jlarger.eventhub.entities.Usuario;
@@ -148,6 +151,34 @@ public class AmizadeService {
 		return listaAmizades;
 	}
 	
-	
+	@Transactional(readOnly = true)
+	public List<UsuarioDTO> buscarAmigos() {
+		
+		List<Amizade> listaAmizade = amizadeRepository.findAmizadeUsuario(ServiceLocator.getUsuarioLogado().getId());
+		
+		List<UsuarioDTO> listaUsuarioDTO = new ArrayList<UsuarioDTO>();
+		
+		for (Amizade amizade : listaAmizade) {
+			
+			if (amizade.getUsuario().getId().compareTo(ServiceLocator.getUsuarioLogado().getId()) != 0) {
+				listaUsuarioDTO.add(new UsuarioDTO(amizade.getUsuario()));
+			} else {
+				listaUsuarioDTO.add(new UsuarioDTO(amizade.getAmigo()));
+			}
+			
+		}
+		
+		ordenarAmigosPorNome(listaUsuarioDTO);
+		
+		return listaUsuarioDTO;
+	}
+
+	private void ordenarAmigosPorNome(List<UsuarioDTO> listaUsuarioDTO) {
+
+		Collections.sort(listaUsuarioDTO, (o1, o2) -> {
+			return o1.getNomeCompleto().compareTo(o2.getNomeCompleto());
+		});
+		
+	}
 	
 }

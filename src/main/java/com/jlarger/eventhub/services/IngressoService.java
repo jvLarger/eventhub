@@ -93,8 +93,12 @@ public class IngressoService {
 		
 		Evento evento = getEvento(dto.getEvento().getId());
 		
-		validarCamposCompraIngresso(dto, evento);
+		validarSeExisteIngressoDisponivel(evento);
 		
+		validarEventoVisivel(evento);
+		
+		validarCamposCompraIngresso(dto, evento);
+
 		Ingresso ingresso = new Ingresso();
 		ingresso.setEvento(evento);
 		ingresso.setUsuario(usuarioService.getUsuarioLogado());
@@ -118,6 +122,24 @@ public class IngressoService {
 		return new IngressoDTO(ingresso);
 	}
 	
+	private void validarEventoVisivel(Evento evento) {
+		
+		if (!evento.getVisivel()) {
+			throw new BusinessException("Não é permitido a venda de ingressos para esse evento neste momento!");	
+		}
+		
+	}
+
+	private void validarSeExisteIngressoDisponivel(Evento evento) {
+		
+		Integer ingressosVendidos = ingressoRepository.countIngressosPorEvento(evento.getId());
+		
+		if (ingressosVendidos.compareTo(evento.getNumeroMaximoIngressos()) >= 0) {
+			throw new BusinessException("O número máximo de ingressos já foi vendido!");
+		}
+		
+	}
+
 	@Transactional(readOnly = true)
 	private Evento getEvento(Long idEvento) {
 		

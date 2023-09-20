@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.jlarger.eventhub.dto.EventoDTO;
+import com.jlarger.eventhub.dto.FeedEventosDTO;
 import com.jlarger.eventhub.dto.IndicadoresEventoDTO;
 import com.jlarger.eventhub.dto.IngressoDTO;
 import com.jlarger.eventhub.services.EventoService;
@@ -118,5 +119,13 @@ public class EventoResource {
 		eventoService.compratilharEvento(idEvento, idUsuario);
 		
 		return ResponseEntity.noContent().build();
+	}
+	
+	@GetMapping("/feed")
+	public ResponseEntity<FeedEventosDTO> buscarFeedEventos(@RequestParam Double latitude, @RequestParam Double longitude) {
+		
+		FeedEventosDTO feedEventosDTO = eventoService.buscarFeedEventos(latitude, longitude);
+		
+		return ResponseEntity.ok().body(feedEventosDTO);
 	}
 }

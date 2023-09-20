@@ -17,9 +17,11 @@ import com.jlarger.eventhub.dto.EventoArquivoDTO;
 import com.jlarger.eventhub.dto.EventoCategoriaDTO;
 import com.jlarger.eventhub.dto.EventoDTO;
 import com.jlarger.eventhub.dto.FaturamentoDTO;
+import com.jlarger.eventhub.dto.FeedEventosDTO;
 import com.jlarger.eventhub.dto.GeoCoding;
 import com.jlarger.eventhub.dto.IndicadoresEventoDTO;
 import com.jlarger.eventhub.dto.IngressoDTO;
+import com.jlarger.eventhub.entities.Amizade;
 import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.EventoArquivo;
 import com.jlarger.eventhub.entities.EventoCategoria;
@@ -34,6 +36,7 @@ import com.jlarger.eventhub.utils.Util;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 
 @Service
 public class EventoService {
@@ -58,6 +61,9 @@ public class EventoService {
 	
 	@Autowired
 	private MensagemService mensagemService;
+	
+	@Autowired
+	private AmizadeService amizadeService;
 	
 	@Autowired
 	private GeolocalizacaoService geolocalizacaoService;
@@ -519,13 +525,22 @@ public class EventoService {
         
 		List<Evento> listaEvento = query.getResultList();
 		
+		List<EventoDTO> listaEventoDTO = popularListaEventosDTO(listaEvento);
+		
+		return listaEventoDTO;
+	}
+	
+	@Transactional(readOnly = true)
+	private List<EventoDTO> popularListaEventosDTO(List<Evento> listaEvento) {
+	
 		List<EventoDTO> listaEventoDTO = new ArrayList<EventoDTO>();
 		
 		List<Long> listaIdEvento = getListaIdEvento(listaEvento);
 		
 		HashMap<Long, ArrayList<EventoArquivo>> mapaArquivosPorEvento = eventoArquivoService.getMapaArquivosPorEventos(listaIdEvento);
 		HashMap<Long, Long> mapaEventosQueDemonstreiInteresse = eventoInteresseService.getMapaMapaEventosQueDemonstreiInteresse(listaIdEvento);
-
+		HashMap<Long, ArrayList<EventoCategoria>> mapaCategoriasPorEvento =  eventoCategoriaService.getMapaCategoriasPorEventos(listaIdEvento);
+		
 		for (Evento evento : listaEvento) {
 			
 			EventoDTO eventoDTO = new EventoDTO(evento);
@@ -533,6 +548,10 @@ public class EventoService {
 			
 			if (mapaArquivosPorEvento.containsKey(evento.getId())) {
 				eventoDTO.setArquivos(mapaArquivosPorEvento.get(evento.getId()).stream().map(x -> new EventoArquivoDTO(x)).collect(Collectors.toList()));
+			}
+			
+			if (mapaCategoriasPorEvento.containsKey(evento.getId())) {
+				eventoDTO.setCategorias(mapaCategoriasPorEvento.get(evento.getId()).stream().map(x -> new EventoCategoriaDTO(x)).collect(Collectors.toList()));
 			}
 			
 			listaEventoDTO.add(eventoDTO);
@@ -591,6 +610,97 @@ public class EventoService {
 		mensagem.setEvento(evento);
 		
 		return mensagem;
+	}
+	
+	@Transactional(readOnly = true)
+	public FeedEventosDTO buscarFeedEventos(Double latitude, Double longitude) {
+		
+		validarLatitudeELongitudeInformadas(latitude, longitude);
+		
+		List<Evento> listaEventosQueMeusAmigosGostaram = buscarEventosQueMeusAmigosGostaram();
+
+		List<Evento> listaEventosPopulares = buscarEventosPopulares(latitude, longitude);
+		
+		FeedEventosDTO feedEventosDTO = new FeedEventosDTO();
+		feedEventosDTO.setEventosQueMeusAmigosGostaram(popularListaEventosDTO(listaEventosQueMeusAmigosGostaram));
+		feedEventosDTO.setEventosPopulares(popularListaEventosDTO(listaEventosPopulares));
+		
+		return feedEventosDTO;
+	}
+	
+	@Transactional(readOnly = true)
+	private List<Evento> buscarEventosQueMeusAmigosGostaram() {
+		
+		List<Amizade> listaAmizade = amizadeService.buscarAmizadesComUsuarioLogado();
+		
+		List<Long> listaIdUsuarioAmigos = getListaIdUsuarioAmigos(listaAmizade);
+		
+		String jpql = "";
+		jpql += "SELECT e FROM Evento e ";
+		jpql += "WHERE e.id IN (";
+		jpql += "	SELECT ei.evento.id FROM EventoInteresse ei WHERE ei.usuario.id IN(:listaIdUsuario) ";
+		jpql += ") ";
+		jpql += "AND e.restrito = false ";
+		jpql += "AND e.visivel = true ";
+		jpql += "AND ((e.data > CURRENT_DATE) OR (e.data = CURRENT_DATE AND e.horaInicio >= CURRENT_TIME)) ";
+		jpql += "ORDER BY (SELECT COUNT(ei2) FROM EventoInteresse ei2 WHERE ei2.evento.id = e.id) DESC";
+		
+		TypedQuery<Evento> query = entityManager.createQuery(jpql, Evento.class);
+		query.setParameter("listaIdUsuario", listaIdUsuarioAmigos);
+
+		List<Evento> listaEvento = query.getResultList();
+		
+		return listaEvento;
+	}
+
+	private List<Long> getListaIdUsuarioAmigos(List<Amizade> listaAmizade) {
+		
+		List<Long> listaIdUsuarioAmigos = new ArrayList<Long>();
+		
+		for (Amizade amizade : listaAmizade) {
+			
+			if (amizade.getUsuario().getId().compareTo(ServiceLocator.getUsuarioLogado().getId()) != 0) {
+				listaIdUsuarioAmigos.add(amizade.getUsuario().getId());
+			} else {
+				listaIdUsuarioAmigos.add(amizade.getAmigo().getId());
+			}
+			
+		}
+		
+		return listaIdUsuarioAmigos;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
+	private List<Evento> buscarEventosPopulares(Double latitude, Double longitude) {
+		
+		String sql = "SELECT e.* FROM test.evento e ";
+		sql += "WHERE earth_distance(ll_to_earth(:latitude, :longitude), ll_to_earth(e.latitude, e.longitude)) <= 50 * 1000 ";
+		sql += "AND e.restrito = false ";
+		sql += "AND e.visivel = true ";
+		sql += "AND ((e.data > CURRENT_DATE) OR (e.data = CURRENT_DATE AND e.hora_inicio >= CURRENT_TIME)) ";
+		sql += "ORDER BY e.numero_visualizacoes DESC, e.data ASC, e.hora_inicio ASC ";
+		sql += "LIMIT 10";
+
+		Query query = entityManager.createNativeQuery(sql, Evento.class);
+		query.setParameter("latitude", latitude);
+		query.setParameter("longitude", longitude);
+
+		List<Evento> listaEvento = query.getResultList();
+		
+		return listaEvento;
+	}
+
+	private void validarLatitudeELongitudeInformadas(Double latitude, Double longitude) {
+		
+		if (latitude == null) {
+			throw new BusinessException("Latitude não informada!");
+		}
+		
+		if (longitude == null) {
+			throw new BusinessException("Longitude não informada!");
+		}
+		
 	}
 
 }

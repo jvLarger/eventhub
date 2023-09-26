@@ -1,7 +1,10 @@
 package com.jlarger.eventhub.services;
 
+import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +19,7 @@ import com.jlarger.eventhub.repositories.EventoRepository;
 import com.jlarger.eventhub.repositories.IngressoRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
 import com.jlarger.eventhub.utils.CpfCnpjValidate;
+import com.jlarger.eventhub.utils.ServiceLocator;
 import com.jlarger.eventhub.utils.Util;
 
 @Service
@@ -201,4 +205,21 @@ public class IngressoService {
 		}
 		
 	}
+	
+	@Transactional(readOnly = true)
+	public List<IngressoDTO> buscarIngressosPendentes() {
+		
+		List<Ingresso> listaIngressos = ingressoRepository.buscarIngressosPendentes(ServiceLocator.getUsuarioLogado().getId(), new Date(), LocalTime.now());
+		
+		return listaIngressos.stream().map(x -> new IngressoDTO(x)).collect(Collectors.toList());
+	}
+	
+	@Transactional(readOnly = true)
+	public List<IngressoDTO> buscarIngressosConcluidos() {
+		
+		List<Ingresso> listaIngressos = ingressoRepository.buscarIngressosConcluidos(ServiceLocator.getUsuarioLogado().getId(), new Date(), LocalTime.now());
+		
+		return listaIngressos.stream().map(x -> new IngressoDTO(x)).collect(Collectors.toList());
+	}
+	
 }

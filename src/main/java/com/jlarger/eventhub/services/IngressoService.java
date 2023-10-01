@@ -1,6 +1,7 @@
 package com.jlarger.eventhub.services;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -12,8 +13,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jlarger.eventhub.dto.EventoArquivoDTO;
+import com.jlarger.eventhub.dto.EventoDTO;
 import com.jlarger.eventhub.dto.IngressoDTO;
 import com.jlarger.eventhub.entities.Evento;
+import com.jlarger.eventhub.entities.EventoArquivo;
 import com.jlarger.eventhub.entities.Ingresso;
 import com.jlarger.eventhub.repositories.EventoRepository;
 import com.jlarger.eventhub.repositories.IngressoRepository;
@@ -39,6 +43,9 @@ public class IngressoService {
 	
 	@Autowired
 	private FaturamentoService faturamentoService;
+	
+	@Autowired
+	private EventoArquivoService eventoArquivoService;
 	
 	@Transactional
 	public void excluirIngressosPorEvento(Long idEvento) {
@@ -211,7 +218,9 @@ public class IngressoService {
 		
 		List<Ingresso> listaIngressos = ingressoRepository.buscarIngressosPendentes(ServiceLocator.getUsuarioLogado().getId(), new Date(), LocalTime.now());
 		
-		return listaIngressos.stream().map(x -> new IngressoDTO(x)).collect(Collectors.toList());
+		List<IngressoDTO> listaIngressoDTO = popularIngressosCompleto(listaIngressos);
+		
+		return listaIngressoDTO;
 	}
 	
 	@Transactional(readOnly = true)
@@ -219,7 +228,35 @@ public class IngressoService {
 		
 		List<Ingresso> listaIngressos = ingressoRepository.buscarIngressosConcluidos(ServiceLocator.getUsuarioLogado().getId(), new Date(), LocalTime.now());
 		
-		return listaIngressos.stream().map(x -> new IngressoDTO(x)).collect(Collectors.toList());
+		List<IngressoDTO> listaIngressoDTO = popularIngressosCompleto(listaIngressos);
+		
+		return listaIngressoDTO;
+	}
+
+	@Transactional(readOnly = true)
+	private List<IngressoDTO> popularIngressosCompleto(List<Ingresso> listaIngressos) {
+		
+		List<IngressoDTO> listaIngressoDTO = new ArrayList<IngressoDTO>();
+		
+		for (Ingresso ingresso : listaIngressos) {
+			
+			IngressoDTO ingressoDTO = new IngressoDTO(ingresso);
+			ingressoDTO.setEvento(popularEventoDTO(ingresso.getEvento()));
+			
+			listaIngressoDTO.add(ingressoDTO);
+		}
+		
+		return listaIngressoDTO;
+	}
+
+	private EventoDTO popularEventoDTO(Evento evento) {
+		
+		List<EventoArquivo> listaEventoArquivo = eventoArquivoService.buscarArquviosPorEvento(evento.getId());
+		
+		EventoDTO eventoDTO = new EventoDTO(evento);
+		eventoDTO.setArquivos(listaEventoArquivo.stream().map(x -> new EventoArquivoDTO(x)).collect(Collectors.toList()));
+		
+		return eventoDTO;
 	}
 	
 }

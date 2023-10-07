@@ -1,5 +1,6 @@
 package com.jlarger.eventhub.services;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +20,9 @@ import com.jlarger.eventhub.dto.IngressoDTO;
 import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.EventoArquivo;
 import com.jlarger.eventhub.entities.Ingresso;
+import com.jlarger.eventhub.entities.Notificacao;
+import com.jlarger.eventhub.entities.Usuario;
+import com.jlarger.eventhub.entities.type.TipoNotificacao;
 import com.jlarger.eventhub.repositories.EventoRepository;
 import com.jlarger.eventhub.repositories.IngressoRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
@@ -47,6 +51,9 @@ public class IngressoService {
 	@Autowired
 	private EventoArquivoService eventoArquivoService;
 	
+	@Autowired
+	private NotificacaoService notificacaoService;
+	
 	@Transactional
 	public void excluirIngressosPorEvento(Long idEvento) {
 		
@@ -56,9 +63,15 @@ public class IngressoService {
 		
 		for (Ingresso ingresso : listaIngresso) {
 			
-			pagamentoService.estornarPagamentoIngresso(ingresso);
+			Boolean isSucessoEstorno = Boolean.TRUE;
 			
-			ingressoRepository.delete(ingresso);
+			if (ingresso.getIdentificadorTransacaoPagamento() != null) {
+				isSucessoEstorno = pagamentoService.estornarPagamentoIngresso(ingresso);
+			}
+			
+			if (isSucessoEstorno) {
+				ingressoRepository.delete(ingresso);
+			}
 			
 		}
 		
@@ -109,34 +122,96 @@ public class IngressoService {
 		validarEventoVisivel(evento);
 		
 		validarCamposCompraIngresso(dto, evento);
-
-		Ingresso ingresso = new Ingresso();
-		ingresso.setEvento(evento);
-		ingresso.setUsuario(usuarioService.getUsuarioLogado());
-		ingresso.setNome(dto.getNome().trim());
-		ingresso.setDocumentoPrincipal(Util.getSomenteNumeros(dto.getDocumentoPrincipal()));
-		ingresso.setTelefone(Util.getSomenteNumeros(dto.getTelefone()));
-		ingresso.setEmail(dto.getEmail().trim());
-		ingresso.setDataComemorativa(dto.getDataComemorativa());
-		ingresso.setValorTotalIngresso(evento.getValor());
-		ingresso.setValorTaxa(pagamentoService.calcularValorTaxaIngresso(evento.getValor()));
-		ingresso.setValorFaturamento(evento.getValor() - ingresso.getValorTaxa());
 		
 		String indificadorPagamento = null;
 		
+		Boolean isPagamentoComSucesso = Boolean.TRUE;
+		
 		if (evento.getValor().compareTo(0.0) > 0) {
+			
+			isPagamentoComSucesso = Boolean.FALSE;
+			
 			indificadorPagamento = pagamentoService.realizarPagamentoCartao(dto.getPagamento(), evento.getValor());
+			
+			isPagamentoComSucesso = pagamentoService.verificarSePagamentoBemSucedido(indificadorPagamento);
+			
 		}
 		
-		ingresso.setIdentificadorTransacaoPagamento(indificadorPagamento);
+		IngressoDTO ingressoDTO = new IngressoDTO();
 		
-		ingresso = ingressoRepository.save(ingresso);
+		if (isPagamentoComSucesso) {
+			
+			Ingresso ingresso = new Ingresso();
+			ingresso.setEvento(evento);
+			ingresso.setUsuario(usuarioService.getUsuarioLogado());
+			ingresso.setNome(dto.getNome().trim());
+			ingresso.setDocumentoPrincipal(Util.getSomenteNumeros(dto.getDocumentoPrincipal()));
+			ingresso.setTelefone(Util.getSomenteNumeros(dto.getTelefone()));
+			ingresso.setEmail(dto.getEmail().trim());
+			ingresso.setDataComemorativa(dto.getDataComemorativa());
+			ingresso.setValorTotalIngresso(evento.getValor());
+			ingresso.setValorTaxa(pagamentoService.calcularValorTaxaIngresso(evento.getValor()));
+			ingresso.setValorFaturamento(evento.getValor() - ingresso.getValorTaxa());
+			
+			ingresso.setIdentificadorTransacaoPagamento(indificadorPagamento);
+			
+			ingresso = ingressoRepository.save(ingresso);
+			
+			ingressoDTO = new IngressoDTO(ingresso);
+			
+			faturamentoService.atualizarValoresFaturamentoPorEvento(evento);
+			
+			notificarPedidoProcessadoComSucesso(evento);
 		
-		faturamentoService.atualizarValoresFaturamentoPorEvento(evento);
+		} else {
+			notificarPedidoProcessadoComErro(evento);
+		}
 		
-		return new IngressoDTO(ingresso);
+		return ingressoDTO;
 	}
 	
+	@Transactional
+	private void notificarPedidoProcessadoComErro(Evento evento) {
+		
+		Notificacao notificacao = popularNotificacaoPedidoProcessadoComErro(evento);
+		
+		notificacaoService.enviarNotificacao(notificacao);
+	}
+	
+	@Transactional
+	private void notificarPedidoProcessadoComSucesso(Evento evento) {
+		
+		Notificacao notificacao = popularNotificacaoPedidoProcessadoComSucesso(evento);
+		
+		notificacaoService.enviarNotificacao(notificacao);
+	}
+	
+	private Notificacao popularNotificacaoPedidoProcessadoComErro(Evento evento) {
+		
+		Usuario usuarioLogado = usuarioService.getUsuarioLogado();
+		
+		Notificacao notificacao = new Notificacao();
+		notificacao.setDataNotificacao(LocalDateTime.now());
+		notificacao.setDescricao("Não foi possível concluir a compra do seu ingresso para o evento '" + evento.getNome() + "'. Verifique os dados para pagamento durante a próxima tentativa.");
+		notificacao.setUsuarioDestino(usuarioLogado);
+		notificacao.setTipo(TipoNotificacao.COMPRA_INGRESSO_ERRO);
+		
+		return notificacao;
+	}
+	
+	private Notificacao popularNotificacaoPedidoProcessadoComSucesso(Evento evento) {
+		
+		Usuario usuarioLogado = usuarioService.getUsuarioLogado();
+		
+		Notificacao notificacao = new Notificacao();
+		notificacao.setDataNotificacao(LocalDateTime.now());
+		notificacao.setDescricao("A compra do seu ingresso para o evento '" + evento.getNome() + "' foi processada com sucesso!");
+		notificacao.setUsuarioDestino(usuarioLogado);
+		notificacao.setTipo(TipoNotificacao.COMPRA_INGRESSO_SUCESSO);
+		
+		return notificacao;
+	}
+
 	private void validarEventoVisivel(Evento evento) {
 		
 		if (!evento.getVisivel()) {

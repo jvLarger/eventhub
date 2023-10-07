@@ -35,7 +35,7 @@ public class NotificacaoDTO implements Serializable {
 	public NotificacaoDTO(Notificacao notificacao) {
 		super();
 		this.id = notificacao.getId();
-		this.usuarioOrigem = new UsuarioDTO(notificacao.getUsuarioOrigem());
+		this.usuarioOrigem = notificacao.getUsuarioOrigem() != null ? new UsuarioDTO(notificacao.getUsuarioOrigem()) : null;
 		this.usuarioDestino = new UsuarioDTO(notificacao.getUsuarioDestino());
 		this.dataNotificacao = notificacao.getDataNotificacao();
 		this.dataLeitura = notificacao.getDataLeitura();

@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 import com.jlarger.eventhub.dto.PagamentoDTO;
 import com.jlarger.eventhub.entities.Ingresso;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
-import com.jlarger.eventhub.utils.CpfCnpjValidate;
-import com.jlarger.eventhub.utils.Util;
 
 @Service
 public class PagamentoService {
@@ -15,8 +13,13 @@ public class PagamentoService {
 	@Autowired
 	private StripeService stripeService;
 	
-	public void estornarPagamentoIngresso(Ingresso ingresso) {
-		// TODO implementar a regra de negócio para estornar um pagamento de ingresso no getway de pagamento
+	public Boolean estornarPagamentoIngresso(Ingresso ingresso) {
+		
+		long valorEmCentavos = (long)(ingresso.getValorTotalIngresso() * 100.0);
+		
+		Boolean isSuccess = stripeService.refund(valorEmCentavos, ingresso.getIdentificadorTransacaoPagamento());
+		
+		return isSuccess;
  	}
 
 	public void validarCamposPagamentoCartao(PagamentoDTO pagamento) {
@@ -29,7 +32,7 @@ public class PagamentoService {
 
 	public Double calcularValorTaxaIngresso(Double valor) {
 		
-		Double valorTaxa = (valor / 100.0) * 4.0;
+		Double valorTaxa = ((valor / 100.0) * 4.5) + 0.39;
 
 		return valorTaxa;
 	}
@@ -41,6 +44,13 @@ public class PagamentoService {
 		String paymentIntentId = stripeService.createPayment(pagamento.getToken(), valorEmCentavos);
 		
 		return paymentIntentId;
+	}
+
+	public Boolean verificarSePagamentoBemSucedido(String indificadorPagamento) {
+		
+		Boolean isPagamentoBemSucedido = stripeService.paymentSuccess(indificadorPagamento);
+		
+		return isPagamentoBemSucedido;
 	}
 
 }

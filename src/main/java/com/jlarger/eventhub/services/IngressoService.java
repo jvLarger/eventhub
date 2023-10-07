@@ -184,11 +184,11 @@ public class IngressoService {
 		}
 		
 		if (documento.length() == 11 && !CpfCnpjValidate.isCpfValid(documento)) {
-			throw new BusinessException("CPF inválido. Por favor, verifique!");
+			throw new BusinessException("CPF do titular inválido. Por favor, verifique!");
 		}
 		
 		if (documento.length() == 14 && !CpfCnpjValidate.isCnpjValid(documento)) {
-			throw new BusinessException("CNPJ inválido. Por favor, verifique!");
+			throw new BusinessException("CNPJ do titular inválido. Por favor, verifique!");
 		}
 		
 		if (ingressoDTO.getTelefone() == null || ingressoDTO.getTelefone().isEmpty()) {

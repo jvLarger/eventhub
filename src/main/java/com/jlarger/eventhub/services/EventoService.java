@@ -135,6 +135,7 @@ public class EventoService {
 		endereco.append(evento.getCidade());
 		endereco.append(",");
 		endereco.append(evento.getEstado());
+		endereco.append("&components=country:BR");
 		
 		GeoCoding geoCoding = geolocalizacaoService.buscarGeolocalizacao(endereco.toString());
 		

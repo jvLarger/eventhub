@@ -122,7 +122,11 @@ public class IngressoService {
 		ingresso.setValorTaxa(pagamentoService.calcularValorTaxaIngresso(evento.getValor()));
 		ingresso.setValorFaturamento(evento.getValor() - ingresso.getValorTaxa());
 		
-		String indificadorPagamento = pagamentoService.realizarPagamentoCartao(dto.getPagamento(), evento.getValor());
+		String indificadorPagamento = null;
+		
+		if (evento.getValor().compareTo(0.0) > 0) {
+			indificadorPagamento = pagamentoService.realizarPagamentoCartao(dto.getPagamento(), evento.getValor());
+		}
 		
 		ingresso.setIdentificadorTransacaoPagamento(indificadorPagamento);
 		
@@ -207,7 +211,7 @@ public class IngressoService {
 			throw new BusinessException("O email informado não é válido. Por favor, verifique!");
 		}
 		
-		if (evento.getValor().compareTo(0.0) <= 0) {
+		if (evento.getValor().compareTo(0.0) > 0) {
 			pagamentoService.validarCamposPagamentoCartao(ingressoDTO.getPagamento());
 		}
 		

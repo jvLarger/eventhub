@@ -12,17 +12,19 @@ public class PagamentoDTO implements Serializable {
 	private String validade;
 	private String cvv;
 	private String tipoCartao;
+	private String token;
 	
 	public PagamentoDTO() {
 	}
 
-	public PagamentoDTO(String numero, String nomeTitular, String documentoPrincipal, String validade, String cvv, String tipoCartao) {
+	public PagamentoDTO(String numero, String nomeTitular, String documentoPrincipal, String validade, String cvv, String tipoCartao, String token) {
 		this.numero = numero;
 		this.nomeTitular = nomeTitular;
 		this.documentoPrincipal = documentoPrincipal;
 		this.validade = validade;
 		this.cvv = cvv;
 		this.tipoCartao = tipoCartao;
+		this.token = token;
 	}
 
 	public String getNumero() {
@@ -72,4 +74,13 @@ public class PagamentoDTO implements Serializable {
 	public void setTipoCartao(String tipoCartao) {
 		this.tipoCartao = tipoCartao;
 	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+	
 }

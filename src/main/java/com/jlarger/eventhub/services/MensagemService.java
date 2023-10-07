@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -140,6 +142,14 @@ public class MensagemService {
 			salaBatePapoDTO.setMensagensNaoLidas(mapaTotalMensagensNaoLidasPorUsuarios.get(usuarioOrigem.getId()));
 		} else {
 			salaBatePapoDTO.setMensagensNaoLidas(0);
+		}
+		
+		Pageable pageable = PageRequest.of(0, 1);
+		
+		List<Mensagem> listaMensagem = mensagemRepository.buscarUltimaMensagemEntreUsuarios(amizade.getUsuario().getId(), amizade.getAmigo().getId(), pageable);
+		
+		if (listaMensagem.size() > 0) {
+			salaBatePapoDTO.setUltimaMensagem(new MensagemDTO(listaMensagem.get(0)));
 		}
 		
 		return salaBatePapoDTO;

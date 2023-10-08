@@ -128,14 +128,16 @@ public class EventoService {
 	private void popularCoordenadasEvento(Evento evento) {
 		
 		StringBuilder endereco = new StringBuilder();
+		
 		endereco.append(evento.getLogradouro());
 		endereco.append(",");
 		endereco.append(evento.getNumero());
+		endereco.append(" - ");
+		endereco.append(evento.getBairro());
 		endereco.append(",");
 		endereco.append(evento.getCidade());
 		endereco.append(",");
 		endereco.append(evento.getEstado());
-		endereco.append("&components=country:BR");
 		
 		GeoCoding geoCoding = geolocalizacaoService.buscarGeolocalizacao(endereco.toString());
 		

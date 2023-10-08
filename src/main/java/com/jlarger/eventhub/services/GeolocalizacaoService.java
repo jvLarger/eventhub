@@ -1,11 +1,11 @@
 package com.jlarger.eventhub.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import com.jlarger.eventhub.dto.GeoCoding;
 
@@ -21,12 +21,12 @@ public class GeolocalizacaoService {
 	public GeoCoding buscarGeolocalizacao(String address) {
 		
 		RestTemplate restTemplate = new RestTemplate();
+	
+		String googleurl = StringUtils.join(GEOCODING_URI,"?key=", GEOCODING_KEY, "&", "address", "=", address, "&language=", "pt-BR");
 		
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(GEOCODING_URI).queryParam("address", address).queryParam("key", GEOCODING_KEY);
-			
-		log.info("Calling geocoding api with: " + builder.toUriString());
-		
-		GeoCoding geoCoding = restTemplate.getForObject(builder.toUriString(), GeoCoding.class);
+		log.info("Calling geocoding api with: " + googleurl);
+
+		GeoCoding geoCoding = restTemplate.getForObject(googleurl, GeoCoding.class);
 		
 		log.info(geoCoding.toString());
 

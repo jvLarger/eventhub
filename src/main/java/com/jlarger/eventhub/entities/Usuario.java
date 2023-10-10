@@ -55,11 +55,14 @@ public class Usuario {
     @JoinColumn(name = "id_foto", nullable=true)
     private Arquivo foto;
 	
+	@Column(nullable=true, length = 255)
+	private String identificadorContaBancaria;
+	
 	public Usuario() {
 	}
 	
 	public Usuario(Long id, String nomeUsuario, String email, String senha, String nomeCompleto,
-			String documentoPrincipal, String telefone, Date dataComemorativa, Arquivo foto, String identificadorNotificacao) {
+			String documentoPrincipal, String telefone, Date dataComemorativa, Arquivo foto, String identificadorNotificacao, String identificadorContaBancaria) {
 		super();
 		this.id = id;
 		this.nomeUsuario = nomeUsuario;
@@ -71,6 +74,7 @@ public class Usuario {
 		this.dataComemorativa = dataComemorativa;
 		this.foto = foto;
 		this.identificadorNotificacao = identificadorNotificacao;
+		this.identificadorContaBancaria = identificadorContaBancaria;
 	}
 
 	public Long getId() {
@@ -153,10 +157,18 @@ public class Usuario {
 		this.identificadorNotificacao = identificadorNotificacao;
 	}
 
+	public String getIdentificadorContaBancaria() {
+		return identificadorContaBancaria;
+	}
+
+	public void setIdentificadorContaBancaria(String identificadorContaBancaria) {
+		this.identificadorContaBancaria = identificadorContaBancaria;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(dataComemorativa, documentoPrincipal, email, id, nomeCompleto, nomeUsuario, senha, telefone,
-				foto);
+		return Objects.hash(dataComemorativa, documentoPrincipal, email, foto, id, identificadorContaBancaria,
+				identificadorNotificacao, nomeCompleto, nomeUsuario, senha, telefone);
 	}
 
 	@Override
@@ -170,10 +182,11 @@ public class Usuario {
 		Usuario other = (Usuario) obj;
 		return Objects.equals(dataComemorativa, other.dataComemorativa)
 				&& Objects.equals(documentoPrincipal, other.documentoPrincipal) && Objects.equals(email, other.email)
-				&& Objects.equals(id, other.id) && Objects.equals(nomeCompleto, other.nomeCompleto)
-				&& Objects.equals(nomeUsuario, other.nomeUsuario) && Objects.equals(senha, other.senha)
-				&& Objects.equals(telefone, other.telefone) && Objects.equals(foto, other.foto);
+				&& Objects.equals(foto, other.foto) && Objects.equals(id, other.id)
+				&& Objects.equals(identificadorContaBancaria, other.identificadorContaBancaria)
+				&& Objects.equals(identificadorNotificacao, other.identificadorNotificacao)
+				&& Objects.equals(nomeCompleto, other.nomeCompleto) && Objects.equals(nomeUsuario, other.nomeUsuario)
+				&& Objects.equals(senha, other.senha) && Objects.equals(telefone, other.telefone);
 	}
-	
 	
 }

@@ -2,19 +2,25 @@ package com.jlarger.eventhub.services;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jlarger.eventhub.dto.FaturamentoDTO;
+import com.jlarger.eventhub.dto.FaturamentoPagamentoDTO;
 import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.Faturamento;
 import com.jlarger.eventhub.entities.Ingresso;
+import com.jlarger.eventhub.entities.Usuario;
 import com.jlarger.eventhub.repositories.FaturamentoRepository;
 import com.jlarger.eventhub.repositories.IngressoRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
+import com.jlarger.eventhub.utils.ServiceLocator;
 
 @Service
 public class FaturamentoService {
@@ -24,6 +30,9 @@ public class FaturamentoService {
 	
 	@Autowired
 	private IngressoRepository ingressoRepository;
+	
+	@Autowired
+	private UsuarioService usuarioService;
 	
 	@Transactional
 	public Faturamento criarFaturamentoInicialParaEvento(Evento evento) {
@@ -122,4 +131,65 @@ public class FaturamentoService {
 		
 		faturamentoRepository.save(faturamento);
 	}
+
+	@Transactional(readOnly = true)
+	public FaturamentoPagamentoDTO buscarFaturamentos() {
+		
+		List<Faturamento> listaFaturamentos = faturamentoRepository.buscarFaturamentosPendentes(ServiceLocator.getUsuarioLogado().getId());
+		List<Faturamento> proximosFaturamentos = new ArrayList<Faturamento>();
+		
+		Double valorTotalIngressos = 0.0;
+		Double valorTotalTaxas = 0.0;
+		Double valorTotalFaturado = 0.0;
+		Double valorTotalIngressosFuturo = 0.0;
+		Double valorTotalTaxasFuturo = 0.0;
+		Double valorTotalFaturadoFuturo = 0.0;
+		
+		for (Faturamento faturamento : listaFaturamentos) {
+			
+			if (faturamento.getDataLiberacao().compareTo(LocalDateTime.now()) <= 0) {
+				valorTotalIngressos += faturamento.getValorTotalIngressos();
+				valorTotalTaxas += faturamento.getValorTotalTaxas();
+				valorTotalFaturado += faturamento.getValorTotalFaturamento();
+			} else {
+				valorTotalIngressosFuturo += faturamento.getValorTotalIngressos();
+				valorTotalTaxasFuturo += faturamento.getValorTotalTaxas();
+				valorTotalFaturadoFuturo += faturamento.getValorTotalFaturamento();
+				proximosFaturamentos.add(faturamento);
+			}
+			
+		}
+		
+		FaturamentoPagamentoDTO faturamentoPagamentoDTO = new FaturamentoPagamentoDTO();
+		faturamentoPagamentoDTO.setValorTotalIngressos(valorTotalIngressos);
+		faturamentoPagamentoDTO.setValorTotalTaxas(valorTotalTaxas);
+		faturamentoPagamentoDTO.setValorTotalFaturado(valorTotalFaturado);
+		faturamentoPagamentoDTO.setValorTotalIngressosFuturo(valorTotalIngressosFuturo);
+		faturamentoPagamentoDTO.setValorTotalTaxasFuturo(valorTotalTaxasFuturo);
+		faturamentoPagamentoDTO.setValorTotalFaturado(valorTotalFaturadoFuturo);
+		faturamentoPagamentoDTO.setProximosFaturamentos(proximosFaturamentos.stream().map(x -> new FaturamentoDTO(x)).collect(Collectors.toList()));
+		
+		buscarEPopularInformacoesContaBancariaTransferencia(faturamentoPagamentoDTO);
+		
+		return faturamentoPagamentoDTO;
+	}
+	
+	/**
+	  A conta bancária deve estar cadastrada como um "external_account" na conta do destinatário. 
+	  A informação da conta bancária brasileira é fornecida pelo destinatário.
+	 
+	  Stripe é uma plataforma de pagamento online que permite aceitar pagamentos e gerenciar transações, 
+	  mas para enviar dinheiro diretamente para contas bancárias individuais, é mais apropriado usar a	  
+	  infraestrutura bancária tradicional.
+	 */
+	private void buscarEPopularInformacoesContaBancariaTransferencia(FaturamentoPagamentoDTO faturamentoPagamentoDTO) {
+		
+		Usuario usuarioLogado = usuarioService.getUsuarioLogado();
+		
+		if (usuarioLogado.getIdentificadorContaBancaria() != null) {
+			
+		}
+		
+	}
+	
 }

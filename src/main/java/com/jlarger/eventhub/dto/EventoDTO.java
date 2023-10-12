@@ -39,6 +39,8 @@ public class EventoDTO implements Serializable {
 	private String dataEHoraFormatada;
 	private Boolean demonstreiInteresse;
 	private Integer ingressosVendidos;
+	private Integer grupoRelevancia;
+	
 	private List<IngressoDTO> ultimosIngressoVendidos = new ArrayList<IngressoDTO>();
 	
 	public EventoDTO() {
@@ -268,4 +270,13 @@ public class EventoDTO implements Serializable {
 	public void setVisivel(Boolean visivel) {
 		this.visivel = visivel;
 	}
+
+	public Integer getGrupoRelevancia() {
+		return grupoRelevancia;
+	}
+
+	public void setGrupoRelevancia(Integer grupoRelevancia) {
+		this.grupoRelevancia = grupoRelevancia;
+	}
+
 }

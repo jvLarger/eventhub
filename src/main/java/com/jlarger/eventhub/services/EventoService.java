@@ -622,7 +622,7 @@ public class EventoService {
 		
 		List<Evento> listaEventosQueMeusAmigosGostaram = buscarEventosQueMeusAmigosGostaram();
 
-		List<Evento> listaEventosPopulares = buscarEventosPopulares(latitude, longitude);
+		List<Evento> listaEventosPopulares = buscarEventosPopulares(latitude, longitude, 10);
 		
 		FeedEventosDTO feedEventosDTO = new FeedEventosDTO();
 		feedEventosDTO.setEventosQueMeusAmigosGostaram(popularListaEventosDTO(listaEventosQueMeusAmigosGostaram));
@@ -675,7 +675,7 @@ public class EventoService {
 
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	private List<Evento> buscarEventosPopulares(Double latitude, Double longitude) {
+	private List<Evento> buscarEventosPopulares(Double latitude, Double longitude, Integer limit) {
 		
 		String sql = "SELECT e.* FROM test.evento e ";
 		sql += "WHERE earth_distance(ll_to_earth(:latitude, :longitude), ll_to_earth(e.latitude, e.longitude)) <= 50 * 1000 ";
@@ -683,12 +683,19 @@ public class EventoService {
 		sql += "AND e.visivel = true ";
 		sql += "AND ((e.data > CURRENT_DATE) OR (e.data = CURRENT_DATE AND e.hora_inicio >= CURRENT_TIME)) ";
 		sql += "ORDER BY e.numero_visualizacoes DESC, e.data ASC, e.hora_inicio ASC ";
-		sql += "LIMIT 10";
-
+		
+		if (limit != null) {
+			sql += "LIMIT :limit";
+		}
+		
 		Query query = entityManager.createNativeQuery(sql, Evento.class);
 		query.setParameter("latitude", latitude);
 		query.setParameter("longitude", longitude);
-
+		
+		if (limit != null) {
+			query.setParameter("limit", limit);
+		}
+		
 		List<Evento> listaEvento = query.getResultList();
 		
 		return listaEvento;
@@ -704,6 +711,39 @@ public class EventoService {
 			throw new BusinessException("Longitude não informada!");
 		}
 		
+	}
+	
+	@Transactional(readOnly = true)
+	public List<EventoDTO> buscarEventosMapaCalor(Double latitude, Double longitude) {
+		
+		List<Evento> listaEvento = buscarEventosPopulares(latitude, longitude, null);
+		
+		List<EventoDTO> listaEventoDTO = popularListaEventosDTO(listaEvento);
+		
+		classificarEventosPorPopularidade(listaEventoDTO);
+		
+		return listaEventoDTO;
+	}
+
+	private void classificarEventosPorPopularidade(List<EventoDTO> listaEventoDTO) {
+		
+		int totalEventos = listaEventoDTO.size();
+		int grupos = listaEventoDTO.size() > 4 ? 4 : listaEventoDTO.size();
+		int eventosPorGrupo = totalEventos / grupos;
+
+		int grupoAtual = 1;
+
+		for (EventoDTO evento : listaEventoDTO) {
+			
+			evento.setGrupoRelevancia(grupoAtual);
+			
+		//	System.out.println("Nome: " + evento.getNome() + ", Visualizações: " + evento.getNumeroVisualizacoes() + ", Grupo: " + grupoAtual);
+			
+			if (grupoAtual < grupos && listaEventoDTO.indexOf(evento) % eventosPorGrupo == eventosPorGrupo - 1) {
+				grupoAtual++;
+			}
+		}
+	
 	}
 
 }

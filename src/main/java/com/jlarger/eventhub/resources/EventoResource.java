@@ -128,4 +128,12 @@ public class EventoResource {
 		
 		return ResponseEntity.ok().body(feedEventosDTO);
 	}
+	
+	@GetMapping("/mapa-calor")
+	public ResponseEntity<List<EventoDTO>> buscarEventosMapaCalor(@RequestParam Double latitude, @RequestParam Double longitude) {
+		
+		List<EventoDTO> listaEventoDTO = eventoService.buscarEventosMapaCalor(latitude, longitude);
+		
+		return ResponseEntity.ok().body(listaEventoDTO);
+	}
 }

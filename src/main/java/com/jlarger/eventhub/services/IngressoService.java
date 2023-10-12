@@ -3,6 +3,7 @@ package com.jlarger.eventhub.services;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.jlarger.eventhub.dto.EventoArquivoDTO;
 import com.jlarger.eventhub.dto.EventoDTO;
 import com.jlarger.eventhub.dto.IngressoDTO;
+import com.jlarger.eventhub.entities.Arquivo;
 import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.EventoArquivo;
 import com.jlarger.eventhub.entities.Ingresso;
@@ -53,6 +55,9 @@ public class IngressoService {
 	
 	@Autowired
 	private NotificacaoService notificacaoService;
+	
+	@Autowired
+	private ArquivoService arquivoService;
 	
 	@Transactional
 	public void excluirIngressosPorEvento(Long idEvento) {
@@ -152,8 +157,15 @@ public class IngressoService {
 			ingresso.setValorTotalIngresso(evento.getValor());
 			ingresso.setValorTaxa(pagamentoService.calcularValorTaxaIngresso(evento.getValor()));
 			ingresso.setValorFaturamento(evento.getValor() - ingresso.getValorTaxa());
-			
 			ingresso.setIdentificadorTransacaoPagamento(indificadorPagamento);
+			
+			ingresso = ingressoRepository.save(ingresso);
+			
+			String encoded = Base64.getEncoder().withoutPadding().encodeToString(ingresso.getId().toString().getBytes());
+
+			Arquivo qrcode = arquivoService.gerarQrcode("https://eventhub.com/ingresso?i=" + encoded);
+			
+			ingresso.setQrcode(qrcode);
 			
 			ingresso = ingressoRepository.save(ingresso);
 			

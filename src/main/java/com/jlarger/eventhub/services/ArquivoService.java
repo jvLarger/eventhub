@@ -3,6 +3,8 @@ package com.jlarger.eventhub.services;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
@@ -12,6 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.jlarger.eventhub.dto.ArquivoDTO;
 import com.jlarger.eventhub.entities.Arquivo;
 import com.jlarger.eventhub.repositories.ArquivoRepository;
@@ -81,6 +87,40 @@ public class ArquivoService {
 		file.delete();
         
         arquivoRepository.delete(arquivo);
+	}
+	
+	@Transactional
+	public Arquivo gerarQrcode(String textoQrcode) {
+		
+		try {
+           
+			int width = 300;
+            int height = 300;
+            
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode(textoQrcode, BarcodeFormat.QR_CODE, width, height);
+            
+            String nomeArquivo = "qrcode_" + new Date().getTime() + ".png";
+
+    		String filePath = diretorioImagens + "/" + nomeArquivo;
+    		
+            Path path = FileSystems.getDefault().getPath(filePath);
+
+            MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
+            
+            Arquivo arquivo = new Arquivo();
+    		arquivo.setNome(nomeArquivo);
+    		arquivo.setNomeAbsoluto(nomeArquivo);
+    		
+    		arquivo = arquivoRepository.save(arquivo);
+    		
+    		return arquivo;
+        
+		} catch (Exception e) {
+        	e.printStackTrace();
+            throw new BusinessException("Erro ao gerar o Qrcode: " + e.getMessage());
+        }
+
 	}
 	
 }

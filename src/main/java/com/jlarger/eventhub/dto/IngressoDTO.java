@@ -23,11 +23,12 @@ public class IngressoDTO implements Serializable {
 	private String identificadorTransacaoPagamento;
     private UsuarioDTO usuario;
     private PagamentoDTO pagamento;
+    private ArquivoDTO qrcode;
     
     public IngressoDTO() {
     }
 
-	public IngressoDTO(EventoDTO evento, Long id, String email, String nome, String documentoPrincipal, String telefone, Date dataComemorativa, Double valorTotalIngresso, Double valorTaxa, Double valorFaturamento, String identificadorTransacaoPagamento, UsuarioDTO usuario, PagamentoDTO pagamento) {
+	public IngressoDTO(EventoDTO evento, Long id, String email, String nome, String documentoPrincipal, String telefone, Date dataComemorativa, Double valorTotalIngresso, Double valorTaxa, Double valorFaturamento, String identificadorTransacaoPagamento, UsuarioDTO usuario, PagamentoDTO pagamento, ArquivoDTO qrcode) {
 		this.id = id;
 		this.evento = evento;
 		this.email = email;
@@ -41,6 +42,7 @@ public class IngressoDTO implements Serializable {
 		this.identificadorTransacaoPagamento = identificadorTransacaoPagamento;
 		this.usuario = usuario;
 		this.pagamento = pagamento;
+		this.qrcode = qrcode;
 	}
 	
 	public IngressoDTO(Ingresso ingresso) {
@@ -55,6 +57,7 @@ public class IngressoDTO implements Serializable {
 		this.valorFaturamento = ingresso.getValorFaturamento();
 		this.identificadorTransacaoPagamento = ingresso.getIdentificadorTransacaoPagamento();
 		this.usuario = new UsuarioDTO(ingresso.getUsuario());
+		this.qrcode = ingresso.getQrcode() != null ? new ArquivoDTO(ingresso.getQrcode()) : null;
 	}
 	
 	public IngressoDTO(Ingresso ingresso, Evento evento) {
@@ -164,5 +167,13 @@ public class IngressoDTO implements Serializable {
 
 	public void setPagamento(PagamentoDTO pagamento) {
 		this.pagamento = pagamento;
+	}
+
+	public ArquivoDTO getQrcode() {
+		return qrcode;
+	}
+
+	public void setQrcode(ArquivoDTO qrcode) {
+		this.qrcode = qrcode;
 	}
 }

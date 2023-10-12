@@ -1,5 +1,6 @@
 package com.jlarger.eventhub.entities;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
@@ -59,12 +60,20 @@ public class Ingresso {
     @JoinColumn(name = "id_usuario", nullable=false)
     private Usuario usuario;
 	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_arquivo_qrcode", nullable=true)
+    private Arquivo qrcode;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable=true)
+    private LocalDateTime dataUtilizacao;
+	
 	public Ingresso() {
 	}
 
 	public Ingresso(Long id, Evento evento, String email, String nome, String documentoPrincipal, String telefone,
 			Date dataComemorativa, Double valorTotalIngresso, Double valorTaxa, Double valorFaturamento,
-			String identificadorTransacaoPagamento) {
+			String identificadorTransacaoPagamento, Arquivo qrcode, LocalDateTime dataUtilizacao) {
 		super();
 		this.id = id;
 		this.evento = evento;
@@ -77,6 +86,8 @@ public class Ingresso {
 		this.valorTaxa = valorTaxa;
 		this.valorFaturamento = valorFaturamento;
 		this.identificadorTransacaoPagamento = identificadorTransacaoPagamento;
+		this.qrcode = qrcode;
+		this.dataUtilizacao = dataUtilizacao;
 	}
 
 	public Long getId() {
@@ -175,10 +186,27 @@ public class Ingresso {
 		this.usuario = usuario;
 	}
 
+	public Arquivo getQrcode() {
+		return qrcode;
+	}
+
+	public void setQrcode(Arquivo qrcode) {
+		this.qrcode = qrcode;
+	}
+
+	public LocalDateTime getDataUtilizacao() {
+		return dataUtilizacao;
+	}
+
+	public void setDataUtilizacao(LocalDateTime dataUtilizacao) {
+		this.dataUtilizacao = dataUtilizacao;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(dataComemorativa, documentoPrincipal, email, evento, id, identificadorTransacaoPagamento,
-				nome, telefone, valorFaturamento, valorTaxa, valorTotalIngresso);
+		return Objects.hash(dataComemorativa, dataUtilizacao, documentoPrincipal, email, evento, id,
+				identificadorTransacaoPagamento, nome, qrcode, telefone, usuario, valorFaturamento, valorTaxa,
+				valorTotalIngresso);
 	}
 
 	@Override
@@ -191,10 +219,12 @@ public class Ingresso {
 			return false;
 		Ingresso other = (Ingresso) obj;
 		return Objects.equals(dataComemorativa, other.dataComemorativa)
+				&& Objects.equals(dataUtilizacao, other.dataUtilizacao)
 				&& Objects.equals(documentoPrincipal, other.documentoPrincipal) && Objects.equals(email, other.email)
 				&& Objects.equals(evento, other.evento) && Objects.equals(id, other.id)
 				&& Objects.equals(identificadorTransacaoPagamento, other.identificadorTransacaoPagamento)
-				&& Objects.equals(nome, other.nome) && Objects.equals(telefone, other.telefone)
+				&& Objects.equals(nome, other.nome) && Objects.equals(qrcode, other.qrcode)
+				&& Objects.equals(telefone, other.telefone) && Objects.equals(usuario, other.usuario)
 				&& Objects.equals(valorFaturamento, other.valorFaturamento)
 				&& Objects.equals(valorTaxa, other.valorTaxa)
 				&& Objects.equals(valorTotalIngresso, other.valorTotalIngresso);

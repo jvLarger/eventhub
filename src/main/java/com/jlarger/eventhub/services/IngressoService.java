@@ -3,7 +3,6 @@ package com.jlarger.eventhub.services;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +59,9 @@ public class IngressoService {
 	@Autowired
 	private ArquivoService arquivoService;
 	
+	@Autowired
+	private PasswordEncoder encoder;
+
 	@Transactional
 	public void excluirIngressosPorEvento(Long idEvento) {
 		
@@ -158,13 +161,15 @@ public class IngressoService {
 			ingresso.setValorTaxa(pagamentoService.calcularValorTaxaIngresso(evento.getValor()));
 			ingresso.setValorFaturamento(evento.getValor() - ingresso.getValorTaxa());
 			ingresso.setIdentificadorTransacaoPagamento(indificadorPagamento);
+			ingresso.setIdentificadorIngresso("Aguardando identificador");
 			
 			ingresso = ingressoRepository.save(ingresso);
-			
-			String encoded = Base64.getEncoder().withoutPadding().encodeToString(ingresso.getId().toString().getBytes());
 
-			Arquivo qrcode = arquivoService.gerarQrcode("https://eventhub.com/ingresso?i=" + encoded);
+			String identificadorIngresso = gerarIdentificadorIngresso(ingresso);
 			
+			Arquivo qrcode = arquivoService.gerarQrcode(identificadorIngresso);
+			
+			ingresso.setIdentificadorIngresso(identificadorIngresso);
 			ingresso.setQrcode(qrcode);
 			
 			ingresso = ingressoRepository.save(ingresso);
@@ -182,6 +187,10 @@ public class IngressoService {
 		return ingressoDTO;
 	}
 	
+	private String gerarIdentificadorIngresso(Ingresso ingresso) {
+		return encoder.encode(ingresso.toString());
+	}
+
 	@Transactional
 	private void notificarPedidoProcessadoComErro(Evento evento) {
 		
@@ -348,6 +357,87 @@ public class IngressoService {
 		eventoDTO.setArquivos(listaEventoArquivo.stream().map(x -> new EventoArquivoDTO(x)).collect(Collectors.toList()));
 		
 		return eventoDTO;
+	}
+	
+	@Transactional(readOnly = true)
+	public IngressoDTO validarIngresso(String identificadorIngresso) {
+		
+		validarIdentificadorIngressoInformado(identificadorIngresso);
+		
+		Ingresso ingresso = buscarIngressoPorIdentificadorIngresso(identificadorIngresso);
+		
+		validarSeSouDonoDoEvento(ingresso);
+		
+		validarSeOIngressoJaFoiUtilizado(ingresso);
+		
+		validarSeOEventoJaEstaConcluido(ingresso);
+		
+		validarSeOEventoJaIniciou(ingresso);
+		
+		IngressoDTO ingressoDTO = new IngressoDTO(ingresso, ingresso.getEvento());
+		ingressoDTO.setEvento(popularEventoDTO(ingresso.getEvento()));
+		
+		return ingressoDTO;
+	}
+	
+	private void validarSeOEventoJaIniciou(Ingresso ingresso) {
+		
+		if (Util.comprarDatasSemHora(ingresso.getEvento().getData(), new Date()) != 0) {
+			throw new BusinessException("Esse evento não irá ocorrer hoje.");
+		}
+		
+		if (ingresso.getEvento().getHoraInicio().compareTo(LocalTime.now()) < 0) {
+			throw new BusinessException("Esse evento ainda não iniciou.");
+		}
+		
+	}
+
+	private void validarSeOEventoJaEstaConcluido(Ingresso ingresso) {
+		
+		if (Util.comprarDatasSemHora(ingresso.getEvento().getData(), new Date()) < 0) {
+			throw new BusinessException("Esse evento já está concluído.");
+		}
+		
+	}
+
+	private void validarSeOIngressoJaFoiUtilizado(Ingresso ingresso) {
+		
+		if (ingresso.getDataUtilizacao() != null) {
+			throw new BusinessException("Esse ingresso já foi utilizado anteriormente.");
+		}
+		
+	}
+
+	private void validarSeSouDonoDoEvento(Ingresso ingresso) {
+		
+		if (ingresso.getEvento().getUsuario().getId().compareTo(ServiceLocator.getUsuarioLogado().getId()) != 0) {
+			throw new BusinessException("Esse ingresso não pertence a um evento organizado por você.");
+		}
+		
+	}
+
+	@Transactional(readOnly = true)
+	private Ingresso buscarIngressoPorIdentificadorIngresso(String identificadorIngresso) {
+		
+		Optional<Ingresso> optionalIngresso = ingressoRepository.buscarIngressoPorIdentificador(identificadorIngresso);
+		
+		if (optionalIngresso.isEmpty()) {
+			throw new BusinessException("Nenhum ingresso localizado através desse identificador!");
+		}
+		
+		return optionalIngresso.get();
+	}
+
+	private void validarIdentificadorIngressoInformado(String identificadorIngresso) {
+		
+		if (identificadorIngresso == null || identificadorIngresso.trim().isEmpty()) {
+			throw new BusinessException("Identificador do ingresso não informado!");
+		}
+		
+		if (identificadorIngresso.trim().equals("Aguardando identificador")) {
+			throw new BusinessException("Identificador do ingresso não é válido!");
+		}
+		
 	}
 	
 }

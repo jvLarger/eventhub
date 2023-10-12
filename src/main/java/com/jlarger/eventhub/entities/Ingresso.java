@@ -68,12 +68,15 @@ public class Ingresso {
     @Column(nullable=true)
     private LocalDateTime dataUtilizacao;
 	
+	@Column(nullable=false, length = 255)
+	private String identificadorIngresso;
+	
 	public Ingresso() {
 	}
 
 	public Ingresso(Long id, Evento evento, String email, String nome, String documentoPrincipal, String telefone,
 			Date dataComemorativa, Double valorTotalIngresso, Double valorTaxa, Double valorFaturamento,
-			String identificadorTransacaoPagamento, Arquivo qrcode, LocalDateTime dataUtilizacao) {
+			String identificadorTransacaoPagamento, Arquivo qrcode, LocalDateTime dataUtilizacao, String identificadorIngresso) {
 		super();
 		this.id = id;
 		this.evento = evento;
@@ -88,6 +91,7 @@ public class Ingresso {
 		this.identificadorTransacaoPagamento = identificadorTransacaoPagamento;
 		this.qrcode = qrcode;
 		this.dataUtilizacao = dataUtilizacao;
+		this.identificadorIngresso = identificadorIngresso;
 	}
 
 	public Long getId() {
@@ -202,11 +206,29 @@ public class Ingresso {
 		this.dataUtilizacao = dataUtilizacao;
 	}
 
+	public String getIdentificadorIngresso() {
+		return identificadorIngresso;
+	}
+
+	public void setIdentificadorIngresso(String identificadorIngresso) {
+		this.identificadorIngresso = identificadorIngresso;
+	}
+	
+	@Override
+	public String toString() {
+		return "Ingresso [id=" + id + ", evento=" + evento + ", email=" + email + ", nome=" + nome
+				+ ", documentoPrincipal=" + documentoPrincipal + ", telefone=" + telefone + ", dataComemorativa="
+				+ dataComemorativa + ", valorTotalIngresso=" + valorTotalIngresso + ", valorTaxa=" + valorTaxa
+				+ ", valorFaturamento=" + valorFaturamento + ", identificadorTransacaoPagamento="
+				+ identificadorTransacaoPagamento + ", usuario=" + usuario + ", qrcode=" + qrcode + ", dataUtilizacao="
+				+ dataUtilizacao + ", identificadorIngresso=" + identificadorIngresso + "]";
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(dataComemorativa, dataUtilizacao, documentoPrincipal, email, evento, id,
-				identificadorTransacaoPagamento, nome, qrcode, telefone, usuario, valorFaturamento, valorTaxa,
-				valorTotalIngresso);
+				identificadorIngresso, identificadorTransacaoPagamento, nome, qrcode, telefone, usuario,
+				valorFaturamento, valorTaxa, valorTotalIngresso);
 	}
 
 	@Override
@@ -222,6 +244,7 @@ public class Ingresso {
 				&& Objects.equals(dataUtilizacao, other.dataUtilizacao)
 				&& Objects.equals(documentoPrincipal, other.documentoPrincipal) && Objects.equals(email, other.email)
 				&& Objects.equals(evento, other.evento) && Objects.equals(id, other.id)
+				&& Objects.equals(identificadorIngresso, other.identificadorIngresso)
 				&& Objects.equals(identificadorTransacaoPagamento, other.identificadorTransacaoPagamento)
 				&& Objects.equals(nome, other.nome) && Objects.equals(qrcode, other.qrcode)
 				&& Objects.equals(telefone, other.telefone) && Objects.equals(usuario, other.usuario)
@@ -229,5 +252,5 @@ public class Ingresso {
 				&& Objects.equals(valorTaxa, other.valorTaxa)
 				&& Objects.equals(valorTotalIngresso, other.valorTotalIngresso);
 	}
-	
+
 }

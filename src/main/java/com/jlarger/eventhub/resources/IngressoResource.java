@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -46,6 +47,14 @@ public class IngressoResource {
 		List<IngressoDTO> liataIngresso = ingressoService.buscarIngressosConcluidos();
 		
 		return ResponseEntity.ok().body(liataIngresso);
+	}
+	
+	@GetMapping("/validacao")
+	public ResponseEntity<IngressoDTO> validarIngresso(@RequestParam String identificadorIngresso) {
+		
+		IngressoDTO ingressoDTO = ingressoService.validarIngresso(identificadorIngresso);
+		
+		return ResponseEntity.ok().body(ingressoDTO);
 	}
 	
 }

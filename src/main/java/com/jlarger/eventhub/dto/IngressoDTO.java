@@ -24,11 +24,12 @@ public class IngressoDTO implements Serializable {
     private UsuarioDTO usuario;
     private PagamentoDTO pagamento;
     private ArquivoDTO qrcode;
+    private String identificadorIngresso;
     
     public IngressoDTO() {
     }
 
-	public IngressoDTO(EventoDTO evento, Long id, String email, String nome, String documentoPrincipal, String telefone, Date dataComemorativa, Double valorTotalIngresso, Double valorTaxa, Double valorFaturamento, String identificadorTransacaoPagamento, UsuarioDTO usuario, PagamentoDTO pagamento, ArquivoDTO qrcode) {
+	public IngressoDTO(EventoDTO evento, Long id, String email, String nome, String documentoPrincipal, String telefone, Date dataComemorativa, Double valorTotalIngresso, Double valorTaxa, Double valorFaturamento, String identificadorTransacaoPagamento, UsuarioDTO usuario, PagamentoDTO pagamento, ArquivoDTO qrcode, String identificadorIngresso) {
 		this.id = id;
 		this.evento = evento;
 		this.email = email;
@@ -43,6 +44,7 @@ public class IngressoDTO implements Serializable {
 		this.usuario = usuario;
 		this.pagamento = pagamento;
 		this.qrcode = qrcode;
+		this.identificadorIngresso = identificadorIngresso;
 	}
 	
 	public IngressoDTO(Ingresso ingresso) {
@@ -58,6 +60,7 @@ public class IngressoDTO implements Serializable {
 		this.identificadorTransacaoPagamento = ingresso.getIdentificadorTransacaoPagamento();
 		this.usuario = new UsuarioDTO(ingresso.getUsuario());
 		this.qrcode = ingresso.getQrcode() != null ? new ArquivoDTO(ingresso.getQrcode()) : null;
+		this.identificadorIngresso = ingresso.getIdentificadorIngresso();
 	}
 	
 	public IngressoDTO(Ingresso ingresso, Evento evento) {
@@ -176,4 +179,13 @@ public class IngressoDTO implements Serializable {
 	public void setQrcode(ArquivoDTO qrcode) {
 		this.qrcode = qrcode;
 	}
+
+	public String getIdentificadorIngresso() {
+		return identificadorIngresso;
+	}
+
+	public void setIdentificadorIngresso(String identificadorIngresso) {
+		this.identificadorIngresso = identificadorIngresso;
+	}
+	
 }

@@ -28,7 +28,7 @@ public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
     @Query("SELECT i FROM Ingresso i WHERE i.usuario.id = :idUsuario AND ((i.evento.data = :dataAtual AND i.evento.horaInicio > :horaAtual) OR i.evento.data > :dataAtual) ORDER BY i.evento.data ASC, i.evento.horaInicio ASC")
 	List<Ingresso> buscarIngressosPendentes(Long idUsuario, Date dataAtual, LocalTime horaAtual);
     
-    @Query("SELECT i FROM Ingresso i WHERE i.usuario.id = :idUsuario AND ((i.evento.data = :dataAtual AND i.evento.horaInicio <= :horaAtual) OR i.evento.data < :dataAtual) ORDER BY i.evento.data ASC, i.evento.horaInicio ASC")
+    @Query("SELECT i FROM Ingresso i WHERE i.usuario.id = :idUsuario AND (((i.evento.data = :dataAtual AND i.evento.horaInicio <= :horaAtual) OR i.evento.data < :dataAtual) OR i.dataUtilizacao IS NOT NULL) ORDER BY i.evento.data ASC, i.evento.horaInicio DESC")
   	List<Ingresso> buscarIngressosConcluidos(Long idUsuario, Date dataAtual, LocalTime horaAtual);
     
     @Query("SELECT i FROM Ingresso i WHERE i.identificadorIngresso = :identificadorIngresso")

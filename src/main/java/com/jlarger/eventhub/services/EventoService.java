@@ -267,7 +267,7 @@ public class EventoService {
 
 	private void validarSeEventoJaFoiConcluido(Evento eventoAntigo) {
 		
-		if (eventoAntigo.getData().compareTo(new Date()) < 0 ) {
+		if (Util.comprarDatasSemHora(eventoAntigo.getData(), new Date()) < 0 ) {
 			throw new BusinessException("Evento já está concluído!");
 		}
 		

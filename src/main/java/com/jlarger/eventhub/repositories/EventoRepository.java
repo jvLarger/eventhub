@@ -14,7 +14,7 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
 	@Query("SELECT e FROM Evento e WHERE e.usuario.id = :idUsuario AND ((e.data = :dataAtual AND e.horaInicio > :horaAtual) OR e.data > :dataAtual) ORDER BY e.data ASC, e.horaInicio ASC")
 	List<Evento> buscarEventosPedentesDoUsuario(Long idUsuario, Date dataAtual, LocalTime horaAtual);
 	
-	@Query("SELECT e FROM Evento e WHERE e.usuario.id = :idUsuario AND ((e.data = :dataAtual AND e.horaInicio <= :horaAtual) OR e.data < :dataAtual) ORDER BY e.data ASC, e.horaInicio ASC")
+	@Query("SELECT e FROM Evento e WHERE e.usuario.id = :idUsuario AND ((e.data = :dataAtual AND e.horaInicio <= :horaAtual) OR e.data < :dataAtual) ORDER BY e.data DESC, e.horaInicio DESC")
 	List<Evento> buscarMeusEventosConcluidos(Long idUsuario, Date dataAtual, LocalTime horaAtual);
 	
 }

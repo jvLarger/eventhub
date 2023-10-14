@@ -386,10 +386,10 @@ public class IngressoService {
 			throw new BusinessException("Esse evento não irá ocorrer hoje.");
 		}
 		
-		if (ingresso.getEvento().getHoraInicio().compareTo(LocalTime.now()) < 0) {
+	/*	if (ingresso.getEvento().getHoraInicio().compareTo(LocalTime.now()) < 0) {
 			throw new BusinessException("Esse evento ainda não iniciou.");
 		}
-		
+	*/	
 	}
 
 	private void validarSeOEventoJaEstaConcluido(Ingresso ingresso) {
@@ -436,6 +436,43 @@ public class IngressoService {
 		
 		if (identificadorIngresso.trim().equals("Aguardando identificador")) {
 			throw new BusinessException("Identificador do ingresso não é válido!");
+		}
+		
+	}
+	
+	@Transactional
+	public void utilizarIngresso(Long id) {
+		
+		validarIdIngressoInformado(id);
+		
+		Ingresso ingresso = getIngresso(id);
+		
+		validarSeSouDonoDoEvento(ingresso);
+		
+		validarSeOIngressoJaFoiUtilizado(ingresso);
+		
+		ingresso.setDataUtilizacao(LocalDateTime.now());
+		
+		ingressoRepository.save(ingresso);
+		
+	}
+	
+	@Transactional(readOnly = true)
+	private Ingresso getIngresso(Long id) {
+		
+		Optional<Ingresso> optionalIngresso = ingressoRepository.findById(id);
+		
+		if (optionalIngresso.isEmpty()) {
+			throw new BusinessException("Ingresso não encontrado!");
+		}
+		
+		return optionalIngresso.get();
+	}
+
+	private void validarIdIngressoInformado(Long id) {
+		
+		if (id == null || id.compareTo(0L) <= 0) {
+			throw new BusinessException("Ingresso não informado!");
 		}
 		
 	}

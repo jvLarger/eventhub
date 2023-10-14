@@ -1,6 +1,7 @@
 package com.jlarger.eventhub.dto;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.jlarger.eventhub.entities.Evento;
@@ -25,11 +26,12 @@ public class IngressoDTO implements Serializable {
     private PagamentoDTO pagamento;
     private ArquivoDTO qrcode;
     private String identificadorIngresso;
-    
+    private LocalDateTime dataUtilizacao;
+
     public IngressoDTO() {
     }
 
-	public IngressoDTO(EventoDTO evento, Long id, String email, String nome, String documentoPrincipal, String telefone, Date dataComemorativa, Double valorTotalIngresso, Double valorTaxa, Double valorFaturamento, String identificadorTransacaoPagamento, UsuarioDTO usuario, PagamentoDTO pagamento, ArquivoDTO qrcode, String identificadorIngresso) {
+	public IngressoDTO(EventoDTO evento, Long id, String email, String nome, String documentoPrincipal, String telefone, Date dataComemorativa, Double valorTotalIngresso, Double valorTaxa, Double valorFaturamento, String identificadorTransacaoPagamento, UsuarioDTO usuario, PagamentoDTO pagamento, ArquivoDTO qrcode, String identificadorIngresso, LocalDateTime dataUtilizacao) {
 		this.id = id;
 		this.evento = evento;
 		this.email = email;
@@ -45,6 +47,7 @@ public class IngressoDTO implements Serializable {
 		this.pagamento = pagamento;
 		this.qrcode = qrcode;
 		this.identificadorIngresso = identificadorIngresso;
+		this.dataUtilizacao = dataUtilizacao;
 	}
 	
 	public IngressoDTO(Ingresso ingresso) {
@@ -61,6 +64,7 @@ public class IngressoDTO implements Serializable {
 		this.usuario = new UsuarioDTO(ingresso.getUsuario());
 		this.qrcode = ingresso.getQrcode() != null ? new ArquivoDTO(ingresso.getQrcode()) : null;
 		this.identificadorIngresso = ingresso.getIdentificadorIngresso();
+		this.dataUtilizacao = ingresso.getDataUtilizacao();
 	}
 	
 	public IngressoDTO(Ingresso ingresso, Evento evento) {
@@ -186,6 +190,14 @@ public class IngressoDTO implements Serializable {
 
 	public void setIdentificadorIngresso(String identificadorIngresso) {
 		this.identificadorIngresso = identificadorIngresso;
+	}
+
+	public LocalDateTime getDataUtilizacao() {
+		return dataUtilizacao;
+	}
+
+	public void setDataUtilizacao(LocalDateTime dataUtilizacao) {
+		this.dataUtilizacao = dataUtilizacao;
 	}
 	
 }

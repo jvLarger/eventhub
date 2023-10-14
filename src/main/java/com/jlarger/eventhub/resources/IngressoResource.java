@@ -6,7 +6,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,6 +57,14 @@ public class IngressoResource {
 		IngressoDTO ingressoDTO = ingressoService.validarIngresso(identificadorIngresso);
 		
 		return ResponseEntity.ok().body(ingressoDTO);
+	}
+	
+	@PutMapping("/utilizacao/{id}")
+	public ResponseEntity<?> utilizarIngresso(@PathVariable Long id) {
+		
+		ingressoService.utilizarIngresso(id);
+		
+		return ResponseEntity.noContent().build();
 	}
 	
 }

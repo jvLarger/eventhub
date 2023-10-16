@@ -21,6 +21,8 @@ import com.jlarger.eventhub.repositories.FaturamentoRepository;
 import com.jlarger.eventhub.repositories.IngressoRepository;
 import com.jlarger.eventhub.services.exceptions.BusinessException;
 import com.jlarger.eventhub.utils.ServiceLocator;
+import com.stripe.model.Account;
+import com.stripe.model.AccountLink;
 
 @Service
 public class FaturamentoService {
@@ -33,6 +35,9 @@ public class FaturamentoService {
 	
 	@Autowired
 	private UsuarioService usuarioService;
+	
+	@Autowired
+	private PagamentoService pagamentoService;
 	
 	@Transactional
 	public Faturamento criarFaturamentoInicialParaEvento(Evento evento) {
@@ -132,12 +137,13 @@ public class FaturamentoService {
 		faturamentoRepository.save(faturamento);
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public FaturamentoPagamentoDTO buscarFaturamentos() {
 		
 		List<Faturamento> listaFaturamentos = faturamentoRepository.buscarFaturamentosPendentes(ServiceLocator.getUsuarioLogado().getId());
 		List<Faturamento> proximosFaturamentos = new ArrayList<Faturamento>();
-		
+		List<Faturamento> faturamentosLiberados = new ArrayList<Faturamento>();
+
 		Double valorTotalIngressos = 0.0;
 		Double valorTotalTaxas = 0.0;
 		Double valorTotalFaturado = 0.0;
@@ -151,6 +157,7 @@ public class FaturamentoService {
 				valorTotalIngressos += faturamento.getValorTotalIngressos();
 				valorTotalTaxas += faturamento.getValorTotalTaxas();
 				valorTotalFaturado += faturamento.getValorTotalFaturamento();
+				faturamentosLiberados.add(faturamento);
 			} else {
 				valorTotalIngressosFuturo += faturamento.getValorTotalIngressos();
 				valorTotalTaxasFuturo += faturamento.getValorTotalTaxas();
@@ -166,28 +173,122 @@ public class FaturamentoService {
 		faturamentoPagamentoDTO.setValorTotalFaturado(valorTotalFaturado);
 		faturamentoPagamentoDTO.setValorTotalIngressosFuturo(valorTotalIngressosFuturo);
 		faturamentoPagamentoDTO.setValorTotalTaxasFuturo(valorTotalTaxasFuturo);
-		faturamentoPagamentoDTO.setValorTotalFaturado(valorTotalFaturadoFuturo);
+		faturamentoPagamentoDTO.setValorTotalFaturadoFuturo(valorTotalFaturadoFuturo);
 		faturamentoPagamentoDTO.setProximosFaturamentos(proximosFaturamentos.stream().map(x -> new FaturamentoDTO(x)).collect(Collectors.toList()));
+		faturamentoPagamentoDTO.setFaturamentosLiberados(faturamentosLiberados.stream().map(x -> new FaturamentoDTO(x)).collect(Collectors.toList()));
 		
 		buscarEPopularInformacoesContaBancariaTransferencia(faturamentoPagamentoDTO);
 		
 		return faturamentoPagamentoDTO;
 	}
 	
-	/**
-	  A conta bancária deve estar cadastrada como um "external_account" na conta do destinatário. 
-	  A informação da conta bancária brasileira é fornecida pelo destinatário.
-	 
-	  Stripe é uma plataforma de pagamento online que permite aceitar pagamentos e gerenciar transações, 
-	  mas para enviar dinheiro diretamente para contas bancárias individuais, é mais apropriado usar a	  
-	  infraestrutura bancária tradicional.
-	 */
+	@Transactional
 	private void buscarEPopularInformacoesContaBancariaTransferencia(FaturamentoPagamentoDTO faturamentoPagamentoDTO) {
 		
 		Usuario usuarioLogado = usuarioService.getUsuarioLogado();
 		
-		if (usuarioLogado.getIdentificadorContaBancaria() != null) {
+		if (usuarioLogado.getIdentificadorContaBancaria() != null && !usuarioLogado.getIdentificadorContaBancaria().trim().isEmpty()) {
 			
+			popularInformacoesContaBancaria(faturamentoPagamentoDTO, usuarioLogado.getIdentificadorContaBancaria());
+			
+		} else {
+			
+			Account account = pagamentoService.createExternalAccount();
+		
+			usuarioService.atualizarIdentificadorContaBancariaUsuarioLogado(account.getId());
+			
+			popularInformacoesContaBancaria(faturamentoPagamentoDTO, account.getId());
+		}
+		
+	}
+	
+	@Transactional
+	private void popularInformacoesContaBancaria(FaturamentoPagamentoDTO faturamentoPagamentoDTO, String identificadorContaBancaria) {
+		
+		Account account = pagamentoService.getExternalAccount(identificadorContaBancaria);
+		
+		if (!account.getPayoutsEnabled()) {
+			
+			AccountLink accountLink = pagamentoService.createLinkExternalAccount(account.getId());
+			faturamentoPagamentoDTO.setLinkConnectStripe(accountLink.getUrl());
+			
+		}
+		
+		faturamentoPagamentoDTO.setPayoutsEnabled(account.getPayoutsEnabled());
+		faturamentoPagamentoDTO.setEmail(account.getEmail());
+		faturamentoPagamentoDTO.setAccount(account.getId());
+		
+	}
+	
+	@Transactional
+	public void pagarFechamentosLiberados() {
+		
+		List<Faturamento> listaFaturamentosLiberados = faturamentoRepository.buscarFaturamentosLiberadosENaoPagosPorUsuario(ServiceLocator.getUsuarioLogado().getId());
+		
+		validarSeExisteValorDisponivel(listaFaturamentosLiberados);
+		
+		validarSeExisteAccountValida();
+		
+		List<Long> listaIdsEvento = getListaIdsEvento(listaFaturamentosLiberados);
+		
+		List<Ingresso> listaIngressos = ingressoRepository.buscarIngressosPorListaIdsEventos(listaIdsEvento);
+		
+		Usuario usuario = usuarioService.getUsuarioLogado();
+		
+		for (Ingresso ingresso : listaIngressos) {
+			
+			if (ingresso.getIdentificadorTransacaoPagamento() != null && !usuario.getIdentificadorContaBancaria().trim().isEmpty()) {
+				
+				pagamentoService.createTransfer(usuario.getIdentificadorContaBancaria(), ingresso.getValorFaturamento(), ingresso.getIdentificadorTransacaoPagamento());
+				
+			}
+			
+		}
+		
+		for (Faturamento faturamento : listaFaturamentosLiberados) {
+			faturamento.setDataPagamento(LocalDateTime.now());
+			faturamentoRepository.save(faturamento);
+		}
+		
+	}
+
+	private void validarSeExisteAccountValida() {
+		
+		Usuario usuario = usuarioService.getUsuarioLogado();
+		
+		if (usuario.getIdentificadorContaBancaria() == null || usuario.getIdentificadorContaBancaria().trim().isEmpty()) {
+			throw new BusinessException("Não existe conta bancária configurada para repasse.");
+		}
+		
+		Account account = pagamentoService.getExternalAccount(usuario.getIdentificadorContaBancaria());
+		
+		if (!account.getPayoutsEnabled()) {
+			throw new BusinessException("Não existe conta bancária configurada para repasse.");
+		}
+		
+	}
+
+	private List<Long> getListaIdsEvento(List<Faturamento> listaFaturamentosLiberados) {
+		
+		List<Long> listaIdsEvento = new ArrayList<Long>();
+		
+		for (Faturamento faturamento : listaFaturamentosLiberados) {
+			listaIdsEvento.add(faturamento.getEvento().getId());
+		}
+		
+		return listaIdsEvento;
+	}
+
+	private void validarSeExisteValorDisponivel(List<Faturamento> listaFaturamentosLiberados) {
+		
+		Double valorTotal = 0.0;
+		
+		for (Faturamento faturamento : listaFaturamentosLiberados) {
+			valorTotal += faturamento.getValorTotalFaturamento();
+		}
+		
+		if (valorTotal.compareTo(0.0) <= 0) {
+			throw new BusinessException("Não existe valor para ser repassado nesse momento.");
 		}
 		
 	}

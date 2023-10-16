@@ -33,4 +33,7 @@ public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
     
     @Query("SELECT i FROM Ingresso i WHERE i.identificadorIngresso = :identificadorIngresso")
   	Optional<Ingresso> buscarIngressoPorIdentificador(String identificadorIngresso);
+    
+    @Query("SELECT i FROM Ingresso i WHERE i.evento.id IN :listaIdsEvento ORDER BY i.evento.id ASC, i.id ASC")
+	List<Ingresso> buscarIngressosPorListaIdsEventos(List<Long> listaIdsEvento);
 }

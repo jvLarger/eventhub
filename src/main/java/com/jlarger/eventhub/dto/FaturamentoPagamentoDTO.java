@@ -14,11 +14,13 @@ public class FaturamentoPagamentoDTO implements Serializable {
 	private Double valorTotalIngressosFuturo;
 	private Double valorTotalTaxasFuturo;
 	private Double valorTotalFaturadoFuturo;
-	private String numeroContaBancaria;
-	private String numeroBanco;
-	private String nomeTitular;
+	private String email;
+	private String account;
+	private Boolean payoutsEnabled;
+	private String linkConnectStripe;
 	private List<FaturamentoDTO> proximosFaturamentos = new ArrayList<FaturamentoDTO>();
-	
+	private List<FaturamentoDTO> faturamentosLiberados = new ArrayList<FaturamentoDTO>();
+
 	public FaturamentoPagamentoDTO() {
 	}
 
@@ -70,30 +72,6 @@ public class FaturamentoPagamentoDTO implements Serializable {
 		this.valorTotalFaturadoFuturo = valorTotalFaturadoFuturo;
 	}
 
-	public String getNumeroContaBancaria() {
-		return numeroContaBancaria;
-	}
-
-	public void setNumeroContaBancaria(String numeroContaBancaria) {
-		this.numeroContaBancaria = numeroContaBancaria;
-	}
-
-	public String getNumeroBanco() {
-		return numeroBanco;
-	}
-
-	public void setNumeroBanco(String numeroBanco) {
-		this.numeroBanco = numeroBanco;
-	}
-
-	public String getNomeTitular() {
-		return nomeTitular;
-	}
-
-	public void setNomeTitular(String nomeTitular) {
-		this.nomeTitular = nomeTitular;
-	}
-
 	public List<FaturamentoDTO> getProximosFaturamentos() {
 		return proximosFaturamentos;
 	}
@@ -101,5 +79,45 @@ public class FaturamentoPagamentoDTO implements Serializable {
 	public void setProximosFaturamentos(List<FaturamentoDTO> proximosFaturamentos) {
 		this.proximosFaturamentos = proximosFaturamentos;
 	}
-	
+
+	public List<FaturamentoDTO> getFaturamentosLiberados() {
+		return faturamentosLiberados;
+	}
+
+	public void setFaturamentosLiberados(List<FaturamentoDTO> faturamentosLiberados) {
+		this.faturamentosLiberados = faturamentosLiberados;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getAccount() {
+		return account;
+	}
+
+	public void setAccount(String account) {
+		this.account = account;
+	}
+
+	public Boolean getPayoutsEnabled() {
+		return payoutsEnabled;
+	}
+
+	public void setPayoutsEnabled(Boolean payoutsEnabled) {
+		this.payoutsEnabled = payoutsEnabled;
+	}
+
+	public String getLinkConnectStripe() {
+		return linkConnectStripe;
+	}
+
+	public void setLinkConnectStripe(String linkConnectStripe) {
+		this.linkConnectStripe = linkConnectStripe;
+	}
+
 }

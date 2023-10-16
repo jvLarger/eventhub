@@ -398,4 +398,14 @@ public class UsuarioService {
 
 		return new UsuarioDTO(usuario);
 	}
+	
+	@Transactional
+	public void atualizarIdentificadorContaBancariaUsuarioLogado(String identificadorContaBancaria) {
+		
+		Usuario usuario = getUsuarioLogado();
+		usuario.setIdentificadorContaBancaria(identificadorContaBancaria);
+		
+		repository.save(usuario);
+		
+	}
 }

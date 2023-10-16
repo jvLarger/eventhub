@@ -24,7 +24,7 @@ public class IngressoResource {
 	
 	@Autowired
 	private IngressoService ingressoService;
-
+	
 	@PostMapping
 	public ResponseEntity<IngressoDTO> comprarIngresso(@RequestBody IngressoDTO dto) {
 		
@@ -66,5 +66,5 @@ public class IngressoResource {
 		
 		return ResponseEntity.noContent().build();
 	}
-	
+
 }

@@ -7,10 +7,16 @@ import org.springframework.stereotype.Service;
 
 import com.jlarger.eventhub.services.exceptions.BusinessException;
 import com.stripe.Stripe;
+import com.stripe.model.Account;
+import com.stripe.model.AccountLink;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.Refund;
+import com.stripe.model.Transfer;
+import com.stripe.param.AccountCreateParams;
+import com.stripe.param.AccountLinkCreateParams;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.RefundCreateParams;
+import com.stripe.param.TransferCreateParams;
 
 @Service
 public class StripeService {
@@ -93,6 +99,106 @@ public class StripeService {
 		}
 		
 		return isSuccess;
+	}
+
+	public Account createExternalAccount() {
+		
+		Stripe.apiKey = API_SECET_KEY;
+		
+		try {
+			
+			AccountCreateParams params = AccountCreateParams.builder()
+						.setType(AccountCreateParams.Type.STANDARD)
+						.build();
+
+			Account account = Account.create(params);
+
+			return account;
+		} catch (Exception e) {
+			log.error("Erro ao criar uam conta externa: " + e.getMessage());
+			throw new BusinessException("Erro ao criar uam conta externa: " + e.getMessage());
+		}
+		
+	}
+	
+	public AccountLink createLinkExternalAccount(String accountId) {
+		
+		Stripe.apiKey = API_SECET_KEY;
+		
+		try {
+			
+			AccountLinkCreateParams params =
+					  AccountLinkCreateParams.builder()
+					    .setAccount(accountId)
+					    .setRefreshUrl("https://eventhub.com")
+					    .setReturnUrl("https://eventhub.com")
+					    .setType(AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING)
+					    .build();
+
+			AccountLink accountLink = AccountLink.create(params);
+
+			return accountLink;
+			
+		} catch (Exception e) {
+			log.error("Erro ao criar o link para uma conta externa: " + e.getMessage());
+			throw new BusinessException("Erro ao criar o link para uma conta externa: " + e.getMessage());
+		}
+		
+	}
+
+	public Account getExternalAccount(String accountId) {
+		
+		Stripe.apiKey = API_SECET_KEY;
+		
+		try {
+			
+			Account account = Account.retrieve(accountId);
+
+			return account;
+		} catch (Exception e) {
+			log.error("Erro ao buscar conta externa: " + e.getMessage());
+			throw new BusinessException("Erro ao buscar conta externa: " + e.getMessage());
+		}
+	}
+
+	public Transfer createTransfer(String accountId, Long valor, String paymentId) {
+		
+		Stripe.apiKey = API_SECET_KEY;
+		
+		try {
+			
+			PaymentIntent paymentIntent = retrivePayment(paymentId);
+
+			TransferCreateParams params = TransferCreateParams.builder()
+				    .setAmount(valor)  
+				    .setCurrency(CURRENCY)  
+				    .setSourceTransaction(paymentIntent.getLatestCharge())
+				    .setDestination(accountId)  
+				    .build();
+			
+		    Transfer transfer = Transfer.create(params);
+		    	return transfer;
+		} catch (Exception e) {
+			log.error("Erro ao criar uma transferência: " + e.getMessage());
+			throw new BusinessException("Erro ao criar uma transferência: " + e.getMessage());
+		}
+		
+	}
+
+	public PaymentIntent retrivePayment(String paymentId) {
+		
+		Stripe.apiKey = API_SECET_KEY;
+		
+		try {
+			
+			PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentId);
+
+			return paymentIntent;
+			
+		} catch (Exception e) {
+			log.error("Erro ao buscar pagamento: " + e.getMessage());
+			throw new BusinessException("Erro ao buscar pagamento: " + e.getMessage());
+		}
 	}
 	
 }

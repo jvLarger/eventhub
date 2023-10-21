@@ -2,6 +2,7 @@ package com.jlarger.eventhub.resources;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,9 +27,17 @@ public class FaturamentoResource {
 	}
 	
 	@PutMapping
-	public ResponseEntity<String> pagarFechamentosLiberados() {
+	public ResponseEntity<?> pagarFechamentosLiberados() {
 		
 		faturamentoService.pagarFechamentosLiberados();
+		
+		return ResponseEntity.noContent().build();
+	}
+	
+	@DeleteMapping
+	public ResponseEntity<?> removerConnectedAccount() {
+		
+		faturamentoService.removerConnectedAccount();
 		
 		return ResponseEntity.noContent().build();
 	}

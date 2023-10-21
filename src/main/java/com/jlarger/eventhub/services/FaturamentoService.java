@@ -141,6 +141,7 @@ public class FaturamentoService {
 	public FaturamentoPagamentoDTO buscarFaturamentos() {
 		
 		List<Faturamento> listaFaturamentos = faturamentoRepository.buscarFaturamentosPendentes(ServiceLocator.getUsuarioLogado().getId());
+		List<Faturamento> faturamentosPagos = faturamentoRepository.buscarFaturamentosPagos(ServiceLocator.getUsuarioLogado().getId());
 		List<Faturamento> proximosFaturamentos = new ArrayList<Faturamento>();
 		List<Faturamento> faturamentosLiberados = new ArrayList<Faturamento>();
 
@@ -176,6 +177,7 @@ public class FaturamentoService {
 		faturamentoPagamentoDTO.setValorTotalFaturadoFuturo(valorTotalFaturadoFuturo);
 		faturamentoPagamentoDTO.setProximosFaturamentos(proximosFaturamentos.stream().map(x -> new FaturamentoDTO(x)).collect(Collectors.toList()));
 		faturamentoPagamentoDTO.setFaturamentosLiberados(faturamentosLiberados.stream().map(x -> new FaturamentoDTO(x)).collect(Collectors.toList()));
+		faturamentoPagamentoDTO.setFaturamentosPagos(faturamentosPagos.stream().map(x -> new FaturamentoDTO(x)).collect(Collectors.toList()));
 		
 		buscarEPopularInformacoesContaBancariaTransferencia(faturamentoPagamentoDTO);
 		
@@ -292,5 +294,21 @@ public class FaturamentoService {
 		}
 		
 	}
+	
+	@Transactional
+	public void removerConnectedAccount() {
+		
+		Usuario usuarioLogado = usuarioService.getUsuarioLogado();
+		
+		if (usuarioLogado.getIdentificadorContaBancaria() != null && !usuarioLogado.getIdentificadorContaBancaria().trim().isEmpty()) {
+			
+		//	pagamentoService.deleteAccount(usuarioLogado.getIdentificadorContaBancaria());
+			
+			usuarioService.atualizarIdentificadorContaBancariaUsuarioLogado(null);
+			
+		}
+		
+	}
+	
 	
 }

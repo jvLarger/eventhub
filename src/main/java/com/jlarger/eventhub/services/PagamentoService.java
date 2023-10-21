@@ -97,5 +97,11 @@ public class PagamentoService {
 		
 		return paymentIntent;
 	}
+	
+	public void deleteAccount(String accountId) {
+		
+		stripeService.deleteAccount(accountId);
+		
+	}
 
 }

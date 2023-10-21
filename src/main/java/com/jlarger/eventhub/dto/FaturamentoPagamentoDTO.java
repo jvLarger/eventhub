@@ -20,6 +20,7 @@ public class FaturamentoPagamentoDTO implements Serializable {
 	private String linkConnectStripe;
 	private List<FaturamentoDTO> proximosFaturamentos = new ArrayList<FaturamentoDTO>();
 	private List<FaturamentoDTO> faturamentosLiberados = new ArrayList<FaturamentoDTO>();
+	private List<FaturamentoDTO> faturamentosPagos = new ArrayList<FaturamentoDTO>();
 
 	public FaturamentoPagamentoDTO() {
 	}
@@ -118,6 +119,14 @@ public class FaturamentoPagamentoDTO implements Serializable {
 
 	public void setLinkConnectStripe(String linkConnectStripe) {
 		this.linkConnectStripe = linkConnectStripe;
+	}
+
+	public List<FaturamentoDTO> getFaturamentosPagos() {
+		return faturamentosPagos;
+	}
+
+	public void setFaturamentosPagos(List<FaturamentoDTO> faturamentosPagos) {
+		this.faturamentosPagos = faturamentosPagos;
 	}
 
 }

@@ -184,6 +184,22 @@ public class StripeService {
 		}
 		
 	}
+	
+	public void deleteAccount(String accountId) {
+		
+		Stripe.apiKey = API_SECET_KEY;
+		
+		try {
+			
+			Account account =  getExternalAccount(accountId);
+			account.delete();
+			
+		} catch (Exception e) {
+			log.error("Erro ao criar uma transferência: " + e.getMessage());
+			throw new BusinessException("Erro ao criar uma transferência: " + e.getMessage());
+		}
+		
+	}
 
 	public PaymentIntent retrivePayment(String paymentId) {
 		

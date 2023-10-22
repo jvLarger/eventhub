@@ -175,9 +175,9 @@ public class FaturamentoService {
 		faturamentoPagamentoDTO.setValorTotalIngressosFuturo(valorTotalIngressosFuturo);
 		faturamentoPagamentoDTO.setValorTotalTaxasFuturo(valorTotalTaxasFuturo);
 		faturamentoPagamentoDTO.setValorTotalFaturadoFuturo(valorTotalFaturadoFuturo);
-		faturamentoPagamentoDTO.setProximosFaturamentos(proximosFaturamentos.stream().map(x -> new FaturamentoDTO(x)).collect(Collectors.toList()));
-		faturamentoPagamentoDTO.setFaturamentosLiberados(faturamentosLiberados.stream().map(x -> new FaturamentoDTO(x)).collect(Collectors.toList()));
-		faturamentoPagamentoDTO.setFaturamentosPagos(faturamentosPagos.stream().map(x -> new FaturamentoDTO(x)).collect(Collectors.toList()));
+		faturamentoPagamentoDTO.setProximosFaturamentos(proximosFaturamentos.stream().map(x -> new FaturamentoDTO(x, x.getEvento())).collect(Collectors.toList()));
+		faturamentoPagamentoDTO.setFaturamentosLiberados(faturamentosLiberados.stream().map(x -> new FaturamentoDTO(x, x.getEvento())).collect(Collectors.toList()));
+		faturamentoPagamentoDTO.setFaturamentosPagos(faturamentosPagos.stream().map(x -> new FaturamentoDTO(x, x.getEvento())).collect(Collectors.toList()));
 		
 		buscarEPopularInformacoesContaBancariaTransferencia(faturamentoPagamentoDTO);
 		

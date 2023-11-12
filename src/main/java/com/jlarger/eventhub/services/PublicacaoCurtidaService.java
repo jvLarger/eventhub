@@ -1,9 +1,11 @@
 package com.jlarger.eventhub.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -186,5 +188,41 @@ public class PublicacaoCurtidaService {
 		}
 		
 		return mapaPublicacoesQueCurti;
+	}
+	
+	@Transactional
+	public void curtirPublicacoes() {
+		
+		List<Usuario> listaUsuario = usuarioService.findAll();
+	
+		List<Publicacao> listaPublicacao = publicacaoRepository.findAll();
+		
+		for (Publicacao publicacao : listaPublicacao) {
+			
+			int numeroCurtidas = new Random().nextInt(0, listaUsuario.size() -1);
+			
+			List<Usuario> listaEmbaralhada = shuffleList(listaUsuario);
+			
+			for (int i = 0; i < numeroCurtidas; i++) {
+				
+				PublicacaoCurtida publicacaoCurtida = new PublicacaoCurtida();
+				publicacaoCurtida.setUsuario(listaEmbaralhada.get(i));
+				publicacaoCurtida.setPublicacao(publicacao);
+				
+				publicacaoCurtidaRepository.save(publicacaoCurtida);
+				
+			}
+		}
+		
+	}
+	
+	private List<Usuario> shuffleList(List<Usuario> listaUsuario) {
+		
+		List<Usuario> list = new ArrayList<>();
+		list.addAll(listaUsuario);
+		
+		Collections.shuffle(listaUsuario);
+
+		return listaUsuario;
 	}
 }

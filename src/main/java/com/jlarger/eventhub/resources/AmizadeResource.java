@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.services.AmizadeService;
+import com.jlarger.eventhub.utils.ServiceLocator;
 
 @RestController
 @RequestMapping(value = "api/amizades")
@@ -48,7 +49,7 @@ public class AmizadeResource {
 	@GetMapping
 	public ResponseEntity<List<UsuarioDTO>> buscarAmigos() {
 		
-		List<UsuarioDTO> listaUsuarioDTO = amizadeService.buscarAmigos();
+		List<UsuarioDTO> listaUsuarioDTO = amizadeService.buscarAmigos(ServiceLocator.getUsuarioLogado().getId());
 		
 		return ResponseEntity.ok().body(listaUsuarioDTO);
 	}

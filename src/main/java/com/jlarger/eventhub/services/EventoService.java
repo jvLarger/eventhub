@@ -477,10 +477,10 @@ public class EventoService {
 	@Transactional(readOnly = true)
 	public List<EventoDTO> buscarEventos(String nome, Double latitude, Double longitude, Double raio, String categorias, Date data, int pageNumber, int pageSize, Double valorInicial, Double valorFinal) {
 		
-		String sql = "SELECT e.* FROM test.evento e ";
+		String sql = "SELECT e.* FROM apresentacao.evento e ";
 		
 		if (categorias != null && !categorias.trim().isEmpty()) {
-			sql += "INNER JOIN test.evento_categoria ec ON ec.id_evento = e.id ";
+			sql += "INNER JOIN apresentacao.evento_categoria ec ON ec.id_evento = e.id ";
 		}
 				
 		sql += "WHERE earth_distance(ll_to_earth(:latitude, :longitude), ll_to_earth(e.latitude, e.longitude)) <= :raioKm * 1000 ";
@@ -677,7 +677,7 @@ public class EventoService {
 	@Transactional(readOnly = true)
 	private List<Evento> buscarEventosPopulares(Double latitude, Double longitude, Integer limit) {
 		
-		String sql = "SELECT e.* FROM test.evento e ";
+		String sql = "SELECT e.* FROM apresentacao.evento e ";
 		sql += "WHERE earth_distance(ll_to_earth(:latitude, :longitude), ll_to_earth(e.latitude, e.longitude)) <= 50 * 1000 ";
 		sql += "AND e.restrito = false ";
 		sql += "AND e.visivel = true ";

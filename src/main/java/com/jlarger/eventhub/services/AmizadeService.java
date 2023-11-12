@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -152,15 +153,15 @@ public class AmizadeService {
 	}
 	
 	@Transactional(readOnly = true)
-	public List<UsuarioDTO> buscarAmigos() {
+	public List<UsuarioDTO> buscarAmigos(Long idUsuario) {
 		
-		List<Amizade> listaAmizade = amizadeRepository.findAmizadeUsuario(ServiceLocator.getUsuarioLogado().getId());
+		List<Amizade> listaAmizade = amizadeRepository.findAmizadeUsuario(idUsuario);
 		
 		List<UsuarioDTO> listaUsuarioDTO = new ArrayList<UsuarioDTO>();
 		
 		for (Amizade amizade : listaAmizade) {
 			
-			if (amizade.getUsuario().getId().compareTo(ServiceLocator.getUsuarioLogado().getId()) != 0) {
+			if (amizade.getUsuario().getId().compareTo(idUsuario) != 0) {
 				listaUsuarioDTO.add(new UsuarioDTO(amizade.getUsuario()));
 			} else {
 				listaUsuarioDTO.add(new UsuarioDTO(amizade.getAmigo()));
@@ -179,6 +180,54 @@ public class AmizadeService {
 			return o1.getNomeCompleto().compareTo(o2.getNomeCompleto());
 		});
 		
+	}
+	
+	@Transactional
+	public void popularAmizades() {
+		
+		List<Usuario> listaUsuario = usuarioService.findAll();
+		
+		for (Usuario usuarioOrigem : listaUsuario) {
+			
+			int qtdAmizades = new Random().nextInt(0, listaUsuario.size() - 1);
+			
+			List<Usuario> listaEmbaralhada = shuffleList(listaUsuario);
+			
+			for (int i = 0; i < qtdAmizades; i++) {
+				
+				try {
+					
+					Usuario usuarioDestino = listaEmbaralhada.get(i);
+					
+					if (usuarioDestino.getId().compareTo(usuarioOrigem.getId()) != 0) {
+						
+						validarSeJaSaoAmigos(usuarioOrigem, usuarioDestino);
+						
+						Amizade amizade = new Amizade();
+						amizade.setAmigo(usuarioDestino);
+						amizade.setUsuario(usuarioOrigem);
+						
+						amizadeRepository.save(amizade);
+					}
+					
+				} catch (BusinessException e) {
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+
+	private List<Usuario> shuffleList(List<Usuario> listaUsuario) {
+		
+		List<Usuario> list = new ArrayList<>();
+		list.addAll(listaUsuario);
+		
+		Collections.shuffle(listaUsuario);
+
+		return listaUsuario;
 	}
 	
 }

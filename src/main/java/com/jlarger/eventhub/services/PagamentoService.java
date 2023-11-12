@@ -37,7 +37,7 @@ public class PagamentoService {
 
 	public Double calcularValorTaxaIngresso(Double valor) {
 		
-		Double valorTaxa = ((valor / 100.0) * 4.5) + 0.39;
+		Double valorTaxa = ((valor / 100.0) * 5.0) + 0.50;
 
 		return valorTaxa;
 	}

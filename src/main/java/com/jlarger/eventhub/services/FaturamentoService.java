@@ -59,7 +59,7 @@ public class FaturamentoService {
 		LocalDate localDate = new java.util.Date(evento.getData().getTime()).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
 		LocalDateTime localDateTime = localDate.atTime(evento.getHoraInicio());
 
-		LocalDateTime dataLiberacao = localDateTime.plusDays(10);
+		LocalDateTime dataLiberacao = localDateTime.plusDays(1);
 		
 		return dataLiberacao;
 	}

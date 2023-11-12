@@ -1,6 +1,7 @@
 package com.jlarger.eventhub.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -336,8 +337,25 @@ public class UsuarioService {
             usuarioDTO.setIsSolicitacaoAmizadePendente(mapaUsuariosComSolicitacaoPendente.containsKey(usuario.getId()));
             usuariosDTO.add(usuarioDTO);
         }
+		
+		ordernarUsuarios(usuariosDTO);
 
         return new PageImpl<>(usuariosDTO, pageable, usuariosPage.getTotalElements());
+	}
+
+	private void ordernarUsuarios(List<UsuarioDTO> listaUsuarioDTO) {
+
+		Collections.sort(listaUsuarioDTO, (o1, o2) -> {
+			
+			int comp = o1.getIsAmigo().compareTo(o2.getIsAmigo()) * -1;
+			
+			if (comp == 0) {
+				comp = o1.getNomeCompleto().compareTo(o2.getNomeCompleto());
+			}
+			
+			return comp;
+		});
+		
 	}
 
 	private HashMap<Long, Long> getMapaUsuariosComSolicitacaoPendente(List<Usuario> usuarios) {
@@ -407,5 +425,10 @@ public class UsuarioService {
 		
 		repository.save(usuario);
 		
+	}
+	
+	@Transactional(readOnly = true)
+	public List<Usuario> findAll() {
+		return repository.findAll();
 	}
 }

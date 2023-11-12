@@ -24,7 +24,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.jlarger.eventhub.dto.TokenDTO;
 import com.jlarger.eventhub.dto.UsuarioAutenticadoDTO;
 import com.jlarger.eventhub.dto.UsuarioDTO;
+import com.jlarger.eventhub.services.AmizadeService;
+import com.jlarger.eventhub.services.PublicacaoComentarioService;
+import com.jlarger.eventhub.services.PublicacaoCurtidaService;
 import com.jlarger.eventhub.services.TokenService;
+import com.jlarger.eventhub.services.UsuarioComentarioService;
 import com.jlarger.eventhub.services.UsuarioService;
 
 
@@ -35,6 +39,18 @@ public class PublicoResource {
 	
 	@Autowired
 	private UsuarioService usuarioService;
+	
+	@Autowired
+	private UsuarioComentarioService usuarioComentarioService;
+	
+	@Autowired
+	private AmizadeService amizadeService;
+	
+	@Autowired
+	private PublicacaoCurtidaService publicacaoCurtidaService;
+	
+	@Autowired
+	private PublicacaoComentarioService publicacaoComentarioService;
 	
 	@Autowired
 	private TokenService tokenService;
@@ -89,6 +105,39 @@ public class PublicoResource {
 		TokenDTO token = tokenService.enviarCodigoRecuperacao(tokenDTO);
 		
 		return ResponseEntity.ok().body(token);
+	}
+	
+	@PostMapping("/amizades")
+	public ResponseEntity<String> criarAmizades() {
+		
+		amizadeService.popularAmizades();
+		
+		return ResponseEntity.ok().body("foi");
+	}
+	
+	
+	@PostMapping("/curtidas")
+	public ResponseEntity<String> curtirPublicacoes() {
+		
+		publicacaoCurtidaService.curtirPublicacoes();
+		
+		return ResponseEntity.ok().body("foi");
+	}
+	
+	@PostMapping("/comentar-publicacoes")
+	public ResponseEntity<String> comentarPublicacoes() {
+		
+		publicacaoComentarioService.comentarPublicacoes();
+		
+		return ResponseEntity.ok().body("foi");
+	}
+	
+	@PostMapping("/comentar-usuario")
+	public ResponseEntity<String> comentarPerfil() {
+		
+		usuarioComentarioService.comentarPerfil();
+		
+		return ResponseEntity.ok().body("foi");
 	}
 	
 	@GetMapping("/validar-token/{codigo}/{email}")

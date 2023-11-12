@@ -26,11 +26,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 	@Query("SELECT u FROM Usuario u WHERE u.documentoPrincipal = :documentoPrincipal AND u.id <> :id")
 	Optional<Usuario> findByDocumentoPrincipalDifferentUsuario(String documentoPrincipal, Long id);
 
-	@Query("SELECT u FROM Usuario u LEFT JOIN Amizade a ON a.amigo = u "
-			+ "WHERE UPPER(u.nomeCompleto) LIKE CONCAT('%', UPPER(:nomeCompleto), '%') "
-			+ "AND (a.usuario = :usuarioLogado OR a.amigo = :usuarioLogado OR a IS NULL) "
-			+ " AND u <> :usuarioLogado "
-			+ "ORDER BY CASE WHEN a.usuario = :usuarioLogado THEN 0 ELSE 1 END, u.nomeCompleto")
-	Page<Usuario> buscarUsuariosPaginadosOrdenados(@Param("nomeCompleto") String nomeCompleto,
-			@Param("usuarioLogado") Usuario usuarioLogado, Pageable pageable);
+	@Query("SELECT u FROM Usuario u WHERE UPPER(u.nomeCompleto) LIKE CONCAT('%', UPPER(:nomeCompleto), '%') AND u <> :usuarioLogado ORDER BY u.nomeCompleto")
+	Page<Usuario> buscarUsuariosPaginadosOrdenados(@Param("nomeCompleto") String nomeCompleto, @Param("usuarioLogado") Usuario usuarioLogado, Pageable pageable);
 }

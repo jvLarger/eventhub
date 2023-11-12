@@ -57,7 +57,7 @@ public class CategoriaService {
 	@Transactional(readOnly = true)
 	public List<CategoriaDTO> buscarCategoriasMaisUtilizadas() {
 
-		String sql = "SELECT c.* FROM test.categoria c INNER JOIN test.evento_categoria ec ON c.id = ec.id_categoria GROUP BY c.nome, c.id ORDER BY COUNT(ec.id) DESC";
+		String sql = "SELECT c.* FROM apresentacao.categoria c INNER JOIN apresentacao.evento_categoria ec ON c.id = ec.id_categoria GROUP BY c.nome, c.id ORDER BY COUNT(ec.id) DESC";
 
 		Query query = entityManager.createNativeQuery(sql, Categoria.class);
 		query.setMaxResults(5);

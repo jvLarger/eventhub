@@ -25,6 +25,7 @@ import com.jlarger.eventhub.dto.TokenDTO;
 import com.jlarger.eventhub.dto.UsuarioAutenticadoDTO;
 import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.services.AmizadeService;
+import com.jlarger.eventhub.services.IngressoService;
 import com.jlarger.eventhub.services.PublicacaoComentarioService;
 import com.jlarger.eventhub.services.PublicacaoCurtidaService;
 import com.jlarger.eventhub.services.TokenService;
@@ -54,6 +55,9 @@ public class PublicoResource {
 	
 	@Autowired
 	private TokenService tokenService;
+	
+	@Autowired
+	private IngressoService ingressoService;
 	
 	@Value("${imagens.diretorio}")
     private String diretorioImagens;
@@ -128,6 +132,14 @@ public class PublicoResource {
 	public ResponseEntity<String> comentarPublicacoes() {
 		
 		publicacaoComentarioService.comentarPublicacoes();
+		
+		return ResponseEntity.ok().body("foi");
+	}
+	
+	@PostMapping("/vender-ingressos")
+	public ResponseEntity<String> venderIngressos() {
+		
+		ingressoService.venderIngressos();
 		
 		return ResponseEntity.ok().body("foi");
 	}

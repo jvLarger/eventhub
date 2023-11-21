@@ -3,9 +3,11 @@ package com.jlarger.eventhub.services;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import com.jlarger.eventhub.entities.Evento;
 import com.jlarger.eventhub.entities.EventoArquivo;
 import com.jlarger.eventhub.entities.Ingresso;
 import com.jlarger.eventhub.entities.Notificacao;
+import com.jlarger.eventhub.entities.PublicacaoComentario;
 import com.jlarger.eventhub.entities.Usuario;
 import com.jlarger.eventhub.entities.type.TipoNotificacao;
 import com.jlarger.eventhub.repositories.EventoRepository;
@@ -477,4 +480,62 @@ public class IngressoService {
 		
 	}
 	
+	@Transactional
+	public void venderIngressos() {
+		
+		List<Evento> listaEventos = eventoRepository.findAll();
+		
+		List<Usuario> listaUsuario = usuarioService.findAll();
+		
+		for (Evento evento : listaEventos) {
+			
+			List<Usuario> listaEmbaralhada = shuffleList(listaUsuario);
+			
+			int numeroIngressos = new Random().nextInt(1, 20);
+			
+			for (int i = 0; i < numeroIngressos; i++) {
+				
+				Ingresso ingresso = new Ingresso();
+				ingresso.setEvento(evento);
+				ingresso.setUsuario(listaEmbaralhada.get(i));
+				ingresso.setNome(listaEmbaralhada.get(i).getNomeCompleto().trim());
+				ingresso.setDocumentoPrincipal(Util.getSomenteNumeros(listaEmbaralhada.get(i).getDocumentoPrincipal()));
+				ingresso.setTelefone(Util.getSomenteNumeros(listaEmbaralhada.get(i).getTelefone()));
+				ingresso.setEmail(listaEmbaralhada.get(i).getEmail().trim());
+				ingresso.setDataComemorativa(listaEmbaralhada.get(i).getDataComemorativa());
+				ingresso.setValorTotalIngresso(evento.getValor());
+				ingresso.setValorTaxa(pagamentoService.calcularValorTaxaIngresso(evento.getValor()));
+				ingresso.setValorFaturamento(evento.getValor() - ingresso.getValorTaxa());
+				ingresso.setIdentificadorTransacaoPagamento(null);
+				ingresso.setIdentificadorIngresso("Aguardando identificador");
+				
+				ingresso = ingressoRepository.save(ingresso);
+
+				String identificadorIngresso = gerarIdentificadorIngresso(ingresso);
+				
+				Arquivo qrcode = arquivoService.gerarQrcode(identificadorIngresso);
+				
+				ingresso.setIdentificadorIngresso(identificadorIngresso);
+				ingresso.setQrcode(qrcode);
+				
+				ingresso = ingressoRepository.save(ingresso);
+				
+			}
+			
+			faturamentoService.atualizarValoresFaturamentoPorEvento(evento);
+			
+		}
+		
+	}
+	
+	
+	private List<Usuario> shuffleList(List<Usuario> listaUsuario) {
+		
+		List<Usuario> list = new ArrayList<>();
+		list.addAll(listaUsuario);
+		
+		Collections.shuffle(listaUsuario);
+
+		return listaUsuario;
+	}
 }

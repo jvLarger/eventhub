@@ -15,7 +15,6 @@ import com.jlarger.eventhub.dto.PushNotificationRequest;
 import com.jlarger.eventhub.dto.UsuarioComentarioDTO;
 import com.jlarger.eventhub.dto.UsuarioDTO;
 import com.jlarger.eventhub.entities.Notificacao;
-import com.jlarger.eventhub.entities.PublicacaoComentario;
 import com.jlarger.eventhub.entities.Usuario;
 import com.jlarger.eventhub.entities.UsuarioComentario;
 import com.jlarger.eventhub.entities.type.TipoNotificacao;

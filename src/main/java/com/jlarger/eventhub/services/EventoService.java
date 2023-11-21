@@ -570,7 +570,7 @@ public class EventoService {
 		String[] ids = categorias.split(",");
 		
 		for (String id : ids) {
-			listaIdCategoria.add(Long.parseLong(id));
+			listaIdCategoria.add(Long.parseLong(id.trim()));
 		}
 		
 		return listaIdCategoria;
